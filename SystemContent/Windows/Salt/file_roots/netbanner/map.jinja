@@ -1,0 +1,72 @@
+#Get the SYSTEMROOT value from the registry
+{% set systemroot = salt['reg.read_key']('HKEY_LOCAL_MACHINE', 'SOFTWARE\Microsoft\Windows NT\CurrentVersion', 'SystemRoot') %}
+
+#Set the SYSTEMDRIVE value to the first two characters of SYSTEMROOT, see http://msdn.microsoft.com/en-us/library/cc231436.aspx
+{% set systemdrive = systemroot|truncate(2, True, '') %}
+
+#Background Color Key
+### Black       = 6
+### Blue        = 2
+### Green       = 1
+### Orange      = 9
+### Purple      = 8
+### Red         = 3
+### SaddleBrown = 7
+### White       = 5
+### Yellow      = 4
+
+#Foreground (Text) Color Key
+### Black       = 1
+### Red         = 3
+### White       = 2
+
+#Define lookup dictionary of default banner settings for the known networks
+{% set network_lookup = { 
+    'Unclass' : { 'CustomBackgroundColor' : '1',
+                  'CustomDisplayText'     : 'UNCLASSIFIED',
+                  'CustomForeColor'       : '2',
+                  'CustomSettings'        : '1',
+                },
+    'NIPR'    : { 'CustomBackgroundColor' : '1',
+                  'CustomDisplayText'     : 'UNCLASSIFIED//FOUO',
+                  'CustomForeColor'       : '2',
+                  'CustomSettings'        : '1',
+                },
+    'SIPR'    : { 'CustomBackgroundColor' : '3',
+                  'CustomDisplayText'     : 'SECRET AND AUTHORIZED TO PROCESS NATO SECRET',
+                  'CustomForeColor'       : '2',
+                  'CustomSettings'        : '1',
+                },
+    'JWICS'   : { 'CustomBackgroundColor' : '4',
+                  'CustomDisplayText'     : 'TOPSECRET//SI/TK/NOFORN                  **G//HCS//NATO SECRET FOR APPROVED USERS IN SELECTED STORAGE SPACE**',
+                  'CustomForeColor'       : '2',
+                  'CustomSettings'        : '1',
+                },
+} %}
+
+{% set network = salt['pillar.get']('netbanner:lookup:network', salt['grains.get']('netbanner:network', 'Unclass')) %}
+{% set network_defaults = network_lookup.get(network, network_lookup['Unclass']) %}
+
+#Define lookup table with default settings
+{% set lookup = { 'version'     : '2.1.161',
+                  'admx_source' : 'salt://netbanner/netbannerfiles/netbanner.admx',
+                  'adml_source' : 'salt://netbanner/netbannerfiles/netbanner.adml',
+} %}
+
+#Merge lookup table with network_defaults
+{% do lookup.update(network_defaults) %}
+
+#Import user defined settings from pillar (if available)
+{% do lookup.update(salt['pillar.get']('netbanner:lookup')) %}
+
+#Define the lookup table to return to the netbanner state file
+{% set netbanner = { 'version'               : lookup['version'],
+                     'admx_source'           : lookup['admx_source'],
+                     'adml_source'           : lookup['adml_source'],
+                     'admx_name'             : systemroot + '\\PolicyDefinitions\\NetBanner.admx',
+                     'adml_name'             : systemroot + '\\PolicyDefinitions\\en-US\\NetBanner.adml',
+                     'CustomBackgroundColor' : lookup['CustomBackgroundColor'],
+                     'CustomDisplayText'     : lookup['CustomDisplayText'],
+                     'CustomForeColor'       : lookup['CustomForeColor'],
+                     'CustomSettings'        : lookup['CustomSettings'],
+} %}

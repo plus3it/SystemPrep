@@ -1,0 +1,34 @@
+<powershell>
+#User variables
+$SiteUrl = 'https://systemprep.s3.amazonaws.com'
+$ScriptFile = 'SystemPrep-WindowsMaster.ps1'
+$Role = "MemberServer"
+$Network = "Unclass"
+$States = "Highstate"
+$ScriptParams = "-Role ${Role} -Network ${Network} -States ${States}"
+
+#System variables
+$ScriptName = $MyInvocation.mycommand.name
+$SystemPrepDir = "${env:SystemDrive}\SystemPrep"
+$SystemPrepLogFile = "${SystemPrepDir}\SystemPrep-Log_$(get-date -format `"yyyyMMdd_HHmm_ss`").txt"
+
+function log {
+	[CmdLetBinding()]
+	Param(
+		[Parameter(Mandatory=$true,Position=0,ValueFromPipeLine=$true,ValueFromPipeLineByPropertyName=$true)] [string[]] $LogMessage
+	)
+	PROCESS {
+		#Writes the input $LogMessage to the log file $SystemPrepLogFile.
+		Add-Content -Path $SystemPrepLogFile -Value "$(get-date -format `"yyyyMMdd_HHmm_ss`"): ${ScriptName}: ${LogMessage}"
+	}
+}
+
+if (-Not (Test-Path $SystemPrepDir)) { New-Item -Path $SystemPrepDir -ItemType "directory" -Force 1>$null; log "Created SystemPrep directory -- ${SystemPrepDir}" } else { log "SystemPrep directory already exists -- $SystemPrepDir" }
+$ScriptUrl = "${SiteUrl}/MasterScripts/${ScriptFile}"
+$ScriptFullPath = "${SystemPrepDir}\${ScriptFile}"
+log "Downloading the SystemPrep script file -- ${ScriptUrl}"
+((new-object net.webclient).DownloadFile("${ScriptUrl}","${ScriptFullPath}") 2>&1) | log
+log "Running the SystemPrep script -- ${ScriptFullPath}"
+(Invoke-Expression "& ${ScriptFullPath} ${ScriptParams}" 2>&1) | log
+log "Exiting SystemPrep BootStrap script"
+</powershell>
