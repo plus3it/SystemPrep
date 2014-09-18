@@ -19,10 +19,14 @@ $ScriptEnd = "------------------------------------------------------------------
 $SaltWorkingDir = "${SystemPrepWorkingDir}\SystemContent\Windows\Salt"
 $PackageUrl = "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/salt-content.zip"
 $FormulasToInclude = @(
-                        "https://salt-formulas.s3.amazonaws.com/ash-windows-formula.zip"
+                        "https://salt-formulas.s3.amazonaws.com/ash-windows-formula-latest.zip"
                      ) #Array containing the full URL to each salt formula zip file to be included in the salt configuration.
                        #Enter new formulas on a new line, separating them from the previous URL with a comma.
 
+$FormulaTerminationStrings = "-latest" #Comma-separated list of strings
+                                       #If an included formula ends with a string in this list, the TerminationString will be removed from the formula name
+                                       #Intended to remove versioning information from the formula name
+                                       #For example, the formula 'ash-windows-formula-latest' will be renamed to 'ash-windows-formula'
 ###
 
 function log {
@@ -32,7 +36,7 @@ function log {
 	)
 	PROCESS {
 		#Writes the input $LogMessage to the output for capture by the bootstrap script.
-		Write-Output "${Scriptname}: $LogMessage"
+		Write-Output "${ScriptName}: $LogMessage"
 	}
 }
 
@@ -84,6 +88,13 @@ foreach ($Formula in $FormulasToInclude) {
     $FormulaFile = (${Formula}.split('/'))[-1]
     Download-File -Url $Formula -SaveTo "${SaltWorkingDir}\${FormulaFile}" | log
     Expand-ZipFile -FileName ${FormulaFile} -SourcePath ${SaltWorkingDir} -DestPath "${SaltWorkingDir}\formulas"
+}
+
+#If the formula directory ends in a string in $FormulaTerminationStrings, delete the string from the directory name
+$FormulaTerminationStrings = $FormulaTerminationStrings.split(',')
+$FormulaDirs = Get-ChildItem -Path "${SaltWorkingDir}\formulas" -Directory
+foreach ($FormulaDir in $FormulaDirs) {
+    $FormulaTerminationStrings | foreach { if ($FormulaDir.Name -match "${_}$") { mv $FormulaDir.FullName $FormulaDir.FullName.substring(0,$FormulaDir.FullName.length-$_.length) } }
 }
 
 $SaltInstaller = (Get-ChildItem "${SaltWorkingDir}" | where {$_.Name -like "Salt-Minion-*-Setup.exe"}).FullName
