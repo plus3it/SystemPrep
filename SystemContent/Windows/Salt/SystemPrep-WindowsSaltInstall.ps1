@@ -1,10 +1,40 @@
 [CmdLetBinding()]
 Param(
-	[Parameter(Mandatory=$false,Position=0,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] [string] $Role="None",
-    [Parameter(Mandatory=$false,Position=1,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] [string] $Network="Unclass",
-    [Parameter(Mandatory=$false,Position=2,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] [string] $States="None",
-    [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] [switch] $NoReboot
+    [Parameter(Mandatory=$false,Position=0,ValueFromRemainingArguments=$true)] 
+    $RemainingArgs
+    ,
+	[Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
+    [ValidateSet("None","MemberServer","DomainController")]
+    [string] $Role
+    ,
+    [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
+    [ValidateSet("None","Unclass","NIPR","SIPR","JWICS")]
+    [string] $Network
+    ,
+    [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] 
+    [string] $States
 )
+#Parameter Descriptions
+#$RemainingArgs       #Parameter that catches any undefined parameters passed to the script.
+                      #Used by the bootstrapping framework to pass those parameters through to other scripts. 
+                      #This way, we don't need to know in advance all the parameter names for downstream scripts.
+
+#$Role = "None"       #Writes a salt custom grain to the system, ash-windows:role. The role affects the security policies applied. Parameter key:
+                      #-- "None"             -- Does not write the custom grain to the system; ash-windows will default to the MemberServer security policy
+                      #-- "MemberServer"     -- Ash-windows applies the "MemberServer" security baseline
+                      #-- "DomainController" -- Ash-windows applies the "DomainController" security baseline
+                      #-- "Workstation"      -- Ash-windows applies the "Workstation" security baseline
+
+#$Network = "Unclass" #Writes a salt custom grain to the system, netbanner:network. Determines the NetBanner string and color configuration. Invalid values default back to "Unclass". Parameter key:
+                      #-- "Unclass" -- NetBanner Background color: Green,  Text color: White, String: "UNCLASSIFIED"
+                      #-- "NIPR"    -- NetBanner Background color: Green,  Text color: White, String: "UNCLASSIFIED//FOUO"
+                      #-- "SIPR"    -- NetBanner Background color: Red,    Text color: White, String: "SECRET AND AUTHORIZED TO PROCESS NATO SECRET"
+                      #-- "JWICS"   -- NetBanner Background color: Yellow, Text color: White, String: "TOPSECRET//SI/TK/NOFORN                  **G//HCS//NATO SECRET FOR APPROVED USERS IN SELECTED STORAGE SPACE**"
+
+#$States = "None"     #Comma-separated list of salt states. Listed states will be applied to the system. Parameter key:
+                      #-- "None"              -- Special keyword; will not apply any salt states
+                      #-- "Highstate"         -- Special keyword; applies the salt "highstate" as defined in the SystemPrep top.sls file
+                      #-- {user-defined-list} -- User may pass in a comma-separated list of salt states to apply to the system; state names are case-sensitive and must match exactly
 
 #System variables
 $ScriptName = $MyInvocation.mycommand.name
@@ -13,15 +43,20 @@ $SystemPrepWorkingDir = $SystemPrepDir+"\WorkingFiles" #Location on the system t
 $SystemRoot = $env:SystemRoot
 $ScriptStart = "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 $ScriptEnd = "--------------------------------------------------------------------------------"
+$RemainingArgsHash = $RemainingArgs | ForEach-Object -Begin { $index = 0; $hash = @{} } -Process { if ($_ -match "^-.*:$") { $hash[($_.trim("-",":"))] = $RemainingArgs[$index+1] }; $index++ } -End { Write-Output $hash }
 ###
 
 #User variables
 $SaltWorkingDir = "${SystemPrepWorkingDir}\SystemContent\Windows\Salt"
 $PackageUrl = "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/salt-content.zip"
 $FormulasToInclude = @(
-                        "https://salt-formulas.s3.amazonaws.com/ash-windows-formula-latest.zip"
-                     ) #Array containing the full URL to each salt formula zip file to be included in the salt configuration.
-                       #Enter new formulas on a new line, separating them from the previous URL with a comma.
+                        @{ 
+                            FormulaContentUrl = "https://salt-formulas.s3.amazonaws.com/ash-windows-formula-latest.zip" 
+                         }
+                     ) #Array of hashtables (key-value dictionaries). Each hash table has a single key, FormulaContentUrl.
+                       # -- FormulaContentUrl -- The full URL to each salt formula zip file to be included in the salt configuration.
+                       #Enter new formulas in a hashtable on a new line in the form @{ FormulaContentUrl = "https://my.host/myformula.zip" }
+                       #Formula content must be contained in a zip file.
 
 $FormulaTerminationStrings = "-latest" #Comma-separated list of strings
                                        #If an included formula ends with a string in this list, the TerminationString will be removed from the formula name
@@ -77,6 +112,9 @@ if (-Not (Test-Path $SystemPrepWorkingDir)) { New-Item -Path $SystemPrepWorkingD
 log $ScriptStart
 log "Within ${ScriptName} --"
 log "Role = ${Role}"
+log "Network = ${Network}"
+log "States = ${States}"
+log "RemainingArgsHash = $(($RemainingArgsHash.GetEnumerator() | % { `"-{0}: {1}`" -f $_.key, $_.value }) -join ' ')"
 
 #Insert script commands
 ###
@@ -85,8 +123,9 @@ Download-File -Url $PackageUrl -SaveTo "${SaltWorkingDir}\${PackageFile}" | log
 Expand-ZipFile -FileName ${PackageFile} -SourcePath ${SaltWorkingDir} -DestPath ${SaltWorkingDir}
 
 foreach ($Formula in $FormulasToInclude) {
-    $FormulaFile = (${Formula}.split('/'))[-1]
-    Download-File -Url $Formula -SaveTo "${SaltWorkingDir}\${FormulaFile}" | log
+    $FormulaContentUrl = $Formula["FormulaContentUrl"]
+    $FormulaFile = (${FormulaContentUrl}.split('/'))[-1]
+    Download-File -Url ${FormulaContentUrl} -SaveTo "${SaltWorkingDir}\${FormulaFile}" | log
     Expand-ZipFile -FileName ${FormulaFile} -SourcePath ${SaltWorkingDir} -DestPath "${SaltWorkingDir}\formulas"
 }
 

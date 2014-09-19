@@ -1,27 +1,14 @@
 [CmdLetBinding()]
 Param(
-	[Parameter(Mandatory=$false,Position=0,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] [string] $Role="None",
-    [Parameter(Mandatory=$false,Position=1,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] [string] $Network="Unclass",
-    [Parameter(Mandatory=$false,Position=2,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] [string] $States="None",
+    [Parameter(Mandatory=$false,Position=0,ValueFromRemainingArguments=$true)] $RemainingArgs,
     [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] [switch] $NoReboot
 )
-#Parameters
-#$Role = "None"       #Writes a salt custom grain to the system, ash-windows:role. The role affects the security policies applied. Parameter key:
-                      #-- "None"             -- Does not write the custom grain to the system; ash-windows will default to the MemberServer security policy
-                      #-- "MemberServer"     -- Ash-windows applies the "MemberServer" security baseline
-                      #-- "DomainController" -- Ash-windows applies the "DomainController" security baseline
-                      #-- "Workstation"      -- Ash-windows applies the "Workstation" security baseline
-
-#$Network = "Unclass" #Writes a salt custom grain to the system, netbanner:network. Determines the NetBanner string and color configuration. Invalid values default back to "Unclass". Parameter key:
-                      #-- "Unclass" -- NetBanner Background color: Green,  Text color: White, String: "UNCLASSIFIED"
-                      #-- "NIPR"    -- NetBanner Background color: Green,  Text color: White, String: "UNCLASSIFIED//FOUO"
-                      #-- "SIPR"    -- NetBanner Background color: Red,    Text color: White, String: "SECRET AND AUTHORIZED TO PROCESS NATO SECRET"
-                      #-- "JWICS"   -- NetBanner Background color: Yellow, Text color: White, String: "TOPSECRET//SI/TK/NOFORN                  **G//HCS//NATO SECRET FOR APPROVED USERS IN SELECTED STORAGE SPACE**"
-
-#$States = "None" #Comma-separated list that determines which salt states to apply to the system. Parameter key:
-                  #-- "None"              -- Special case; will not apply any salt state
-                  #-- "Highstate"         -- Special case; applies the salt "highstate" as defined in the SystemPrep top.sls file
-                  #-- {user-defined-list} -- User may pass in a comma-separated list of salt states to apply to the system; state names are case-sensitive and must match exactly
+#Parameter Descriptions
+#$RemainingArgs       #Parameter that catches any undefined parameters passed to the script.
+                      #Used by the bootstrapping framework to pass those parameters through to other scripts. 
+                      #This way, we don't need to know in advance all the parameter names for downstream scripts.
+                      
+#$NoReboot            #Switch to disable the system reboot. By default, the master script will reboot the system when the script is complete.
 
 #System variables
 $ScriptName = $MyInvocation.mycommand.name
@@ -29,14 +16,23 @@ $SystemPrepDir = "${env:SystemDrive}\SystemPrep"
 $SystemPrepWorkingDir = "${SystemPrepDir}\WorkingFiles" #Location on the system to download the bucket contents.
 $ScriptStart = "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 $ScriptEnd = "--------------------------------------------------------------------------------"
+$RemainingArgsHash = $RemainingArgs | ForEach-Object -Begin { $index = 0; $hash = @{} } -Process { if ($_ -match "^-.*:$") { $hash[($_.trim("-",":"))] = $RemainingArgs[$index+1] }; $index++ } -End { Write-Output $hash }
 
 #User variables
 $ScriptsToExecute = @(
-                        ,@("https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/SystemPrep-WindowsSaltInstall.ps1","-Role ${Role} -States ${States} -Network ${Network}")
-                     ) #Array of arrays containing the full URL to each script that will be executed, and the parameters to pass to that script. 
-                       #Scripts will be downloaded and executed in the order listed. Enter new scripts on a new line that begins with a comma. 
-                       #Separate the script and its parameters with a comma. Enclose the script url and the parameters in quotes. Wrap the new 
-                       #script and its parameters in @() to identify it as an array.
+                        @{
+                            ScriptUrl  = "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/SystemPrep-WindowsSaltInstall.ps1"
+                            Parameters = $RemainingArgsHash
+                         }
+                     ) #Array of hashtables (key-value dictionaries). Each hashtable has two keys, ScriptUrl and Parameters. 
+                       # -- ScriptUrl  -- The full path to the PowerShell script to download and execute.
+                       # -- Parameters -- Must be a hashtable of parameters to pass to the script. 
+                       #                  Use $RemainingArgsHash to inherit any unassigned parameters that are passed to the Master script.
+                       #To download and execute additional scripts, create a new hashtable for each script and place it on a new line
+                       #in the array.
+                       #Hastables are of the form @{ ScriptUrl = {https://your.host/your.script}; Parameters = {"-yourParam yourValue"}
+                       #Scripts must be written in PowerShell.
+                       #Scripts will be downloaded and executed in the order listed. 
 
 function log {
     [CmdLetBinding()]
@@ -69,6 +65,8 @@ if (-Not (Test-Path $SystemPrepWorkingDir)) { New-Item -Path $SystemPrepWorkingD
 #Create log entry to note the script name
 log $ScriptStart
 log "Within ${ScriptName} -- Beginning system preparation"
+log "NoReboot = ${NoReboot}"
+log "RemainingArgsHash = $(($RemainingArgsHash.GetEnumerator() | % { `"-{0}: {1}`" -f $_.key, $_.value }) -join ' ')"
 
 #Create an atlogon scheduled task to notify users that system customization is in progress
 log "Registering a scheduled task to notify users at logon that system customization is in progress"
@@ -87,14 +85,14 @@ if ($PSVersionTable.psversion.major -ge 4) {
 
 #Download and execute each script
 foreach ($ScriptObject in $ScriptsToExecute) {
-    $Script = $ScriptObject[0]
-    $ScriptParams = $ScriptObject[1]
+    $Script = $ScriptObject["ScriptUrl"]
+    $ScriptParams = $ScriptObject["Parameters"]
     $Split = $Script.split('/') | where { $_ -notlike "" }
     $RelativePath = $Split[2..($Split.count-1)] -join '\'
     $FullPath = "${SystemPrepWorkingDir}\$RelativePath"
     Download-File -Url $Script -SaveTo $FullPath 2>&1 | log
     log "Calling script -- ${FullPath}"
-    Invoke-Expression "& ${FullPath} ${ScriptParams}"
+    Invoke-Expression "& ${FullPath} @ScriptParams"
 }
 
 log "Removing the scheduled task notifying users at logon of system customization"
