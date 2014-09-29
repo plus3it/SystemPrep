@@ -7,9 +7,11 @@ Param(
     [string] $SaltWorkingDir
     ,
 	[Parameter(Mandatory=$true,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
+    [ValidateScript({ $_ -match "^http[s]?://.*\.zip$" })]
     [string] $SaltContentUrl
     ,
 	[Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
+    [ValidateScript({ $_ -match "^http[s]?://.*\.zip$" })]
     [string[]] $FormulasToInclude
     ,
 	[Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
@@ -34,7 +36,7 @@ Param(
 #$SaltWorkingDir      #Fully-qualified path to a directory that will be used as a staging location for download and unzip salt content
                       #specified in $SaltContentUrl and any formulas in $FormulasToInclude
 
-#$SaltContentUrl      #Url that contains the salt installer executable and the files_root salt content
+#$SaltContentUrl      #Url to a zip file containing the salt installer executable and the files_root salt content
 
 #$FormulasToInclude   #Array of strings, where each string is the url of a zipped salt formula to be included in the salt configuration.
                       #Formula content *must* be contained in a zip file.
@@ -70,7 +72,6 @@ $RemainingArgsHash = $RemainingArgs | ForEach-Object -Begin { $index = 0; $hash 
 ###
 
 #User variables
-$FormulaTerminationStrings = "-latest" 
 ###
 
 function log {
@@ -119,6 +120,10 @@ if (-Not (Test-Path $SaltWorkingDir)) { New-Item -Path $SaltWorkingDir -ItemType
 #Create log entry to note the script that is executing
 log $ScriptStart
 log "Within ${ScriptName} --"
+log "SaltWorkingDir = ${SaltWorkingDir}"
+log "SaltContentUrl = ${SaltContentUrl}"
+log "FormulasToInclude = ${FormulasToInclude}"
+log "FormulaTerminationStrings = ${FormulaTerminationStrings}"
 log "AshRole = ${AshRole}"
 log "NetBannerString = ${NetBannerString}"
 log "SaltStates = ${SaltStates}"
@@ -160,35 +165,87 @@ mv "${SaltWorkingDir}\file_roots" "${SaltBase}" -Force
 log "Populating salt formulas"
 mv "${SaltWorkingDir}\formulas" "${SaltBase}" -Force
 
-#Construct a string of all the Formula directories to include in the minion conf file
-$FormulaFileRootConf = ((Get-ChildItem ${SaltFormulaRoot} -Directory) | ForEach-Object { "    - " + $(${_}.fullname) + "`r`n" }) -join ''
-
 log "Setting salt-minion configuration to local mode"
 cp $MinionConf "${MinionConf}.bak"
+#get the contents of the minion's conf file
+$MinionConfContent = Get-Content $MinionConf
 #set file_client: to "local"
-(Get-Content $MinionConf) | ForEach-Object {$_ -replace "^#file_client: remote","file_client: local"} | Set-Content $MinionConf
+$MinionConfContent = $MinionConfContent | ForEach-Object {$_ -replace "^#file_client: remote","file_client: local"}
 #set win_repo_cachfile: to ${SaltWinRepo}\winrepo.p AND set win_repo: to ${SaltWinRepo}
-(Get-Content $MinionConf) | ForEach-Object {$_ -replace "^# win_repo_cachefile: 'salt://win/repo/winrepo.p'","win_repo_cachefile: '${SaltWinRepo}\winrepo.p'`r`nwin_repo: '${SaltWinRepo}'"} | Set-Content $MinionConf
-#set file_roots: base: to ${SaltFileRoot} and ${SaltFormulaRoot}
-(Get-Content $MinionConf -raw) -replace '(?mi)(.*)^# Default:[\r\n]+#file_roots:[\r\n]+#  base:[\r\n]+#    - /srv/salt(.*)', "$1# Default:`r`nfile_roots:`r`n  base:`r`n    - ${SaltFileRoot}`r`n$FormulaFileRootConf$2" | Set-Content $MinionConf
+$MinionConfContent = $MinionConfContent | ForEach-Object {$_ -replace "^# win_repo_cachefile: 'salt://win/repo/winrepo.p'","win_repo_cachefile: '${SaltWinRepo}\winrepo.p'`r`nwin_repo: '${SaltWinRepo}'"}
+#Construct an array of all the Formula directories to include in the minion conf file
+$FormulaFileRootConf = (Get-ChildItem ${SaltFormulaRoot} -Directory) | ForEach-Object { "    - " + $(${_}.fullname) }
+#Construct the contents for the file_roots section of the minion conf file
+$SaltFileRootConf = @()
+$SaltFileRootConf += "file_roots:"
+$SaltFileRootConf += "  base:"
+$SaltFileRootConf += "    - ${SaltFileRoot}"
+$SaltFileRootConf += $FormulaFileRootConf
+$SaltFileRootConf += ""
+
+#Regex strings to mark the beginning and end of the file_roots section
+$FilerootsBegin = "^#file_roots:|^file_roots:"
+$FilerootsEnd = "^$"
+
+#Find the file_roots section in the minion conf file and replace it with the new configuration in $SaltFileRootConf
+$MinionConfContent | foreach -Begin { 
+    $n=0; $beginindex=$null; $endindex=$null 
+} -Process { 
+    if ($_ -match "$FilerootsBegin") { 
+        $beginindex = $n 
+    }
+    if ($beginindex -and -not $endindex -and $_ -match "$FilerootsEnd") { 
+        $endindex = $n 
+    }
+    $n++ 
+} -End { 
+    $MinionConfContent = $MinionConfContent[0..($beginindex-1)] + $SaltFileRootConf + $MinionConfContent[($endindex+1)..$MinionConfContent.Length]
+}
 
 #Write custom grains to the salt configuration file
-if ($AshRole -ne "None") {
-    log "Writing the Ash role to a grain in the salt configuration file"
-    if ( (Get-Content $MinionConf -raw) -match '(?mi)(ash-windows:.*[\r\n]+    role:)' ) {
-        (Get-Content $MinionConf -raw) -replace '(?mi)(.*)  ash-windows:.*[\r\n]+    role:(.*)', "${1}  ash-windows:`r`n    role: ${AshRole}${2}" | Set-Content $MinionConf
-    } else {
-        (Get-Content $MinionConf -raw) -replace '(?mi)(.*)grains:(.*)', "${1}grains:`r`n  ash-windows:`r`n    role: ${AshRole}`r`n${2}" | Set-Content $MinionConf
+if ( ($AshRole -ne "None") -or ($NetBannerString -ne "None") ) {
+    $CustomGrainsContent = @()
+    $CustomGrainsContent += "grains:"
+
+    if ($AshRole -ne "None") {
+        log "Writing the Ash role to a grain in the salt configuration file"
+        $AshRoleCustomGrain = @()
+        $AshRoleCustomGrain += "  ash-windows:"
+        $AshRoleCustomGrain += "    role: ${AshRole}"
+    }
+    if ($NetBannerString -ne "None") {
+        log "Writing the NetBanner string to a grain in the salt configuration file"
+        $NetBannerStringCustomGrain = @()
+        $NetBannerStringCustomGrain += "  netbanner:"
+        $NetBannerStringCustomGrain += "    string: ${NetBannerString}"
+    }
+
+    $CustomGrainsContent += $AshRoleCustomGrain
+    $CustomGrainsContent += $NetBannerStringCustomGrain
+    $CustomGrainsContent += ""
+
+    #Regex strings to mark the beginning and end of the custom grains section
+    $CustomGrainsBegin = "^#grains:|^grains:"
+    $CustomGrainsEnd = "^$"
+
+    #Find the custom grains section in the minion conf file and replace it with the new configuration in $CustomGrainsContent
+    $MinionConfContent | foreach -Begin { 
+        $n=0; $beginindex=$null; $endindex=$null 
+    } -Process { 
+        if ($_ -match "$CustomGrainsBegin") { 
+            $beginindex = $n 
+        }
+        if ($beginindex -and -not $endindex -and $_ -match "$CustomGrainsEnd") { 
+            $endindex = $n 
+        }
+        $n++ 
+    } -End { 
+        $MinionConfContent = $MinionConfContent[0..($beginindex-1)] + $CustomGrainsContent + $MinionConfContent[($endindex+1)..$MinionConfContent.Length]
     }
 }
-if ($NetBannerString -ne "None") {
-    log "Writing the NetBanner string to a grain in the salt configuration file"
-    if ( (Get-Content $MinionConf -raw) -match '(?mi)(netbanner:.*[\r\n]+    string:)' ) {
-        (Get-Content $MinionConf -raw) -replace '(?mi)(.*)  netbanner:.*[\r\n]+    string:(.*)', "${1}  netbanner:`r`n    string: ${NetBannerString}${2}" | Set-Content $MinionConf
-    } else  {
-        (Get-Content $MinionConf -raw) -replace '(?mi)(.*)grains:(.*)', "${1}grains:`r`n  netbanner:`r`n    string: ${NetBannerString}${2}" | Set-Content $MinionConf
-    }
-}
+
+#Write the updated minion conf file to disk
+$MinionConfContent | Set-Content $MinionConf
 
 log "Generating salt winrepo cachefile"
 $GenRepoResult = Start-Process $MinionExe -ArgumentList "--local winrepo.genrepo" -NoNewWindow -PassThru -Wait
