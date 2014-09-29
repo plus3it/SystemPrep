@@ -5,33 +5,33 @@ Param(
     ,
 	[Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
     [ValidateSet("None","MemberServer","DomainController")]
-    [string] $Role
+    [string] $AshRole
     ,
     [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
     [ValidateSet("None","Unclass","NIPR","SIPR","JWICS")]
-    [string] $Network
+    [string] $NetBannerString
     ,
     [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] 
-    [string] $States
+    [string] $SaltStates
 )
 #Parameter Descriptions
 #$RemainingArgs       #Parameter that catches any undefined parameters passed to the script.
                       #Used by the bootstrapping framework to pass those parameters through to other scripts. 
-                      #This way, we don't need to know in advance all the parameter names for downstream scripts.
+                      #This way, we don't need to know in the master script all the parameter names for downstream scripts.
 
-#$Role = "None"       #Writes a salt custom grain to the system, ash-windows:role. The role affects the security policies applied. Parameter key:
+#$AshRole = "None"    #Writes a salt custom grain to the system, ash-windows:role. The role affects the security policies applied. Parameter key:
                       #-- "None"             -- Does not write the custom grain to the system; ash-windows will default to the MemberServer security policy
                       #-- "MemberServer"     -- Ash-windows applies the "MemberServer" security baseline
                       #-- "DomainController" -- Ash-windows applies the "DomainController" security baseline
                       #-- "Workstation"      -- Ash-windows applies the "Workstation" security baseline
 
-#$Network = "Unclass" #Writes a salt custom grain to the system, netbanner:network. Determines the NetBanner string and color configuration. Invalid values default back to "Unclass". Parameter key:
-                      #-- "Unclass" -- NetBanner Background color: Green,  Text color: White, String: "UNCLASSIFIED"
-                      #-- "NIPR"    -- NetBanner Background color: Green,  Text color: White, String: "UNCLASSIFIED//FOUO"
-                      #-- "SIPR"    -- NetBanner Background color: Red,    Text color: White, String: "SECRET AND AUTHORIZED TO PROCESS NATO SECRET"
-                      #-- "JWICS"   -- NetBanner Background color: Yellow, Text color: White, String: "TOPSECRET//SI/TK/NOFORN                  **G//HCS//NATO SECRET FOR APPROVED USERS IN SELECTED STORAGE SPACE**"
+#$NetBannerString = "Unclass" #Writes a salt custom grain to the system, netbanner:network. Determines the NetBanner string and color configuration. Invalid values default back to "Unclass". Parameter key:
+                              #-- "Unclass" -- NetBanner Background color: Green,  Text color: White, String: "UNCLASSIFIED"
+                              #-- "NIPR"    -- NetBanner Background color: Green,  Text color: White, String: "UNCLASSIFIED//FOUO"
+                              #-- "SIPR"    -- NetBanner Background color: Red,    Text color: White, String: "SECRET AND AUTHORIZED TO PROCESS NATO SECRET"
+                              #-- "JWICS"   -- NetBanner Background color: Yellow, Text color: White, String: "TOPSECRET//SI/TK/NOFORN                  **G//HCS//NATO SECRET FOR APPROVED USERS IN SELECTED STORAGE SPACE**"
 
-#$States = "None"     #Comma-separated list of salt states. Listed states will be applied to the system. Parameter key:
+#$SaltStates = "None" #Comma-separated list of salt states. Listed states will be applied to the system. Parameter key:
                       #-- "None"              -- Special keyword; will not apply any salt states
                       #-- "Highstate"         -- Special keyword; applies the salt "highstate" as defined in the SystemPrep top.sls file
                       #-- {user-defined-list} -- User may pass in a comma-separated list of salt states to apply to the system; state names are case-sensitive and must match exactly
@@ -58,7 +58,7 @@ $FormulasToInclude = @(
                        #Enter new formulas in a hashtable on a new line in the form @{ FormulaContentUrl = "https://my.host/myformula.zip" }
                        #Formula content must be contained in a zip file.
 
-$FormulaTerminationStrings = "-latest" #Comma-separated list of strings
+$FormulaTerminationStrings = "-latest" #Array of strings
                                        #If an included formula ends with a string in this list, the TerminationString will be removed from the formula name
                                        #Intended to remove versioning information from the formula name
                                        #For example, the formula 'ash-windows-formula-latest' will be renamed to 'ash-windows-formula'
@@ -111,9 +111,9 @@ if (-Not (Test-Path $SystemPrepWorkingDir)) { New-Item -Path $SystemPrepWorkingD
 #Create log entry to note the script that is executing
 log $ScriptStart
 log "Within ${ScriptName} --"
-log "Role = ${Role}"
-log "Network = ${Network}"
-log "States = ${States}"
+log "AshRole = ${AshRole}"
+log "NetBannerString = ${NetBannerString}"
+log "SaltStates = ${SaltStates}"
 log "RemainingArgsHash = $(($RemainingArgsHash.GetEnumerator() | % { `"-{0}: {1}`" -f $_.key, $_.value }) -join ' ')"
 
 #Insert script commands
@@ -166,14 +166,14 @@ cp $MinionConf "${MinionConf}.bak"
 (Get-Content $MinionConf -raw) -replace '(?mi)(.*)^# Default:[\r\n]+#file_roots:[\r\n]+#  base:[\r\n]+#    - /srv/salt(.*)', "$1# Default:`r`nfile_roots:`r`n  base:`r`n    - ${SaltFileRoot}`r`n$FormulaFileRootConf$2" | Set-Content $MinionConf
 
 #Write custom grains to the salt configuration file
-if ($Role -ne "None") {
+if ($AshRole -ne "None") {
     log "Writing the server role to a grain in the salt configuration file"
-    (Get-Content $MinionConf -raw) -replace '(?mi)(.*)grains:(.*)', "${1}grains:`r`n  ash-windows:`r`n    role: ${Role}`r`n`r`n${2}" | Set-Content $MinionConf
+    (Get-Content $MinionConf -raw) -replace '(?mi)(.*)grains:(.*)', "${1}grains:`r`n  ash-windows:`r`n    role: ${AshRole}`r`n`r`n${2}" | Set-Content $MinionConf
     (Get-Content $MinionConf -raw) -replace '(?mi)(.*)^#grains:(.*)', "${1}grains:`r`n${2}" | Set-Content $MinionConf
 }
-if ($Network -ne "None") {
+if ($NetBannerString -ne "None") {
     log "Writing the network to a grain in the salt configuration file"
-    (Get-Content $MinionConf -raw) -replace '(?mi)(.*)grains:(.*)', "${1}grains:`r`n  netbanner:`r`n    network: ${Network}`r`n${2}" | Set-Content $MinionConf
+    (Get-Content $MinionConf -raw) -replace '(?mi)(.*)grains:(.*)', "${1}grains:`r`n  netbanner:`r`n    network: ${NetBannerString}`r`n${2}" | Set-Content $MinionConf
     (Get-Content $MinionConf -raw) -replace '(?mi)(.*)^#grains:(.*)', "${1}grains:`r`n${2}" | Set-Content $MinionConf
 }
 
@@ -183,14 +183,14 @@ $GenRepoResult = Start-Process $MinionExe -ArgumentList "--local winrepo.genrepo
 log "Restarting salt-minion service"
 (Get-Service -name $MinionService) | Stop-Service -PassThru | Start-Service
 
-if ($States -eq "None") {
-    log "Detected the States parameter is set to: ${States}. Will not apply any salt states."
-} elseif ($States -eq "Highstate") {
-    log "Detected the States parameter is set to: ${States}. Applying the salt `"highstate`" to the system."
+if ("None" -eq $SaltStates) {
+    log "Detected the States parameter is set to: ${SaltStates}. Will not apply any salt states."
+} elseif ("Highstate" -eq $SaltStates ) {
+    log "Detected the States parameter is set to: ${SaltStates}. Applying the salt `"highstate`" to the system."
     $ApplyStatesResult = Start-Process $MinionExe -ArgumentList "--local state.highstate" -NoNewWindow -PassThru -Wait
 } else {
-    log "Detected the States parameter is set to: ${States}. Applying the user-defined list of states to the system."
-    $ApplyStatesResult = Start-Process $MinionExe -ArgumentList "--local state.sls ${States}" -NoNewWindow -PassThru -Wait
+    log "Detected the States parameter is set to: ${SaltStates}. Applying the user-defined list of states to the system."
+    $ApplyStatesResult = Start-Process $MinionExe -ArgumentList "--local state.sls ${SaltStates}" -NoNewWindow -PassThru -Wait
 }
 ###
 
