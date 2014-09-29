@@ -18,21 +18,50 @@ $ScriptStart = "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 $ScriptEnd = "--------------------------------------------------------------------------------"
 $RemainingArgsHash = $RemainingArgs | ForEach-Object -Begin { $index = 0; $hash = @{} } -Process { if ($_ -match "^-.*:$") { $hash[($_.trim("-",":"))] = $RemainingArgs[$index+1] }; $index++ } -End { Write-Output $hash }
 
-#User variables
-$ScriptsToExecute = @(
-                        @{
-                            ScriptUrl  = "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/SystemPrep-WindowsSaltInstall.ps1"
-                            Parameters = $RemainingArgsHash
-                         }
-                     ) #Array of hashtables (key-value dictionaries). Each hashtable has two keys, ScriptUrl and Parameters. 
-                       # -- ScriptUrl  -- The full path to the PowerShell script to download and execute.
-                       # -- Parameters -- Must be a hashtable of parameters to pass to the script. 
-                       #                  Use $RemainingArgsHash to inherit any unassigned parameters that are passed to the Master script.
-                       #To download and execute additional scripts, create a new hashtable for each script and place it on a new line
-                       #in the array.
-                       #Hastables are of the form @{ ScriptUrl = {https://your.host/your.script}; Parameters = {"-yourParam yourValue"}
-                       #Scripts must be written in PowerShell.
-                       #Scripts will be downloaded and executed in the order listed. 
+Function Join-Hashtables {
+#credit http://powershell.org/wp/2013/01/23/join-powershell-hash-tables/
+    [CmdLetBinding()]
+    Param (
+    [hashtable]$First, 
+    [hashtable]$Second, 
+    [switch]$Force
+    )
+
+    #create clones of hashtables so originals are not modified
+    $Primary = $First.Clone()
+    $Secondary = $Second.Clone()
+
+    #check for any duplicate keys
+    $duplicates = $Primary.keys | where {$Secondary.ContainsKey($_)}
+    if ($duplicates) {
+        foreach ($item in $duplicates) {
+            if ($force) {
+                #force primary key, so remove secondary conflict
+                $Secondary.Remove($item)
+            }
+            else {
+                Write-Host "Duplicate key $item" -ForegroundColor Yellow
+                Write-Host "A $($Primary.Item($item))" -ForegroundColor Yellow
+                Write-host "B $($Secondary.Item($item))" -ForegroundColor Yellow
+                $r = Read-Host "Which key do you want to KEEP [AB]?"
+                if ($r -eq "A") {
+                    $Secondary.Remove($item)
+                }
+                elseif ($r -eq "B") {
+                    $Primary.Remove($item)
+                }
+                Else {
+                    Write-Warning "Aborting operation"
+                    Return 
+                }
+            } #else prompt
+       }
+    }
+
+    #join the two hash tables
+    $Primary+$Secondary
+
+} #end Join-Hashtable
 
 function log {
     [CmdLetBinding()]
@@ -57,6 +86,36 @@ function Download-File {
         (new-object net.webclient).DownloadFile("${Url}","${SaveTo}") 2>&1 | log
     }
 }
+
+#User variables
+$ScriptsToExecute = @(
+                        @{
+                            ScriptUrl  = "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/SystemPrep-WindowsSaltInstall.ps1"
+                            Parameters = $(Join-Hashtables $RemainingArgsHash 
+                                                           @{ 
+                                                              SaltWorkingDir = "${SystemPrepWorkingDir}\SystemContent\Windows\Salt" 
+                                                              SaltContentUrl = "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/salt-content.zip" 
+                                                              FormulasToInclude = @(
+                                                                                    "https://salt-formulas.s3.amazonaws.com/ash-windows-formula-latest.zip" 
+                                                                                   )
+                                                              FormulaTerminationStrings = @( "-latest" )
+                                                              AshRole = "MemberServer"
+                                                              NetBannerString = "Unclass"
+                                                              SaltStates = "Highstate"
+                                                            } 
+                                                           -Force 
+                                          )
+                         }
+                     ) #Array of hashtables (key-value dictionaries). Each hashtable has two keys, ScriptUrl and Parameters. 
+                       # -- ScriptUrl  -- The full path to the PowerShell script to download and execute.
+                       # -- Parameters -- Must be a hashtable of parameters to pass to the script. 
+                       #                  Use $RemainingArgsHash to inherit any unassigned parameters that are passed to the Master script.
+                       #                  Use `Join-Hashtables $firsthash $secondhash -Force` to merge two hash tables (first overrides duplicate keys in second)
+                       #To download and execute additional scripts, create a new hashtable for each script and place it on a new line
+                       #in the array.
+                       #Hastables are of the form @{ ScriptUrl = "https://your.host/your.script"; Parameters = @{yourParam = "yourValue"} }
+                       #Scripts must be written in PowerShell.
+                       #Scripts will be downloaded and executed in the order listed. 
 
 #Make sure the system prep and working directories exist
 if (-Not (Test-Path $SystemPrepDir)) { New-Item -Path $SystemPrepDir -ItemType "directory" -Force 1>$null; log "Created SystemPrep directory -- ${SystemPrepDir}" } else { log "SystemPrep directory already exists -- $SystemPrepDir" }

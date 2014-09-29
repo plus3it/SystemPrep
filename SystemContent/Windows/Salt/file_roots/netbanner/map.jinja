@@ -20,8 +20,8 @@
 ### Red         = 3
 ### White       = 2
 
-#Define lookup dictionary of default banner settings for the known networks
-{% set network_lookup = { 
+#Define lookup dictionary of default banner settings for the known strings
+{% set string_lookup = { 
     'Unclass' : { 'CustomBackgroundColor' : '1',
                   'CustomDisplayText'     : 'UNCLASSIFIED',
                   'CustomForeColor'       : '2',
@@ -44,8 +44,8 @@
                 },
 } %}
 
-{% set network = salt['pillar.get']('netbanner:lookup:network', salt['grains.get']('netbanner:network', 'Unclass')) %}
-{% set network_defaults = network_lookup.get(network, network_lookup['Unclass']) %}
+{% set netstring = salt['pillar.get']('netbanner:lookup:string', salt['grains.get']('netbanner:string', 'Unclass')) %}
+{% set string_defaults = string_lookup.get(netstring, string_lookup['Unclass']) %}
 
 #Define lookup table with default settings
 {% set lookup = { 'version'     : '2.1.161',
@@ -53,8 +53,8 @@
                   'adml_source' : 'salt://netbanner/netbannerfiles/netbanner.adml',
 } %}
 
-#Merge lookup table with network_defaults
-{% do lookup.update(network_defaults) %}
+#Merge lookup table with string_defaults
+{% do lookup.update(string_defaults) %}
 
 #Import user defined settings from pillar (if available)
 {% do lookup.update(salt['pillar.get']('netbanner:lookup')) %}
