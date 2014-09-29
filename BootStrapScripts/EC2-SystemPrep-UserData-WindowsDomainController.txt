@@ -1,11 +1,10 @@
 <powershell>
 #User variables
-$SystemPrepWebHost = 'https://systemprep.s3.amazonaws.com'
-$SystemPrepMasterScript = 'SystemPrep-WindowsMaster.ps1'
+$SystemPrepMasterScriptUrl = 'https://systemprep.s3.amazonaws.com/MasterScripts/SystemPrep-WindowsMaster.ps1'
 $SystemPrepParams = @{
-    Role = "DomainController"
-    Network = "Unclass"
-    States = "Highstate"
+    AshRole = "DomainController"
+    NetBannerString = "Unclass"
+    SaltStates = "Highstate"
     NoReboot = $false
 }
 
@@ -27,10 +26,10 @@ function log {
 }
 
 if (-Not (Test-Path $SystemPrepDir)) { New-Item -Path $SystemPrepDir -ItemType "directory" -Force 1>$null; log "Created SystemPrep directory -- ${SystemPrepDir}" } else { log "SystemPrep directory already exists -- $SystemPrepDir" }
-$ScriptUrl = "${SystemPrepWebHost}/MasterScripts/${SystemPrepMasterScript}"
-$ScriptFullPath = "${SystemPrepDir}\${SystemPrepMasterScript}"
-log "Downloading the SystemPrep script file -- ${ScriptUrl}"
-((new-object net.webclient).DownloadFile("${ScriptUrl}","${ScriptFullPath}") 2>&1) | log
+$ScriptFileName = (${SystemPrepMasterScriptUrl}.split('/'))[-1]
+$ScriptFullPath = "${SystemPrepDir}\${ScriptFileName}"
+log "Downloading the SystemPrep script file -- ${SystemPrepMasterScriptUrl}"
+((new-object net.webclient).DownloadFile("${SystemPrepMasterScriptUrl}","${ScriptFullPath}") 2>&1) | log
 log "Running the SystemPrep script -- ${ScriptFullPath}"
 (Invoke-Expression "& ${ScriptFullPath} @SystemPrepParams" 2>&1) | log
 log "Exiting SystemPrep BootStrap script"
