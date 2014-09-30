@@ -23,3 +23,5 @@ curl -O -s ${SYSTEMPREPMASTERSCRIPTURL}
 
 echo "Running the SystemPrep script -- ${SCRIPTFULLPATH}" >> ${LOGFILE}
 sh ${SCRIPTFULLPATH}
+
+echo "Exiting SystemPrep BootStrap script" >> ${LOGFILE}
