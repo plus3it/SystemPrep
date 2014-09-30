@@ -1,8 +1,7 @@
-<powershell>
 #User variables
 $SystemPrepMasterScriptUrl = 'https://systemprep.s3.amazonaws.com/MasterScripts/SystemPrep-WindowsMaster.ps1'
 $SystemPrepParams = @{
-    AshRole = "MemberServer"
+    AshRole = "Workstation"
     NetBannerString = "Unclass"
     SaltStates = "Highstate"
     NoReboot = $false
@@ -33,4 +32,3 @@ log "Downloading the SystemPrep script file -- ${SystemPrepMasterScriptUrl}"
 log "Running the SystemPrep script -- ${ScriptFullPath}"
 (Invoke-Expression "& ${ScriptFullPath} @SystemPrepParams" 2>&1) | log
 log "Exiting SystemPrep BootStrap script"
-</powershell>
