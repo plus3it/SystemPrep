@@ -5,6 +5,24 @@ set -ex
 #Master Script that calls subscripts to be deployed to new Linux VMs
 ####################################################################################
 
-if [[ -e /var/run/vm-is-ready ]]; then rm -f /var/run/vm-is-ready; fi
+#System variables
+SCRIPTNAME=$0
+WORKINGDIR=/usr/tmp/systemprep
+READYFILE=/var/run/system-is-ready
+SCRIPTSTART="++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+SCRIPTEND="--------------------------------------------------------------------------------"
 
-/bin/date > /var/run/vm-is-ready
+if [[ ! -d "${WORKINGDIR}" ]] ; then mkdir ${WORKINGDIR} ; fi
+cd ${WORKINGDIR}
+
+echo "${SCRIPTSTART}"
+echo "Entering script -- ${SCRIPTNAME}"
+echo "Writing Parameters to log file..."
+for PARAM in "${@}" ; do echo "   ${PARAM}" ; ${!PARAM} ; done
+
+if [[ -e ${READYFILE} ]] ; then rm -f ${READYFILE} ; fi
+
+/bin/date > ${READYFILE}
+
+echo "Exiting SystemPrep script -- ${SCRIPTNAME}"
+echo "${SCRIPTEND}"
