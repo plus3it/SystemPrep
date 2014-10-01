@@ -44,7 +44,7 @@ for SCRIPT in ${SCRIPTSTOEXECUTE} ; do
     sh ./${SCRIPTFILENAME} $PARAMSTRING
     index=(( $index + 1 ))
 done
-uyyhu 
+
 /bin/date > ${READYFILE}
 
 echo "Exiting SystemPrep script -- ${SCRIPTNAME}"
