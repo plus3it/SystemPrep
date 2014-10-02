@@ -15,9 +15,9 @@ def main(*args,**kwargs) :
     scriptstart = '+' * 80
     scriptend = '-' * 80
 
-    print scriptstart
-    print 'Entering script -- ', scriptname
-    print 'Printing parameters...'
+    print ( str(scriptstart) )
+    print ( 'Entering script -- ' + str(scriptname) )
+    print ( 'Printing parameters...' )
 
     print 'kwargs = ', kwargs
     for key,value in kwargs.items() :
