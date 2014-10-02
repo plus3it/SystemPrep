@@ -4,6 +4,15 @@ import sys
 import platform
 import tempfile
 
+def cleanup(workingdir):
+    print('+-' * 40)
+    print('Cleanup Time...')
+    print('Removing temporary data...')
+    try:
+        os.removedirs(workingdir)
+    except:
+        raise SystemError('Cleanup Failed!')
+
 
 def main(**kwargs):
     """
@@ -11,21 +20,6 @@ Master Script that calls subscripts to be deployed to new Linux systems
     """
 
     scriptname = sys.argv[0]
-<<<<<<< HEAD
-    workingdir = '/usr/tmp/systemprep'
-    readyfile = '/var/run/system-is-ready'
-    scriptstart = '+' * 80
-    scriptend = '-' * 80
-
-    print ( str(scriptstart) )
-    print ( 'Entering script -- ' + str(scriptname) )
-    print ( 'Printing parameters...' )
-
-    print 'kwargs = ', kwargs
-    for key,value in kwargs.items() :
-        print ( str(key) + ' = ' + str(value) )
-
-=======
     #Logic to define variables based on OS
     if 'Windows' in platform.system():
         #workingdir = 'C:\WINDOWS\TEMP\SYSTEMPREP'
@@ -56,15 +50,8 @@ Master Script that calls subscripts to be deployed to new Linux systems
     for key, value in kwargs.items():
         print(str(key) + ' = ' + str(value))
 
-    #TODO: Add Cleanup function and replace cleanup time. This does not cleanup if SystemError is raised after creation.
-    #todo Cleanup should be a function that is called during a SystemError so files are never left behind unless needed.
-
-    print('+-' * 40)
-    print('Cleanup Time...')
-    print('Removing temporary data...')
-    os.removedirs(workingdir)
+    cleanup(workingdir)
     print('-' * 80)
->>>>>>> origin/master
 #    raw_input("\n\nPress the enter key to exit.")
 
 
