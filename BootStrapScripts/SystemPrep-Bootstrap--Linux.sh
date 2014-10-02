@@ -2,7 +2,7 @@
 set -ex
 
 #User variables
-SYSTEMPREPMASTERSCRIPTURL="https://systemprep.s3.amazonaws.com/MasterScripts/systemprep-linuxmaster.sh"
+SYSTEMPREPMASTERSCRIPTURL="https://systemprep.s3.amazonaws.com/MasterScripts/systemprep-linuxmaster.py"
 PARAMS=( "SaltStates=Highstate" 
          "NoReboot=False" )
 
