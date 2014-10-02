@@ -4,6 +4,14 @@ import sys
 import platform
 import tempfile
 
+def cleanup(workingdir):
+    print('+-' * 40)
+    print('Cleanup Time...')
+    print('Removing temporary data...')
+    try:
+        os.removedirs(workingdir)
+    except:
+        raise SystemError('Cleanup Failed!')
 
 def main(**kwargs):
     """
@@ -41,13 +49,7 @@ Master Script that calls subscripts to be deployed to new Linux systems
     for key, value in kwargs.items():
         print(str(key) + ' = ' + str(value))
 
-    #TODO: Add Cleanup function and replace cleanup time. This does not cleanup if SystemError is raised after creation.
-    #todo Cleanup should be a function that is called during a SystemError so files are never left behind unless needed.
-
-    print('+-' * 40)
-    print('Cleanup Time...')
-    print('Removing temporary data...')
-    os.removedirs(workingdir)
+    cleanup(workingdir)
     print('-' * 80)
 #    raw_input("\n\nPress the enter key to exit.")
 
