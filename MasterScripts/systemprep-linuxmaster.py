@@ -40,6 +40,8 @@ Returns an array of hashtables. Each hashtable has two keys: ScriptUrl and Param
                                                }, scriptparams)
                              },
                            )
+    #TODO:
+    #Add Windows parameters
     else:
         raise SystemError('System, ' + system + ', is not recognized?')
 
@@ -53,6 +55,8 @@ def getOsParams():
         tempdir = '/usr/tmp/'
         dict_a['readyfile'] = '/var/run/system-is-ready'
         dict_a['restart'] = 
+    #TODO:
+    # Add Windows parameters
     # elif 'Windows' in system:
         # systemroot = os.environ['SYSTEMROOT']
         # systemdrive = os.environ['SYSTEMDRIVE']
@@ -112,6 +116,7 @@ Master Script that calls subscripts to be deployed to new Linux systems
         os.system(osparams['restart'])
 
         print(str(scriptname) + 'complete!')
+
     print('-' * 80)
 #    raw_input("\n\nPress the enter key to exit.")
 
