@@ -4,6 +4,73 @@ import sys
 import platform
 import tempfile
 
+
+def mergeDicts(a, b):
+    """
+Merges two dictionaries. If there is a key collision, 'b' overrides 'a'.
+    """
+    try:
+        a.update(b)
+    except:
+        SystemError('Must pass only dictionaries to mergeDicts. One of these is not a dictionary: ' + a + ' , ' + b)
+
+    return a
+
+
+def getScriptsToExecute(workingdir,**scriptparams):
+    """
+Returns an array of hashtables. Each hashtable has two keys: ScriptUrl and Parameters.
+'ScriptUrl' is the url of the script to be downloaded and execute.
+'Parameters' is a hashtable of parameters to pass to the script.
+    """
+
+    system = platform.system()
+    if 'Linux' in system:
+        scriptstoexecute = (
+                             { 
+                                'ScriptUrl'  : "https://systemprep.s3.amazonaws.com/SystemContent/Linux/Salt/SystemPrep-LinuxSaltInstall.ps1",
+                                'Parameters' : mergeDicts({ 
+                                                  'SaltWorkingPath' : workingdir + '/systemcontent/linux',
+                                                  'SaltContentUrl' : "https://systemprep.s3.amazonaws.com/SystemContent/Linux/Salt/salt-content.zip" ,
+                                                  'FormulasToInclude' : (
+                                                                            "https://salt-formulas.s3.amazonaws.com/ash-linux-formula-latest.zip", 
+                                                                        ),
+                                                  'FormulaTerminationStrings' : ( "-latest" ),
+                                                  'SaltStates' : 'Highstate',
+                                               }, scriptparams)
+                             },
+                           )
+    else:
+        raise SystemError('System, ' + system + ', is not recognized?')
+
+    return scriptstoexecute
+
+
+def getOsParams():
+    dict_a = {}
+    system = platform.system()
+    if 'Linux' in system:
+        tempdir = '/usr/tmp/'
+        dict_a['readyfile'] = '/var/run/system-is-ready'
+        dict_a['restart'] = 
+    # elif 'Windows' in system:
+        # systemroot = os.environ['SYSTEMROOT']
+        # systemdrive = os.environ['SYSTEMDRIVE']
+        # tempdir = os.environ['TEMP']
+        # dict_a['readyfile'] = systemdrive + '\system-is-ready'
+        # dict_a['restart'] = systemroot + '\system32\shutdown.exe/r /t 30 /d p:2:4 /c "SystemPrep complete. Rebooting computer."'
+    else:
+        raise SystemError('System, ' + system + ', is not recognized?')
+
+    if os.path.exists(tempdir):
+        print('Creating working directory.')
+        dict_a['workingdir'] = tempfile.mkdtemp(prefix='systemprep-', dir=tempdir)
+        print(str(dict_a['workingdir']))
+    else:
+        raise SystemError('Defined tempdir does not exist! tempdir = ' + str('tempdir'))
+
+    return dict_a
+
 def cleanup(workingdir):
     print('+-' * 40)
     print('Cleanup Time...')
@@ -21,36 +88,30 @@ Master Script that calls subscripts to be deployed to new Linux systems
 
     scriptname = sys.argv[0]
     #Logic to define variables based on OS
-    if 'Windows' in platform.system():
-        #workingdir = 'C:\WINDOWS\TEMP\SYSTEMPREP'
-        workingdir = 'C:\WINDOWS\TEMP'
-        readyfile = 'C:\WINDOWS\TEMP\system-is-ready'
-    elif 'Linux' in platform.system():
-        #workingdir = '/usr/tmp/systemprep'
-        workingdir = '/usr/tmp/'
-        readyfile = '/var/run/system-is-ready'
-    else:
-        raise SystemError('platform.system() is not recognized?')
 
     print('+' * 80)
     print('Entering script -- ' + scriptname)
-    if not os.path.exists(readyfile):
-        raise SystemError(readyfile + ' does not exist! System is not ready?')
-
-    if os.path.exists(workingdir):
-        print('Creating working directory.')
-        workingdir = tempfile.mkdtemp(prefix='systemprep-', dir=workingdir)
-        print(workingdir)
-    else:
-        raise SystemError('Defined workingdir does not exist!')
-
     print('Printing parameters...')
-    print('kwargs = ' + str(kwargs))
-
     for key, value in kwargs.items():
-        print(str(key) + ' = ' + str(value))
+        print('    ' + str(key) + ' = ' + str(value))
 
-    cleanup(workingdir)
+    osparams = getOsParams()
+    scriptstoexecute = getScriptsToExecute(system,workingdir,**kwargs)
+
+    #TODO:
+    #Add logic to loop through scriptstoexecute
+    #Download each script
+    #Execute each script, passing it the Parameters dict
+
+    cleanup(osparams['workingdir'])
+
+    if 'True' == kwargs['NoReboot']:
+        print('Detected NoReboot switch. System will not be rebooted.')
+    else:
+        print('Reboot scheduled. System will reboot in 30 seconds')
+        os.system(osparams['restart'])
+
+        print(str(scriptname) + 'complete!')
     print('-' * 80)
 #    raw_input("\n\nPress the enter key to exit.")
 

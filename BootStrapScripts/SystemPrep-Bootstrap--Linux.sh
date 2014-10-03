@@ -8,10 +8,12 @@ PARAMS=( "SaltStates=Highstate"
 
 #System variables
 SCRIPTNAME=$0
-WORKINGDIR=/usr/tmp/systemprep
+WORKINGDIR=/usr/tmp
+LOGDIR=/var/log
 TIMESTAMP=$(date -u +"%Y%m%d_%H%M_%S")
-LOGFILE=/var/log/systemprep-log-${TIMESTAMP}.txt
+LOGFILE=${LOGDIR}/systemprep-log-${TIMESTAMP}.txt
 
+if [[ ! -d "${LOGDIR}" ]] ; then mkdir ${LOGDIR} ; fi
 if [[ ! -d "${WORKINGDIR}" ]] ; then mkdir ${WORKINGDIR} ; fi
 cd ${WORKINGDIR}
 echo "Entering SystemPrep script -- ${SCRIPTNAME}" &> ${LOGFILE}
@@ -21,11 +23,14 @@ for key in "${!SYSTEMPREPPARAMS[@]}"; do echo "   ${key} = ${SYSTEMPREPPARAMS["$
 SCRIPTFILENAME=$(echo ${SYSTEMPREPMASTERSCRIPTURL} | awk -F'/' '{ print ( $(NF) ) }')
 SCRIPTFULLPATH=${WORKINGDIR}/${SCRIPTFILENAME}
 
-echo "Downloading the SystemPrep script file -- ${SYSTEMPREPMASTERSCRIPTURL}" &>> ${LOGFILE}
+echo "Downloading the SystemPrep master script -- ${SYSTEMPREPMASTERSCRIPTURL}" &>> ${LOGFILE}
 curl -O -s ${SYSTEMPREPMASTERSCRIPTURL} &>> ${LOGFILE}
 
-echo "Running the SystemPrep script -- ${SCRIPTFULLPATH}" >> ${LOGFILE}
+echo "Running the SystemPrep master script -- ${SCRIPTFULLPATH}" >> ${LOGFILE}
 PARAMSTRING=$( IFS=$' '; echo "${PARAMS[*]}" )
 sh ${SCRIPTFULLPATH} $PARAMSTRING &>> ${LOGFILE}
+
+echo "Deleting the SystemPrep master script -- ${SCRIPTFULLPATH}" >> ${LOGFILE}
+rm -f ${SCRIPTFULLPATH} &>> ${LOGFILE}
 
 echo "Exiting SystemPrep script -- ${SCRIPTNAME}" &>> ${LOGFILE}
