@@ -25,6 +25,7 @@ def getScriptsToExecute(system, workingdir, **scriptparams):
 Returns an array of hashtables. Each hashtable has two keys: 'ScriptUrl' and 'Parameters'.
 'ScriptUrl' is the url of the script to be downloaded and execute.
 'Parameters' is a hashtable of parameters to pass to the script.
+Use `mergeDicts({yourdict}, scriptparams)` to merge command line parameters with a set of default parameters.
     """
 
     if 'Linux' in system:
@@ -37,12 +38,12 @@ Returns an array of hashtables. Each hashtable has two keys: 'ScriptUrl' and 'Pa
                                   'FormulasToInclude' : (
                                                             "https://salt-formulas.s3.amazonaws.com/ash-linux-formula-latest.zip", 
                                                         ),
-                                  'FormulaTerminationStrings' : ( "-latest" ),
+                                  'FormulaTerminationStrings' : ( "-latest", ),
                                   'SaltStates' : 'Highstate',
                                }, scriptparams)
             },
         )
-    if 'Windows' in system:
+    elif 'Windows' in system:
         scriptstoexecute = (
             {
                 'ScriptUrl'  : "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/SystemPrep-WindowsSaltInstall.ps1",
@@ -52,7 +53,7 @@ Returns an array of hashtables. Each hashtable has two keys: 'ScriptUrl' and 'Pa
                                               'FormulasToInclude' : (
                                                                         "https://salt-formulas.s3.amazonaws.com/ash-windows-formula-latest.zip",
                                                                     ),
-                                              'FormulaTerminationStrings' : ( "-latest" ),
+                                              'FormulaTerminationStrings' : ( "-latest", ),
                                               'AshRole' : "MemberServer",
                                               'NetBannerString' : "Unclass",
                                               'SaltStates' : "Highstate",
@@ -162,8 +163,14 @@ Master Script that calls subscripts to be deployed to new Linux systems
         downloadFile(script['ScriptUrl'], fullfilepath)
         #Execute each script, passing it the parameters in script['Parameters']
         #TODO: figure out a better way to call and execute the script
-        #os.system('python ' + fullfilepath + script['Parameters']) ## likely a dirty hack, probably want to code the python sub-script with an importable module instead
-
+        print('Running script: ' + script['ScriptUrl'])
+        print('Sending parameters:')
+        for key, value in script['Parameters'].items():
+            print('    ' + str(key) + ' = ' + str(value))
+        paramstring = ' '.join("%s='%s'" % (key,val) for (key,val) in script['Parameters'].iteritems())
+        fullcommand = 'python ' + fullfilepath + ' ' + paramstring
+        os.system(fullcommand) ## likely a dirty hack, probably want to code the python sub-script with an importable module instead
+    
     cleanup(systemparams['workingdir'])
     
     #TODO: uncomment this when linux has a value for systemparams['restart']
