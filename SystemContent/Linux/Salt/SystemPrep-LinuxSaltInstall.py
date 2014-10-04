@@ -12,9 +12,8 @@ def main(**kwargs):
 
     #TODO: do stuff
     
-    print(str(scriptname) + 'complete!')
+    print(str(scriptname) + ' complete!')
     print('-' * 80)
-    #raw_input("\n\nPress the enter key to exit.")
 
 
 if __name__ == "__main__":
