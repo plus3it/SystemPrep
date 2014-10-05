@@ -72,7 +72,7 @@ Creates a directory in `basedir` with a prefix of `dirprefix`.
 The directory will have a random 5 character string appended to `dirprefix`.
 Returns the path to the working directory.
     """
-    
+    workingdir = None
     try:
         workingdir = tempfile.mkdtemp(prefix=dirprefix, dir=basedir)
     except:
