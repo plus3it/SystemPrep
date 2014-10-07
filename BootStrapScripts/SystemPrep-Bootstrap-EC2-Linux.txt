@@ -43,7 +43,7 @@ fi
 logger "Grabbing ${SYSTEMPREPMASTERSCRIPTURL} and placing it in ${SYSTEMPREPDIR}"
 cd ${SYSTEMPREPDIR} && ${CURL} -# -O ${SYSTEMPREPMASTERSCRIPTURL} 2>&1 | logger
 
-# tokenize SYSTEMPREPMASTERSCRIPTURL
+# tokenize SYSTEMPREPMASTERSCRIPTURL to get filename (the last token)
 IFS='/'; for WORD in ${SYSTEMPREPMASTERSCRIPTURL}; do SCRIPT=${WORD}; done
 
 # make script executable
