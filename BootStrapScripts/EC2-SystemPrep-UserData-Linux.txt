@@ -1,49 +1,55 @@
 #!/bin/bash
 
-## Saxer 201410011053
-
 #User variables
-SYSTEMPREPWEBHOST="https://systemprep.s3.amazonaws.com"
-SYSTEMPREPMASTERSCRIPT="SystemPrep-LinuxMaster.sh"
+SYSTEMPREPMASTERSCRIPTURL="https://systemprep.s3.amazonaws.com/MasterScripts/SystemPrep-LinuxMaster.sh"
 
-declare -a SystemPrepParams("MemberServer", "Unclass", "Highstate", "FALSE")
+#These are the system params for the MasterScript
+declare -a SYSTEMPREPPARAMS=(MemberServer Unclass Highstate FALSE)
 
-DATE=`date +%Y%m%d%H%M%S`
+# system variables
+CURL="/usr/bin/curl"
+LOGGER="/bin/logger"
+SYSTEMPREPDIR=/var/tmp/systemprep
 
-#<powershell>
-##User variables
-#$SystemPrepWebHost = 'https://systemprep.s3.amazonaws.com'
-#$SystemPrepMasterScript = 'SystemPrep-WindowsMaster.ps1'
-#$SystemPrepParams = @{
-#    Role = "MemberServer"
-#    Network = "Unclass"
-#    States = "Highstate"
-#    NoReboot = $false
-#}
-#
-##System variables
-#$DateTime = $(get-date -format "yyyyMMdd_HHmm_ss")
-#$ScriptName = $MyInvocation.mycommand.name
-#$SystemPrepDir = "${env:SystemDrive}\SystemPrep"
-#$SystemPrepLogFile = "${SystemPrepDir}\SystemPrep-Log_${DateTime}.txt"
-#
-#function log {
-#	[CmdLetBinding()]
-#	Param(
-#		[Parameter(Mandatory=$true,Position=0,ValueFromPipeLine=$true,ValueFromPipeLineByPropertyName=$true)] [string[]] $LogMessage
-#	)
-#	PROCESS {
-#		#Writes the input $LogMessage to the log file $SystemPrepLogFile.
-#		Add-Content -Path $SystemPrepLogFile -Value "$(get-date -format `"yyyyMMdd_HHmm_ss`"): ${ScriptName}: ${LogMessage}"
-#	}
-#}
-#
-#if (-Not (Test-Path $SystemPrepDir)) { New-Item -Path $SystemPrepDir -ItemType "directory" -Force 1>$null; log "Created SystemPrep directory -- #${SystemPrepDir}" } else { log "SystemPrep directory already exists -- $SystemPrepDir" }
-#$ScriptUrl = "${SystemPrepWebHost}/MasterScripts/${SystemPrepMasterScript}"
-#$ScriptFullPath = "${SystemPrepDir}\${SystemPrepMasterScript}"
-#log "Downloading the SystemPrep script file -- ${ScriptUrl}"
-#((new-object net.webclient).DownloadFile("${ScriptUrl}","${ScriptFullPath}") 2>&1) | log
-#log "Running the SystemPrep script -- ${ScriptFullPath}"
-#(Invoke-Expression "& ${ScriptFullPath} @SystemPrepParams" 2>&1) | log
-#log "Exiting SystemPrep BootStrap script"
-#</powershell>
+#not currently used
+SYSTEMPREPLOGFILE=/var/log/systemprep
+
+#validate logger exists
+if [ ! -x ${LOGGER} ]; then
+	echo "Can't find ${LOGGER}"
+	exit 5
+fi
+
+#validate curl exists
+if [ ! -x ${CURL} ]; then
+	logger "Can't find ${CURL}"
+	exit 6
+fi
+
+#validate system prep directory exists
+if [ ! -d ${SYSTEMPREPDIR} ]; then 
+  logger "Creating ${SYSTEMPREPDIR} directory."
+  mkdir $SYSTEMPREPDIR 2>&1 | logger 
+fi
+
+#not currently used
+#if [ ! -f ${SYSTEMPREPLOGFILE} ]; then
+#   logger "Creating ${SYSTEMPREPLOGFILE}."
+#   touch -f ${SYSTEMPREPLOGFILE} >2&1 | logger
+#fi
+
+# change working directory and grab the script
+logger "Grabbing ${SYSTEMPREPMASTERSCRIPTURL} and placing it in ${SYSTEMPREPDIR}"
+cd ${SYSTEMPREPDIR} && ${CURL} -# -O ${SYSTEMPREPMASTERSCRIPTURL} 2>&1 | logger
+
+# tokenize SYSTEMPREPMASTERSCRIPTURL
+IFS='/'; for WORD in ${SYSTEMPREPMASTERSCRIPTURL}; do SCRIPT=${WORD}; done
+
+# make script executable
+logger "Changing permissions to 700 on ${SYSTEMPREPDIR}/${SCRIPT}"
+chmod 700 "${SYSTEMPREPDIR}/${SCRIPT}" 2>&1 | logger
+
+# execute the script passing the parameters
+logger "Executing ${SYSTEMPREPDIR}/${SCRIPT} ${SYSTEMPREPPARAMS[*]}."
+source "${SYSTEMPREPDIR}/${SCRIPT} ${SYSTEMPREPPARAMS[*]}"
+
