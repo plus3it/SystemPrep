@@ -1,4 +1,5 @@
 #!/bin/bash
+set -ex
 
 #User variables
 SYSTEMPREPMASTERSCRIPTURL="https://systemprep.s3.amazonaws.com/MasterScripts/SystemPrep-LinuxMaster.sh"
