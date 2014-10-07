@@ -18,13 +18,13 @@ SYSTEMPREPLOGFILE=/var/log/systemprep
 #validate logger exists
 if [ ! -x ${LOGGER} ]; then
 	echo "Can't find ${LOGGER}"
-	exit 5
+	exit
 fi
 
 #validate curl exists
 if [ ! -x ${CURL} ]; then
 	logger "Can't find ${CURL}"
-	exit 6
+	exit
 fi
 
 #validate system prep directory exists
