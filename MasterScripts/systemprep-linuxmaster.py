@@ -41,13 +41,13 @@ Use `mergeDicts({yourdict}, scriptparams)` to merge command line parameters with
             { 
                 'ScriptSource'  : "https://systemprep.s3.amazonaws.com/SystemContent/Linux/Salt/SystemPrep-LinuxSaltInstall.py",
                 'Parameters'    : mergeDicts({
-                                              'SaltWorkingPath' : workingdir + '/systemcontent/linux',
-                                              'SaltContentUrl' : "https://systemprep.s3.amazonaws.com/SystemContent/Linux/Salt/salt-content.zip" ,
-                                              'FormulasToInclude' : (
+                                               'saltworkingdir' : workingdir + '/systemcontent/linux',
+                                               'saltcontentsource' : "https://systemprep.s3.amazonaws.com/SystemContent/Linux/Salt/salt-content.zip" ,
+                                               'formulastoinclude' : (
                                                                         "https://salt-formulas.s3.amazonaws.com/ash-linux-formula-latest.zip",
-                                                                    ),
-                                              'FormulaTerminationStrings' : ( "-latest", ),
-                                              'SaltStates' : 'Highstate',
+                                                                     ),
+                                               'formulaterminationstrings' : ( "-latest", ),
+                                               'saltstates' : 'Highstate',
                                              }, scriptparams)
             },
         )
@@ -56,15 +56,15 @@ Use `mergeDicts({yourdict}, scriptparams)` to merge command line parameters with
             {
                 'ScriptSource'  : "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/SystemPrep-WindowsSaltInstall.ps1",
                 'Parameters'    : mergeDicts({
-                                              'SaltWorkingDir' : workingdir + '\\SystemContent\\Windows\\Salt',
-                                              'SaltContentUrl' : "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/salt-content.zip",
-                                              'FormulasToInclude' : (
+                                               'saltworkingdir' : workingdir + '\\SystemContent\\Windows\\Salt',
+                                               'saltcontentsource' : "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/salt-content.zip",
+                                               'formulastoinclude' : (
                                                                         "https://salt-formulas.s3.amazonaws.com/ash-windows-formula-latest.zip",
-                                                                    ),
-                                              'FormulaTerminationStrings' : ( "-latest", ),
-                                              'AshRole' : "MemberServer",
-                                              'NetBannerString' : "Unclass",
-                                              'SaltStates' : "Highstate",
+                                                                     ),
+                                               'formulaterminationstrings' : ( "-latest", ),
+                                               'ashrole' : "MemberServer",
+                                               'netbannerstring' : "Unclass",
+                                               'saltstates' : "Highstate",
                                              }, scriptparams)
             },
         )
@@ -108,8 +108,8 @@ Returns a dictionary of OS platform-specific parameters.
         a['pathseparator'] = '/'
         a['readyfile'] = '/var/run/system-is-ready'
         a['restart'] = 'shutdown -r +1 &'
-    #TODO: Add and test the Windows parameters/functionality
     elif 'Windows' in system:
+        #TODO: Add and test the Windows parameters/functionality
         systemroot = os.environ['SYSTEMROOT']
         systemdrive = os.environ['SYSTEMDRIVE']
         tempdir = os.environ['TEMP']
@@ -174,11 +174,14 @@ def main( noreboot, **kwargs):
     Master Script that calls content scripts to be deployed when provisioning systems
     """
 
+    #TODO: think about how to support case insensitivity for parameter names when called as a module
+
     scriptname = __file__
 
     print('+' * 80)
     print('Entering script -- ' + scriptname)
     print('Printing parameters --')
+    print('    noreboot = ' + noreboot)
     for key, value in kwargs.items():
         print('    ' + str(key) + ' = ' + str(value))
     
@@ -193,7 +196,7 @@ def main( noreboot, **kwargs):
         #Download each script, script['ScriptSource']
         downloadFile(script['ScriptSource'], fullfilepath)
         #Execute each script, passing it the parameters in script['Parameters']
-        #TODO: figure out a better way to call and execute the script
+        #TODO: figure out if there's a better way to call and execute the script
         print('Running script -- ' + script['ScriptSource'])
         print('Sending parameters --')
         for key, value in script['Parameters'].items():
@@ -205,7 +208,7 @@ def main( noreboot, **kwargs):
     
     cleanup(systemparams['workingdir'])
     
-    if 'True' == noreboot :
+    if 'true' == noreboot.lower() :
         print('Detected noreboot switch. System will not be rebooted.')
     else:
         print('Reboot scheduled. System will reboot after the script exits.')
@@ -217,8 +220,10 @@ def main( noreboot, **kwargs):
 
 if "__main__" == __name__ :
     #convert command line parameters of the form `param=value` to a dict
-    kwargs = dict((x.lower()).split('=', 1) for x in sys.argv[1:])
+    kwargs = dict(x.split('=', 1) for x in sys.argv[1:])
+    #convert parameter keys to lowercase, parameter values are unmodified
+    kwargs = dict((k.lower(), v) for k, v in kwargs.items())
     #set default values for required parameters
-    noreboot = kwargs.pop('noreboot', 'false')
+    kwargs.setdefault('noreboot', 'false')
 
-    main(noreboot, **kwargs)
+    main(**kwargs)
