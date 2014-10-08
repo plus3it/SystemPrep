@@ -18,7 +18,8 @@ Merge two dictionaries. If there is a key collision, `b` overrides `a`.
     try:
         a.update(b)
     except:
-        SystemError('Failed to merge dictionaries. Dictionary A:\n\n' + a + '\n\nDictionary B:\n\n' + b)
+        #TODO: Update `except` logic
+        raise SystemError('Failed to merge dictionaries. Dictionary A:\n\n' + a + '\n\nDictionary B:\n\n' + b)
     
     return a
 
@@ -68,6 +69,7 @@ Use `mergeDicts({yourdict}, scriptparams)` to merge command line parameters with
             },
         )
     else:
+        #TODO: Update `except` logic
         raise SystemError('System, ' + system + ', is not recognized?')
     
     return scriptstoexecute
@@ -86,7 +88,8 @@ Returns the path to the working directory.
     try:
         workingdir = tempfile.mkdtemp(prefix=dirprefix, dir=basedir)
     except:
-        SystemError('Could not create workingdir in ' + str('basedir'))
+        #TODO: Update `except` logic
+        raise SystemError('Could not create workingdir in ' + str('basedir'))
 
     return workingdir
 
@@ -105,7 +108,7 @@ Returns a dictionary of OS platform-specific parameters.
         a['pathseparator'] = '/'
         a['readyfile'] = '/var/run/system-is-ready'
         a['restart'] = 'shutdown -r +1 &'
-    #TODO: Add and test more Windows parameters/functionality
+    #TODO: Add and test the Windows parameters/functionality
     elif 'Windows' in system:
         systemroot = os.environ['SYSTEMROOT']
         systemdrive = os.environ['SYSTEMDRIVE']
@@ -114,6 +117,7 @@ Returns a dictionary of OS platform-specific parameters.
         a['readyfile'] = systemdrive + '\system-is-ready'
         a['restart'] = systemroot + '\system32\shutdown.exe/r /t 30 /d p:2:4 /c "SystemPrep complete. Rebooting computer."'
     else:
+        #TODO: Update `except` logic
         raise SystemError('System, ' + system + ', is not recognized?')
 
     a['workingdir'] = createWorkingDir(tempdir, workingdirprefix)
@@ -131,12 +135,14 @@ Download the file from `url` and save it locally under `filename`:
     try:
         response = urllib2.urlopen(url)
     except:
+        #TODO: Update `except` logic
         raise SystemError('Unable to open connection to web server. \nurl =\n    ' + url)
     
     try:
         with open(filename, 'wb') as outfile:
             shutil.copyfileobj(response, outfile)
     except:
+        #TODO: Update `except` logic
         raise SystemError('Unable to save file. \nfilename = \n    ' + filename)
 
     print('Downloaded file -- \n    url      = ' + url + '\n    filename = ' + filename)
@@ -154,6 +160,7 @@ def cleanup(workingdir):
     try:
         shutil.rmtree(workingdir)
     except:
+        #TODO: Update `except` logic
         raise SystemError('Cleanup Failed!')
 
     print('Removed temporary data in working directory -- ' + workingdir)
@@ -198,7 +205,6 @@ def main( noreboot, **kwargs):
     
     cleanup(systemparams['workingdir'])
     
-    #TODO: uncomment this when linux has a value for systemparams['restart']
     if 'True' == noreboot :
         print('Detected noreboot switch. System will not be rebooted.')
     else:
@@ -210,6 +216,9 @@ def main( noreboot, **kwargs):
 
 
 if "__main__" == __name__ :
-    kwargs = dict(x.split('=', 1) for x in sys.argv[1:])
-    noreboot = kwargs.setdefault('NoReboot', 'False')
+    #convert command line parameters of the form `param=value` to a dict
+    kwargs = dict((x.lower()).split('=', 1) for x in sys.argv[1:])
+    #set default values for required parameters
+    noreboot = kwargs.pop('noreboot', 'false')
+
     main(noreboot, **kwargs)
