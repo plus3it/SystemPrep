@@ -33,14 +33,14 @@ Use `mergeDicts({yourdict}, scriptparams)` to merge command line parameters with
             { 
                 'ScriptUrl'  : "https://systemprep.s3.amazonaws.com/SystemContent/Linux/Salt/SystemPrep-LinuxSaltInstall.py",
                 'Parameters' : mergeDicts({ 
-                                  'SaltWorkingPath' : workingdir + '/systemcontent/linux',
-                                  'SaltContentUrl' : "https://systemprep.s3.amazonaws.com/SystemContent/Linux/Salt/salt-content.zip" ,
-                                  'FormulasToInclude' : (
-                                                            "https://salt-formulas.s3.amazonaws.com/ash-linux-formula-latest.zip", 
-                                                        ),
-                                  'FormulaTerminationStrings' : ( "-latest", ),
-                                  'SaltStates' : 'Highstate',
-                               }, scriptparams)
+                                              'SaltWorkingPath' : workingdir + '/systemcontent/linux',
+                                              'SaltContentUrl' : "https://systemprep.s3.amazonaws.com/SystemContent/Linux/Salt/salt-content.zip" ,
+                                              'FormulasToInclude' : (
+                                                                        "https://salt-formulas.s3.amazonaws.com/ash-linux-formula-latest.zip",
+                                                                    ),
+                                              'FormulaTerminationStrings' : ( "-latest", ),
+                                              'SaltStates' : 'Highstate',
+                                          }, scriptparams)
             },
         )
     elif 'Windows' in system:
@@ -57,7 +57,7 @@ Use `mergeDicts({yourdict}, scriptparams)` to merge command line parameters with
                                               'AshRole' : "MemberServer",
                                               'NetBannerString' : "Unclass",
                                               'SaltStates' : "Highstate",
-                                            }, scriptparams)
+                                          }, scriptparams)
             },
         )
     else:
@@ -92,8 +92,7 @@ Returns a dictionary of OS platform-specific parameters.
         tempdir = '/usr/tmp/'
         a['pathseparator'] = '/'
         a['readyfile'] = '/var/run/system-is-ready'
-        #TODO: figure out how to restart a linux system with a 30 second delay
-        # a['restart'] = 
+        a['restart'] = 'shutdown -r +1 &'
     #TODO: Add and test more Windows parameters/functionality
     elif 'Windows' in system:
         systemroot = os.environ['SYSTEMROOT']
@@ -163,22 +162,23 @@ Master Script that calls subscripts to be deployed to new Linux systems
         downloadFile(script['ScriptUrl'], fullfilepath)
         #Execute each script, passing it the parameters in script['Parameters']
         #TODO: figure out a better way to call and execute the script
-        print('Running script: ' + script['ScriptUrl'])
-        print('Sending parameters:')
+        print('Running script -- ' + script['ScriptUrl'])
+        print('Sending parameters --')
         for key, value in script['Parameters'].items():
             print('    ' + str(key) + ' = ' + str(value))
         paramstring = ' '.join("%s='%s'" % (key,val) for (key,val) in script['Parameters'].iteritems())
         fullcommand = 'python ' + fullfilepath + ' ' + paramstring
-        os.system(fullcommand) ## likely a dirty hack, probably want to code the python sub-script with an importable module instead
+        os.system(fullcommand) # likely a dirty hack, probably want to code
+                               # the python sub-script with an importable module instead
     
     cleanup(systemparams['workingdir'])
     
     #TODO: uncomment this when linux has a value for systemparams['restart']
-    # if 'True' == kwargs['NoReboot']:
-        # print('Detected NoReboot switch. System will not be rebooted.')
-    # else:
-        # print('Reboot scheduled. System will reboot in 30 seconds')
-        # os.system(systemparams['restart'])
+    if 'True' == kwargs['NoReboot']:
+        print('Detected NoReboot switch. System will not be rebooted.')
+    else:
+        print('Reboot scheduled. System will reboot after the script exits.')
+        os.system(systemparams['restart'])
 
     print(str(scriptname) + ' complete!')
     print('-' * 80)
