@@ -41,14 +41,16 @@ Use `mergeDicts({yourdict}, scriptparams)` to merge command line parameters with
             { 
                 'ScriptSource'  : "https://systemprep.s3.amazonaws.com/SystemContent/Linux/Salt/SystemPrep-LinuxSaltInstall.py",
                 'Parameters'    : mergeDicts({
-                                               'saltworkingdir' : workingdir + '/systemcontent/linux',
-                                               'saltcontentsource' : "https://systemprep.s3.amazonaws.com/SystemContent/Linux/Salt/salt-content.zip" ,
-                                               'formulastoinclude' : (
-                                                                        "https://salt-formulas.s3.amazonaws.com/ash-linux-formula-latest.zip",
-                                                                     ),
-                                               'formulaterminationstrings' : ( "-latest", ),
-                                               'saltstates' : 'Highstate',
-                                             }, scriptparams)
+                    'saltbootstrapsource' : "https://raw.githubusercontent.com/saltstack/salt-bootstrap/develop/bootstrap-salt.sh",
+                    'saltgitrepo' : "git://github.com/saltstack/salt.git",
+                    'saltversion' : "v2014.1.11",
+                    'saltcontentsource' : "https://systemprep.s3.amazonaws.com/SystemContent/Linux/Salt/salt-content.zip",
+                    'formulastoinclude' : [
+#                                            "https://salt-formulas.s3.amazonaws.com/ash-linux-formula-latest.zip",
+                                          ],
+                    'formulaterminationstrings' : [ "-latest", ],
+                    'saltstates' : 'Highstate',
+                }, scriptparams)
             },
         )
     elif 'Windows' in system:
@@ -56,16 +58,16 @@ Use `mergeDicts({yourdict}, scriptparams)` to merge command line parameters with
             {
                 'ScriptSource'  : "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/SystemPrep-WindowsSaltInstall.ps1",
                 'Parameters'    : mergeDicts({
-                                               'saltworkingdir' : workingdir + '\\SystemContent\\Windows\\Salt',
-                                               'saltcontentsource' : "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/salt-content.zip",
-                                               'formulastoinclude' : (
-                                                                        "https://salt-formulas.s3.amazonaws.com/ash-windows-formula-latest.zip",
-                                                                     ),
-                                               'formulaterminationstrings' : ( "-latest", ),
-                                               'ashrole' : "MemberServer",
-                                               'netbannerstring' : "Unclass",
-                                               'saltstates' : "Highstate",
-                                             }, scriptparams)
+                    'saltworkingdir' : workingdir + '\\SystemContent\\Windows\\Salt',
+                    'saltcontentsource' : "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/salt-content.zip",
+                    'formulastoinclude' : (
+                                            "https://salt-formulas.s3.amazonaws.com/ash-windows-formula-latest.zip",
+                                          ),
+                    'formulaterminationstrings' : ( "-latest", ),
+                    'ashrole' : "MemberServer",
+                    'netbannerstring' : "Unclass",
+                    'saltstates' : "Highstate",
+                }, scriptparams)
             },
         )
     else:
@@ -89,7 +91,7 @@ Returns the path to the working directory.
         workingdir = tempfile.mkdtemp(prefix=dirprefix, dir=basedir)
     except:
         #TODO: Update `except` logic
-        raise SystemError('Could not create workingdir in ' + str('basedir'))
+        raise SystemError('Could not create workingdir in ' + str(basedir))
 
     return workingdir
 
@@ -169,19 +171,20 @@ def cleanup(workingdir):
     return True
 
 
-def main( noreboot, **kwargs):
+def main(noreboot='false', **kwargs):
     """
     Master Script that calls content scripts to be deployed when provisioning systems
     """
 
-    #TODO: think about how to support case insensitivity for parameter names when called as a module
-
     scriptname = __file__
+
+    #Check special parameter types
+    noreboot = 'true' == noreboot.lower()
 
     print('+' * 80)
     print('Entering script -- ' + scriptname)
     print('Printing parameters --')
-    print('    noreboot = ' + noreboot)
+    print('    noreboot = ' + str(noreboot))
     for key, value in kwargs.items():
         print('    ' + str(key) + ' = ' + str(value))
     
@@ -208,8 +211,8 @@ def main( noreboot, **kwargs):
     
     cleanup(systemparams['workingdir'])
     
-    if 'true' == noreboot.lower() :
-        print('Detected noreboot switch. System will not be rebooted.')
+    if noreboot:
+        print('Detected `noreboot` switch. System will not be rebooted.')
     else:
         print('Reboot scheduled. System will reboot after the script exits.')
         os.system(systemparams['restart'])
@@ -221,9 +224,7 @@ def main( noreboot, **kwargs):
 if "__main__" == __name__ :
     #convert command line parameters of the form `param=value` to a dict
     kwargs = dict(x.split('=', 1) for x in sys.argv[1:])
-    #convert parameter keys to lowercase, parameter values are unmodified
+    #Convert parameter keys to lowercase, parameter values are unmodified
     kwargs = dict((k.lower(), v) for k, v in kwargs.items())
-    #set default values for required parameters
-    kwargs.setdefault('noreboot', 'false')
 
     main(**kwargs)

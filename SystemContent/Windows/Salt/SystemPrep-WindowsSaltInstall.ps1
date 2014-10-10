@@ -18,15 +18,15 @@ Param(
     [string[]] $FormulaTerminationStrings = "-latest"
     ,
 	[Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
-    [ValidateSet("None","MemberServer","DomainController")]
-    [string] $AshRole
+    [ValidateSet("None","MemberServer","DomainController","Workstation")]
+    [string] $AshRole = "None"
     ,
     [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
     [ValidateSet("None","Unclass","NIPR","SIPR","JWICS")]
-    [string] $NetBannerString
+    [string] $NetBannerString = "None"
     ,
     [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] 
-    [string] $SaltStates
+    [string] $SaltStates = "None"
 )
 #Parameter Descriptions
 #$RemainingArgs       #Parameter that catches any undefined parameters passed to the script.
@@ -52,11 +52,12 @@ Param(
                       #-- "DomainController" -- Ash-windows applies the "DomainController" security baseline
                       #-- "Workstation"      -- Ash-windows applies the "Workstation" security baseline
 
-#$NetBannerString = "Unclass" #Writes a salt custom grain to the system, netbanner:string. Determines the NetBanner string and color configuration. Parameter key:
-                              #-- "Unclass" -- NetBanner Background color: Green,  Text color: White, String: "UNCLASSIFIED"
-                              #-- "NIPR"    -- NetBanner Background color: Green,  Text color: White, String: "UNCLASSIFIED//FOUO"
-                              #-- "SIPR"    -- NetBanner Background color: Red,    Text color: White, String: "SECRET AND AUTHORIZED TO PROCESS NATO SECRET"
-                              #-- "JWICS"   -- NetBanner Background color: Yellow, Text color: White, String: "TOPSECRET//SI/TK/NOFORN                  **G//HCS//NATO SECRET FOR APPROVED USERS IN SELECTED STORAGE SPACE**"
+#$NetBannerString = "None" #Writes a salt custom grain to the system, netbanner:string. Determines the NetBanner string and color configuration. Parameter key:
+                           #-- "None"    -- Does not write the custom grain to the system; netbanner will default to the Unclass string
+                           #-- "Unclass" -- NetBanner Background color: Green,  Text color: White, String: "UNCLASSIFIED"
+                           #-- "NIPR"    -- NetBanner Background color: Green,  Text color: White, String: "UNCLASSIFIED//FOUO"
+                           #-- "SIPR"    -- NetBanner Background color: Red,    Text color: White, String: "SECRET AND AUTHORIZED TO PROCESS NATO SECRET"
+                           #-- "JWICS"   -- NetBanner Background color: Yellow, Text color: White, String: "TOPSECRET//SI/TK/NOFORN                  **G//HCS//NATO SECRET FOR APPROVED USERS IN SELECTED STORAGE SPACE**"
 
 #$SaltStates = "None" #Comma-separated list of salt states. Listed states will be applied to the system. Parameter key:
                       #-- "None"              -- Special keyword; will not apply any salt states
