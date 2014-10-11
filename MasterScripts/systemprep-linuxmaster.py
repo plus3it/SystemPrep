@@ -7,7 +7,7 @@ import urllib2
 import shutil
 
 
-def mergeDicts(a, b):
+def merge_dicts(a, b):
     """
 Merge two dictionaries. If there is a key collision, `b` overrides `a`.
     :param a: Dictionary of default settings
@@ -24,12 +24,12 @@ Merge two dictionaries. If there is a key collision, `b` overrides `a`.
     return a
 
 
-def getScriptsToExecute(system, workingdir, **scriptparams):
+def get_scripts_to_execute(system, workingdir, **scriptparams):
     """
 Returns an array of hashtables. Each hashtable has two keys: 'ScriptUrl' and 'Parameters'.
 'ScriptSource' is the path to the script to be executed. Only supports http/s sources currently.
 'Parameters' is a hashtable of parameters to pass to the script.
-Use `mergeDicts({yourdict}, scriptparams)` to merge command line parameters with a set of default parameters.
+Use `merge_dicts({yourdict}, scriptparams)` to merge command line parameters with a set of default parameters.
     :param system: str, the system type as returned from `platform.system`
     :param workingdir: str, the working directory where content should be saved
     :param scriptparams: dict, parameters passed to the master script which should be relayed to the content scripts
@@ -40,7 +40,7 @@ Use `mergeDicts({yourdict}, scriptparams)` to merge command line parameters with
         scriptstoexecute = (
             { 
                 'ScriptSource'  : "https://systemprep.s3.amazonaws.com/SystemContent/Linux/Salt/SystemPrep-LinuxSaltInstall.py",
-                'Parameters'    : mergeDicts({
+                'Parameters'    : merge_dicts({
                     'saltbootstrapsource' : "https://raw.githubusercontent.com/saltstack/salt-bootstrap/develop/bootstrap-salt.sh",
                     'saltgitrepo' : "git://github.com/saltstack/salt.git",
                     'saltversion' : "v2014.1.11",
@@ -57,7 +57,7 @@ Use `mergeDicts({yourdict}, scriptparams)` to merge command line parameters with
         scriptstoexecute = (
             {
                 'ScriptSource'  : "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/SystemPrep-WindowsSaltInstall.ps1",
-                'Parameters'    : mergeDicts({
+                'Parameters'    : merge_dicts({
                     'saltworkingdir' : workingdir + '\\SystemContent\\Windows\\Salt',
                     'saltcontentsource' : "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/salt-content.zip",
                     'formulastoinclude' : (
@@ -77,7 +77,7 @@ Use `mergeDicts({yourdict}, scriptparams)` to merge command line parameters with
     return scriptstoexecute
 
 
-def createWorkingDir(basedir, dirprefix):
+def create_working_dir(basedir, dirprefix):
     """
 Creates a directory in `basedir` with a prefix of `dirprefix`.
 The directory will have a random 5 character string appended to `dirprefix`.
@@ -96,7 +96,7 @@ Returns the path to the working directory.
     return workingdir
 
 
-def getSystemParams(system):
+def get_system_params(system):
     """
 Returns a dictionary of OS platform-specific parameters.
     :param system: str, the system type as returned by `platform.system`
@@ -122,12 +122,12 @@ Returns a dictionary of OS platform-specific parameters.
         #TODO: Update `except` logic
         raise SystemError('System, ' + system + ', is not recognized?')
 
-    a['workingdir'] = createWorkingDir(tempdir, workingdirprefix)
+    a['workingdir'] = create_working_dir(tempdir, workingdirprefix)
 
     return a
 
 
-def downloadFile(url, filename):
+def download_file(url, filename):
     """
 Download the file from `url` and save it locally under `filename`:
     :rtype : bool
@@ -189,15 +189,15 @@ def main(noreboot='false', **kwargs):
         print('    ' + str(key) + ' = ' + str(value))
     
     system = platform.system()
-    systemparams = getSystemParams(system)
-    scriptstoexecute = getScriptsToExecute(system, systemparams['workingdir'], **kwargs)
+    systemparams = get_system_params(system)
+    scriptstoexecute = get_scripts_to_execute(system, systemparams['workingdir'], **kwargs)
     
     #Loop through each 'script' in scriptstoexecute
     for script in scriptstoexecute:
         filename = script['ScriptSource'].split('/')[-1]
         fullfilepath = systemparams['workingdir'] + systemparams['pathseparator'] + filename
         #Download each script, script['ScriptSource']
-        downloadFile(script['ScriptSource'], fullfilepath)
+        download_file(script['ScriptSource'], fullfilepath)
         #Execute each script, passing it the parameters in script['Parameters']
         #TODO: figure out if there's a better way to call and execute the script
         print('Running script -- ' + script['ScriptSource'])
