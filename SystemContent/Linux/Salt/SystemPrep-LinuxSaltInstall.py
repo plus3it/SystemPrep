@@ -52,6 +52,13 @@ Returns the path to the working directory.
 
 
 def extract_contents(filepath, to_directory='.'):
+    """
+    Extracts a compressed file to the specified directory.
+    Supports files that end in .zip, .tar.gz, .tgz, tar.bz2, or tbz.
+    :param filepath: str, path to the compressed file
+    :param to_directory: str, path to the target directory
+    :raise ValueError: error raised if file extension is not supported
+    """
     if filepath.endswith('.zip'):
         opener, mode = zipfile.ZipFile, 'r'
     elif filepath.endswith('.tar.gz') or filepath.endswith('.tgz'):
@@ -103,6 +110,20 @@ def main(saltbootstrapsource,
          saltstates='none',
          **kwargs):
 
+    """
+    Manages the salt installation and configuration.
+    :param saltbootstrapsource: str, location of the salt bootstrap installer
+    :param saltgitrepo: str, git repo containing the salt source files
+    :param saltversion: str, version of salt to install, must be a tag or branch in the salt git repo
+    :param saltcontentsource: str, location of additional salt content, must be a compressed file
+    :param formulastoinclude: list, locations of salt formulas to configure, must be compressed files
+    :param formulaterminationstrings: list, strings that will be removed from the end of a salt formula name
+    :param saltstates: str, comma-separated string of saltstates to apply.
+                       'none' is a keyword that will not apply any states
+                       'highstate' is a keyword that will apply states based on the top.sls definition
+    :param kwargs: dict, catch-all for other params that do not apply to this content script
+    :raise SystemError: error raised whenever an issue is encountered
+    """
     scriptname = __file__
 
     print('+' * 80)
@@ -200,7 +221,7 @@ def main(saltbootstrapsource,
     else:
         print('Saved the new minion configuration successfully.')
 
-    #Apply the specified salt state
+    #Apply the specified salt state(s)
     if 'none' == saltstates.lower():
         print('No States were specified. Will not apply any salt states.')
     elif 'highstate' == saltstates.lower():
@@ -224,11 +245,11 @@ if __name__ == "__main__":
     kwargs = dict((k.lower(), v) for k, v in kwargs.items())
 
     #Need to convert comma-delimited strings strings to lists, where the strings may have parentheses or brackets
-    #First, remove the parentheses and brackets
+    #First, remove any parentheses or brackets
     kwargs['formulastoinclude'] = kwargs['formulastoinclude'].translate(None, '()[]')
     kwargs['formulaterminationstrings'] = kwargs['formulaterminationstrings'].translate(None, '()[]')
     #Then, split the string on the comma to convert to a list, and remove empty strings with filter
-    kwargs['formulastoinclude'] = filter(None,kwargs['formulastoinclude'].split(','))
-    kwargs['formulaterminationstrings'] = filter(None,kwargs['formulaterminationstrings'].split(','))
+    kwargs['formulastoinclude'] = filter(None, kwargs['formulastoinclude'].split(','))
+    kwargs['formulaterminationstrings'] = filter(None, kwargs['formulaterminationstrings'].split(','))
 
     main(**kwargs)
