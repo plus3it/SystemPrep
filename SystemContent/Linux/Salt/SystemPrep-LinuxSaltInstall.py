@@ -101,9 +101,9 @@ def cleanup(workingdir):
     return True
 
 
-def main(saltbootstrapsource,
-         saltgitrepo,
-         saltversion,
+def main(saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-bootstrap/develop/bootstrap-salt.sh",
+         saltgitrepo="git://github.com/saltstack/salt.git",
+         saltversion=None,
          saltcontentsource=None,
          formulastoinclude=(),
          formulaterminationstrings=(),
@@ -149,7 +149,10 @@ def main(saltbootstrapsource,
     #Download the salt bootstrap installer and install salt
     saltbootstrapfile = workingdir + '/' + saltbootstrapsource.split('/')[-1]
     download_file(saltbootstrapsource, saltbootstrapfile)
-    os.system('sh ' + saltbootstrapfile + ' -g ' + saltgitrepo + ' git ' + saltversion)
+    if saltversion:
+        os.system('sh ' + saltbootstrapfile + ' -g ' + saltgitrepo + ' git ' + saltversion)
+    else:
+        os.system('sh ' + saltbootstrapfile + ' -g ' + saltgitrepo)
 
     #Create directories for salt content and formulas
     try:
