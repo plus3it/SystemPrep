@@ -105,8 +105,8 @@ def main(saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-b
          saltgitrepo="git://github.com/saltstack/salt.git",
          saltversion=None,
          saltcontentsource=None,
-         formulastoinclude=(),
-         formulaterminationstrings=(),
+         formulastoinclude=None,
+         formulaterminationstrings=None,
          saltstates='none',
          **kwargs):
     """
@@ -124,6 +124,11 @@ def main(saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-b
     :raise SystemError: error raised whenever an issue is encountered
     """
     scriptname = __file__
+
+    if formulastoinclude is None:
+        formulastoinclude = []
+    if formulaterminationstrings is None:
+        formulaterminationstrings = []
 
     print('+' * 80)
     print('Entering script -- ' + scriptname)
