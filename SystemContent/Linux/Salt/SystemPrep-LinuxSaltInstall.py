@@ -109,7 +109,6 @@ def main(saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-b
          formulaterminationstrings=(),
          saltstates='none',
          **kwargs):
-
     """
     Manages the salt installation and configuration.
     :param saltbootstrapsource: str, location of the salt bootstrap installer
