@@ -235,7 +235,8 @@ def main(saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-b
         print('Detected the States parameter is set to `highstate`. Applying the salt `"highstate`" to the system.')
         os.system(saltcall + ' --local state.highstate')
     else:
-        print('Detected the States parameter is set to: ' + saltstates + '. Applying the user-defined list of states to the system.')
+        print('Detected the States parameter is set to: ' + saltstates +
+              '. Applying the user-defined list of states to the system.')
         os.system(saltcall + ' --local state.sls ' + saltstates)
 
     #Remove working files
