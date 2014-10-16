@@ -39,34 +39,38 @@ Use `merge_dicts({yourdict}, scriptparams)` to merge command line parameters wit
     if 'Linux' in system:
         scriptstoexecute = (
             { 
-                'ScriptSource'  : "https://systemprep.s3.amazonaws.com/SystemContent/Linux/Salt/SystemPrep-LinuxSaltInstall.py",
-                'Parameters'    : merge_dicts({
-                    'saltbootstrapsource' : "https://raw.githubusercontent.com/saltstack/salt-bootstrap/develop/bootstrap-salt.sh",
-                    'saltgitrepo' : "git://github.com/saltstack/salt.git",
-                    'saltversion' : "v2014.1.11",
-                    'saltcontentsource' : "https://systemprep.s3.amazonaws.com/SystemContent/Linux/Salt/salt-content.zip",
-                    'formulastoinclude' : [
-#                                            "https://salt-formulas.s3.amazonaws.com/ash-linux-formula-latest.zip",
-                                          ],
-                    'formulaterminationstrings' : [ "-latest", ],
-                    'saltstates' : 'Highstate',
+                'ScriptSource': "https://systemprep.s3.amazonaws.com/SystemContent/Linux/Salt/SystemPrep-LinuxSaltInstall.py",
+                'Parameters': merge_dicts({
+                    'saltbootstrapsource': "https://raw.githubusercontent.com/saltstack/salt-bootstrap/develop/bootstrap-salt.sh",
+                    'saltgitrepo': "git://github.com/saltstack/salt.git",
+                    'saltversion': "v2014.1.11",
+                    'saltcontentsource': "https://systemprep.s3.amazonaws.com/SystemContent/Linux/Salt/salt-content.zip",
+                    'formulastoinclude': [
+                        #"https://salt-formulas.s3.amazonaws.com/ash-linux-formula-latest.zip",
+                    ],
+                    'formulaterminationstrings': [
+                        "-latest",
+                    ],
+                    'saltstates': 'Highstate',
                 }, scriptparams)
             },
         )
     elif 'Windows' in system:
         scriptstoexecute = (
             {
-                'ScriptSource'  : "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/SystemPrep-WindowsSaltInstall.ps1",
-                'Parameters'    : merge_dicts({
-                    'saltworkingdir' : workingdir + '\\SystemContent\\Windows\\Salt',
-                    'saltcontentsource' : "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/salt-content.zip",
-                    'formulastoinclude' : (
-                                            "https://salt-formulas.s3.amazonaws.com/ash-windows-formula-latest.zip",
-                                          ),
-                    'formulaterminationstrings' : ( "-latest", ),
-                    'ashrole' : "MemberServer",
-                    'netbannerstring' : "Unclass",
-                    'saltstates' : "Highstate",
+                'ScriptSource': "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/SystemPrep-WindowsSaltInstall.ps1",
+                'Parameters': merge_dicts({
+                    'saltworkingdir': workingdir + '\\SystemContent\\Windows\\Salt',
+                    'saltcontentsource': "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/salt-content.zip",
+                    'formulastoinclude': [
+                        "https://salt-formulas.s3.amazonaws.com/ash-windows-formula-latest.zip",
+                    ],
+                    'formulaterminationstrings': [
+                        "-latest",
+                    ],
+                    'ashrole': "MemberServer",
+                    'netbannerstring': "Unclass",
+                    'saltstates': "Highstate",
                 }, scriptparams)
             },
         )
@@ -117,7 +121,8 @@ Returns a dictionary of OS platform-specific parameters.
         tempdir = os.environ['TEMP']
         a['pathseparator'] = '\\'
         a['readyfile'] = systemdrive + '\system-is-ready'
-        a['restart'] = systemroot + '\system32\shutdown.exe/r /t 30 /d p:2:4 /c "SystemPrep complete. Rebooting computer."'
+        a['restart'] = str(systemroot +
+                           '\system32\shutdown.exe/r /t 30 /d p:2:4 /c "SystemPrep complete. Rebooting computer."')
     else:
         #TODO: Update `except` logic
         raise SystemError('System, ' + system + ', is not recognized?')
@@ -204,10 +209,10 @@ def main(noreboot='false', **kwargs):
         print('Sending parameters --')
         for key, value in script['Parameters'].items():
             print('    ' + str(key) + ' = ' + str(value))
-        paramstring = ' '.join("%s='%s'" % (key,val) for (key,val) in script['Parameters'].iteritems())
+        paramstring = ' '.join("%s='%s'" % (key, val) for (key, val) in script['Parameters'].iteritems())
         fullcommand = 'python ' + fullfilepath + ' ' + paramstring
-        os.system(fullcommand) # likely a dirty hack, probably want to code the
-                               # python sub-script with an importable module instead
+        os.system(fullcommand)  # likely a dirty hack, probably want to code the
+                                # python sub-script with an importable module instead
     
     cleanup(systemparams['workingdir'])
     
@@ -221,7 +226,7 @@ def main(noreboot='false', **kwargs):
     print('-' * 80)
 
 
-if "__main__" == __name__ :
+if "__main__" == __name__:
     #convert command line parameters of the form `param=value` to a dict
     kwargs = dict(x.split('=', 1) for x in sys.argv[1:])
     #Convert parameter keys to lowercase, parameter values are unmodified
