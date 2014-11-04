@@ -146,7 +146,7 @@ def main(saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-b
     minionconf = '/etc/salt/minion'
     saltcall = '/usr/bin/salt-call'
     saltfilebase = '/srv'
-    saltfileroot = saltfilebase + '/salt'
+    saltfileroot = saltfilebase + '/salt/base'
     saltformularoot = saltfilebase + '/saltformulas'
     workingdir = create_working_dir('/usr/tmp/', 'saltinstall-')
 
