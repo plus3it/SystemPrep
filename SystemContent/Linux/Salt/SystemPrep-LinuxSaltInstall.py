@@ -160,21 +160,12 @@ def main(saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-b
         os.system('sh ' + saltbootstrapfile + ' -g ' + saltgitrepo)
 
     #Create directories for salt content and formulas
-    try:
-        os.makedirs(saltfileroot)
-    except OSError:
-        if not os.path.isdir(saltfileroot):
-            raise
-    try:
-        os.makedirs(saltbaseenv)
-    except OSError:
-        if not os.path.isdir(saltbaseenv):
-            raise
-    try:
-        os.makedirs(saltformularoot)
-    except OSError:
-        if not os.path.isdir(saltformularoot):
-            raise
+    for saltdir in [saltfileroot, saltfileroot, saltformularoot]:
+        try:
+            os.makedirs(saltdir)
+        except OSError:
+            if not os.path.isdir(saltdir):
+                raise
 
     #Download and extract the salt content specified by saltcontentsource
     if saltcontentsource:
