@@ -5,7 +5,7 @@
 {% set systemdrive = systemroot|truncate(2, True, '') %}
 
 #Define the lookup table to return to the pshelp state file
-{% set pshelp = { 'source' : systemdrive+'\\salt\\file_roots\\pshelp\\pshelpfiles',
+{% set pshelp = { 'source' : systemdrive+'\\salt\\file_roots\\base\\pshelp\\pshelpfiles',
 } %}
 
 #Import user defined settings from pillar (if available)
