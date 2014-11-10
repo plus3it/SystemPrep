@@ -160,7 +160,7 @@ def main(saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-b
         os.system('sh ' + saltbootstrapfile + ' -g ' + saltgitrepo)
 
     #Create directories for salt content and formulas
-    for saltdir in [saltfileroot, saltfileroot, saltformularoot]:
+    for saltdir in [saltfileroot, saltbaseenv, saltformularoot]:
         try:
             os.makedirs(saltdir)
         except OSError:
