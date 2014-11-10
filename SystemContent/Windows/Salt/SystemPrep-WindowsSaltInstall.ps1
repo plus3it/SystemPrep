@@ -95,7 +95,7 @@ function Download-File {
     PROCESS {
         Write-Output "Saving file -- ${SaveTo}"
         New-Item "${SaveTo}" -ItemType "file" -Force 1> $null
-        (new-object net.webclient).DownloadFile("${Url}","${SaveTo}") 2>&1 | log
+        (new-object net.webclient).DownloadFile("${Url}","${SaveTo}") 2>&1
     }
 }
 
@@ -152,6 +152,7 @@ foreach ($FormulaDir in $FormulaDirs) {
 $SaltInstaller = (Get-ChildItem "${SaltWorkingDir}" | where {$_.Name -like "Salt-Minion-*-Setup.exe"}).FullName
 $SaltBase = "C:\salt"
 $SaltFileRoot = "${SaltBase}\file_roots"
+$SaltBaseEnv = "${SaltFileRoot}\base"
 $SaltFormulaRoot = "${SaltBase}\formulas"
 $SaltWinRepo = "${SaltFileRoot}\winrepo"
 $MinionConf = "${SaltBase}\conf\minion"
@@ -180,7 +181,7 @@ $FormulaFileRootConf = (Get-ChildItem ${SaltFormulaRoot} -Directory) | ForEach-O
 $SaltFileRootConf = @()
 $SaltFileRootConf += "file_roots:"
 $SaltFileRootConf += "  base:"
-$SaltFileRootConf += "    - ${SaltFileRoot}"
+$SaltFileRootConf += "    - ${SaltBaseEnv}"
 $SaltFileRootConf += $FormulaFileRootConf
 $SaltFileRootConf += ""
 

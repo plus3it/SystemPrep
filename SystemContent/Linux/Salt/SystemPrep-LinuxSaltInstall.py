@@ -146,7 +146,8 @@ def main(saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-b
     minionconf = '/etc/salt/minion'
     saltcall = '/usr/bin/salt-call'
     saltfilebase = '/srv'
-    saltfileroot = saltfilebase + '/salt/base'
+    saltfileroot = saltfilebase + '/salt'
+    saltbaseenv = saltfileroot + '/base'
     saltformularoot = saltfilebase + '/saltformulas'
     workingdir = create_working_dir('/usr/tmp/', 'saltinstall-')
 
@@ -163,6 +164,11 @@ def main(saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-b
         os.makedirs(saltfileroot)
     except OSError:
         if not os.path.isdir(saltfileroot):
+            raise
+    try:
+        os.makedirs(saltbaseenv)
+    except OSError:
+        if not os.path.isdir(saltbaseenv):
             raise
     try:
         os.makedirs(saltformularoot)
@@ -192,7 +198,7 @@ def main(saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-b
     saltfilerootconf = []
     saltfilerootconf += 'file_roots:\n',
     saltfilerootconf += '  base:\n',
-    saltfilerootconf += '    - ' + saltfileroot + '\n',
+    saltfilerootconf += '    - ' + saltbaseenv + '\n',
     saltfilerootconf += saltformulaconf
     saltfilerootconf += '\n',
 
