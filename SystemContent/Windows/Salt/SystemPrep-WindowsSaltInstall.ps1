@@ -182,6 +182,7 @@ $SaltFileRootConf = @()
 $SaltFileRootConf += "file_roots:"
 $SaltFileRootConf += "  base:"
 $SaltFileRootConf += "    - ${SaltBaseEnv}"
+$SaltFileRootConf += "    - ${SaltWinRepo}"
 $SaltFileRootConf += $FormulaFileRootConf
 $SaltFileRootConf += ""
 
