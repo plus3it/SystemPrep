@@ -6,3 +6,4 @@ UpdatePSHelp:
     - run
     - name: 'Update-Help -Source {{ pshelp.source }} -Force'
     - shell: powershell
+	- unless: '$($PSVersiontable.PSVersion.Major) -lt 3'
