@@ -24,7 +24,7 @@ function log {
 	}
 }
 
-if (-Not (Test-Path $SystemPrepDir)) { New-Item -Path $SystemPrepDir -ItemType "directory" -Force 1>$null; log "Created SystemPrep directory -- ${SystemPrepDir}" } else { log "SystemPrep directory already exists -- $SystemPrepDir" }
+if (-Not (Test-Path $SystemPrepDir)) { New-Item -Path $SystemPrepDir -ItemType "directory" -Force > $null; log "Created SystemPrep directory -- ${SystemPrepDir}" } else { log "SystemPrep directory already exists -- $SystemPrepDir" }
 $ScriptFileName = (${SystemPrepMasterScriptUrl}.split('/'))[-1]
 $ScriptFullPath = "${SystemPrepDir}\${ScriptFileName}"
 log "Downloading the SystemPrep master script -- ${SystemPrepMasterScriptUrl}"
