@@ -69,8 +69,12 @@ $ScriptName = $MyInvocation.mycommand.name
 $SystemRoot = $env:SystemRoot
 $ScriptStart = "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 $ScriptEnd = "--------------------------------------------------------------------------------"
-$RemainingArgsHash = $RemainingArgs | ForEach-Object -Begin { $index = 0; $hash = @{} } -Process { if ($_ -match "^-.*:$") { $hash[($_.trim("-",":"))] = $RemainingArgs[$index+1] }; $index++ } -End { Write-Output $hash }
-###
+#Convert RemainingArgs to a hashtable
+if ($PSVersionTable.PSVersion -eq "2.0") { #PowerShell 2.0 receives remainingargs in a different format than PowerShell 3.0
+	$RemainingArgsHash = $RemainingArgs | ForEach-Object -Begin { $index = 0; $hash = @{} } -Process { if ($index % 2 -eq 0) { $hash[$_] = $RemainingArgs[$index+1] }; $index++ } -End { Write-Output $hash }
+} else {
+	$RemainingArgsHash = $RemainingArgs | ForEach-Object -Begin { $index = 0; $hash = @{} } -Process { if ($_ -match "^-.*:$") { $hash[($_.trim("-",":"))] = $RemainingArgs[$index+1] }; $index++ } -End { Write-Output $hash }
+}###
 
 #User variables
 ###
@@ -94,7 +98,7 @@ function Download-File {
     )
     PROCESS {
         Write-Output "Saving file -- ${SaveTo}"
-        New-Item "${SaveTo}" -ItemType "file" -Force 1> $null
+        New-Item "${SaveTo}" -ItemType "file" -Force > $null
         (new-object net.webclient).DownloadFile("${Url}","${SaveTo}") 2>&1
     }
 }
@@ -111,12 +115,12 @@ function Expand-ZipFile {
     {
         throw "$SourcePath\$FileName does not exist" 
     }
-    New-Item -ItemType Directory -Force -Path $DestPath -WarningAction SilentlyContinue 1> $null
+    New-Item -ItemType Directory -Force -Path $DestPath -WarningAction SilentlyContinue > $null
     $Shell.namespace($DestPath).copyhere($Shell.namespace("$SourcePath\$FileName").items(), 0x14) 
 }
 
 #Make sure the salt working directories exist
-if (-Not (Test-Path $SaltWorkingDir)) { New-Item -Path $SaltWorkingDir -ItemType "directory" -Force 1>$null; log "Created working directory -- ${SaltWorkingDir}" } else { log "Working directory already exists -- ${SaltWorkingDir}" }
+if (-Not (Test-Path $SaltWorkingDir)) { New-Item -Path $SaltWorkingDir -ItemType "directory" -Force > $null; log "Created working directory -- ${SaltWorkingDir}" } else { log "Working directory already exists -- ${SaltWorkingDir}" }
 
 #Create log entry to note the script that is executing
 log $ScriptStart
@@ -143,8 +147,7 @@ foreach ($Formula in $FormulasToInclude) {
 }
 
 #If the formula directory ends in a string in $FormulaTerminationStrings, delete the string from the directory name
-$FormulaTerminationStrings = $FormulaTerminationStrings.split(',')
-$FormulaDirs = Get-ChildItem -Path "${SaltWorkingDir}\formulas" -Directory
+$FormulaDirs = @(Get-ChildItem -Path "${SaltWorkingDir}\formulas" | where {$_.Attributes -eq "Directory"})
 foreach ($FormulaDir in $FormulaDirs) {
     $FormulaTerminationStrings | foreach { if ($FormulaDir.Name -match "${_}$") { mv $FormulaDir.FullName $FormulaDir.FullName.substring(0,$FormulaDir.FullName.length-$_.length) } }
 }
@@ -176,7 +179,7 @@ $MinionConfContent = $MinionConfContent | ForEach-Object {$_ -replace "^#file_cl
 #set win_repo_cachfile: to ${SaltWinRepo}\winrepo.p AND set win_repo: to ${SaltWinRepo}
 $MinionConfContent = $MinionConfContent | ForEach-Object {$_ -replace "^# win_repo_cachefile: 'salt://win/repo/winrepo.p'","win_repo_cachefile: '${SaltWinRepo}\winrepo.p'`r`nwin_repo: '${SaltWinRepo}'"}
 #Construct an array of all the Formula directories to include in the minion conf file
-$FormulaFileRootConf = (Get-ChildItem ${SaltFormulaRoot} -Directory) | ForEach-Object { "    - " + $(${_}.fullname) }
+$FormulaFileRootConf = (Get-ChildItem ${SaltFormulaRoot} | where {$_.Attributes -eq "Directory"}) | ForEach-Object { "    - " + $(${_}.fullname) }
 #Construct the contents for the file_roots section of the minion conf file
 $SaltFileRootConf = @()
 $SaltFileRootConf += "file_roots:"
