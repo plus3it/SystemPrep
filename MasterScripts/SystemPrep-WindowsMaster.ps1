@@ -16,7 +16,12 @@ $SystemPrepDir = "${env:SystemDrive}\SystemPrep"
 $SystemPrepWorkingDir = "${SystemPrepDir}\WorkingFiles" #Location on the system to download the bucket contents.
 $ScriptStart = "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 $ScriptEnd = "--------------------------------------------------------------------------------"
-$RemainingArgsHash = $RemainingArgs | ForEach-Object -Begin { $index = 0; $hash = @{} } -Process { if ($_ -match "^-.*:$") { $hash[($_.trim("-",":"))] = $RemainingArgs[$index+1] }; $index++ } -End { Write-Output $hash }
+#Convert RemainingArgs to a hashtable, so the arguments can be passed to other scripts via a parameter splat
+if ($PSVersionTable.PSVersion -eq "2.0") { #PowerShell 2.0 receives remainingargs in a different format than PowerShell 3.0
+	$RemainingArgsHash = $RemainingArgs | ForEach-Object -Begin { $index = 0; $hash = @{} } -Process { if ($index % 2 -eq 0) { $hash[$_] = $RemainingArgs[$index+1] }; $index++ } -End { Write-Output $hash }
+} else {
+	$RemainingArgsHash = $RemainingArgs | ForEach-Object -Begin { $index = 0; $hash = @{} } -Process { if ($_ -match "^-.*:$") { $hash[($_.trim("-",":"))] = $RemainingArgs[$index+1] }; $index++ } -End { Write-Output $hash }
+}
 
 Function Join-Hashtables {
 #credit http://powershell.org/wp/2013/01/23/join-powershell-hash-tables/
@@ -82,7 +87,7 @@ function Download-File {
     )
     PROCESS {
         Write-Output "Saving file -- ${SaveTo}"
-        New-Item "${SaveTo}" -ItemType "file" -Force 1> $null
+        New-Item "${SaveTo}" -ItemType "file" -Force > $null
         (new-object net.webclient).DownloadFile("${Url}","${SaveTo}") 2>&1 | log
     }
 }
@@ -116,8 +121,8 @@ $ScriptsToExecute = @(
                        #Scripts will be downloaded and executed in the order listed. 
 
 #Make sure the system prep and working directories exist
-if (-Not (Test-Path $SystemPrepDir)) { New-Item -Path $SystemPrepDir -ItemType "directory" -Force 1>$null; log "Created SystemPrep directory -- ${SystemPrepDir}" } else { log "SystemPrep directory already exists -- $SystemPrepDir" }
-if (-Not (Test-Path $SystemPrepWorkingDir)) { New-Item -Path $SystemPrepWorkingDir -ItemType "directory" -Force 1>$null; log "Created working directory -- ${SystemPrepWorkingDir}" } else { log "Working directory already exists -- ${SystemPrepWorkingDir}" }
+if (-Not (Test-Path $SystemPrepDir)) { New-Item -Path $SystemPrepDir -ItemType "directory" -Force > $null; log "Created SystemPrep directory -- ${SystemPrepDir}" } else { log "SystemPrep directory already exists -- $SystemPrepDir" }
+if (-Not (Test-Path $SystemPrepWorkingDir)) { New-Item -Path $SystemPrepWorkingDir -ItemType "directory" -Force > $null; log "Created working directory -- ${SystemPrepWorkingDir}" } else { log "Working directory already exists -- ${SystemPrepWorkingDir}" }
 
 #Create log entry to note the script name
 log $ScriptStart
