@@ -152,6 +152,7 @@ foreach ($FormulaDir in $FormulaDirs) {
     $FormulaTerminationStrings | foreach { if ($FormulaDir.Name -match "${_}$") { mv $FormulaDir.FullName $FormulaDir.FullName.substring(0,$FormulaDir.FullName.length-$_.length) } }
 }
 
+$VcRedistInstaller = (Get-ChildItem "${SaltWorkingDir}" | where {$_.Name -like "vcredist_x64.exe"}).FullName
 $SaltInstaller = (Get-ChildItem "${SaltWorkingDir}" | where {$_.Name -like "Salt-Minion-*-Setup.exe"}).FullName
 $SaltBase = "C:\salt"
 $SaltFileRoot = "${SaltBase}\file_roots"
@@ -162,8 +163,13 @@ $MinionConf = "${SaltBase}\conf\minion"
 $MinionExe = "${SaltBase}\salt-call.exe"
 $MinionService = "salt-minion"
 
+log "Installing Microsoft Visual C++ 2008 SP1 MFC Security Update redist package -- ${VcRedistInstaller}"
+$VcRedistInstallResult = Start-Process -FilePath $VcRedistInstaller -ArgumentList "/q" -NoNewWindow -PassThru -Wait
+log "Return code of vcredist install: ${${VcRedistInstallResult}.ExitCode)"
+
 log "Installing salt -- ${SaltInstaller}"
-$InstallResult = Start-Process $SaltInstaller -ArgumentList "/S" -NoNewWindow -PassThru -Wait
+$SaltInstallResult = Start-Process -FilePath $SaltInstaller -ArgumentList "/S" -NoNewWindow -PassThru -Wait
+log "Return code of salt install: ${${SaltInstallResult}.ExitCode)"
 
 log "Populating salt file_roots"
 mv "${SaltWorkingDir}\file_roots" "${SaltBase}" -Force
