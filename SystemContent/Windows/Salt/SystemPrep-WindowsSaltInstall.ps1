@@ -165,11 +165,11 @@ $MinionService = "salt-minion"
 
 log "Installing Microsoft Visual C++ 2008 SP1 MFC Security Update redist package -- ${VcRedistInstaller}"
 $VcRedistInstallResult = Start-Process -FilePath $VcRedistInstaller -ArgumentList "/q" -NoNewWindow -PassThru -Wait
-log "Return code of vcredist install: ${${VcRedistInstallResult}.ExitCode)"
+log "Return code of vcredist install: $(${VcRedistInstallResult}.ExitCode)"
 
 log "Installing salt -- ${SaltInstaller}"
 $SaltInstallResult = Start-Process -FilePath $SaltInstaller -ArgumentList "/S" -NoNewWindow -PassThru -Wait
-log "Return code of salt install: ${${SaltInstallResult}.ExitCode)"
+log "Return code of salt install: $(${SaltInstallResult}.ExitCode)"
 
 log "Populating salt file_roots"
 mv "${SaltWorkingDir}\file_roots" "${SaltBase}" -Force
