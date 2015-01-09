@@ -9,10 +9,10 @@ Desktop.ini
 $RECYCLE.BIN/
 
 # Windows Installer files
-*.cab
-*.msi
-*.msm
-*.msp
+#*.cab
+#*.msi
+#*.msm
+#*.msp
 
 # =========================
 # Operating System Files
