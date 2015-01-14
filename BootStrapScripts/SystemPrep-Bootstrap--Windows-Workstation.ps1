@@ -2,7 +2,7 @@
 $SystemPrepMasterScriptUrl = 'https://systemprep.s3.amazonaws.com/MasterScripts/SystemPrep-WindowsMaster.ps1'
 $SystemPrepParams = @{
     AshRole = "Workstation"
-    NetBannerString = "Unclass"
+    NetBannerLabel = "Unclass"
     SaltStates = "Highstate"
     NoReboot = $false
 }
