@@ -23,7 +23,7 @@ Param(
     ,
     [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
     [ValidateSet("None","Unclass","NIPR","SIPR","JWICS")]
-    [string] $NetBannerString = "None"
+    [string] $NetBannerLabel = "None"
     ,
     [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] 
     [string] $SaltStates = "None"
@@ -52,7 +52,7 @@ Param(
                       #-- "DomainController" -- Ash-windows applies the "DomainController" security baseline
                       #-- "Workstation"      -- Ash-windows applies the "Workstation" security baseline
 
-#$NetBannerString = "None" #Writes a salt custom grain to the system, netbanner:string. Determines the NetBanner string and color configuration. Parameter key:
+#$NetBannerLabel = "None" #Writes a salt custom grain to the system, netbanner:string. Determines the NetBanner string and color configuration. Parameter key:
                            #-- "None"    -- Does not write the custom grain to the system; netbanner will default to the Unclass string
                            #-- "Unclass" -- NetBanner Background color: Green,  Text color: White, String: "UNCLASSIFIED"
                            #-- "NIPR"    -- NetBanner Background color: Green,  Text color: White, String: "UNCLASSIFIED//FOUO"
@@ -130,7 +130,7 @@ log "SaltContentUrl = ${SaltContentUrl}"
 log "FormulasToInclude = ${FormulasToInclude}"
 log "FormulaTerminationStrings = ${FormulaTerminationStrings}"
 log "AshRole = ${AshRole}"
-log "NetBannerString = ${NetBannerString}"
+log "NetBannerLabel = ${NetBannerLabel}"
 log "SaltStates = ${SaltStates}"
 log "RemainingArgsHash = $(($RemainingArgsHash.GetEnumerator() | % { `"-{0}: {1}`" -f $_.key, $_.value }) -join ' ')"
 
@@ -215,7 +215,7 @@ $MinionConfContent | foreach -Begin {
 }
 
 #Write custom grains to the salt configuration file
-if ( ($AshRole -ne "None") -or ($NetBannerString -ne "None") ) {
+if ( ($AshRole -ne "None") -or ($NetBannerLabel -ne "None") ) {
     $CustomGrainsContent = @()
     $CustomGrainsContent += "grains:"
 
@@ -225,15 +225,15 @@ if ( ($AshRole -ne "None") -or ($NetBannerString -ne "None") ) {
         $AshRoleCustomGrain += "  ash-windows:"
         $AshRoleCustomGrain += "    role: ${AshRole}"
     }
-    if ($NetBannerString -ne "None") {
-        log "Writing the NetBanner string to a grain in the salt configuration file"
-        $NetBannerStringCustomGrain = @()
-        $NetBannerStringCustomGrain += "  netbanner:"
-        $NetBannerStringCustomGrain += "    string: ${NetBannerString}"
+    if ($NetBannerLabel -ne "None") {
+        log "Writing the NetBanner label to a grain in the salt configuration file"
+        $NetBannerLabelCustomGrain = @()
+        $NetBannerLabelCustomGrain += "  netbanner:"
+        $NetBannerLabelCustomGrain += "    network_label: ${NetBannerLabel}"
     }
 
     $CustomGrainsContent += $AshRoleCustomGrain
-    $CustomGrainsContent += $NetBannerStringCustomGrain
+    $CustomGrainsContent += $NetBannerLabelCustomGrain
     $CustomGrainsContent += ""
 
     #Regex strings to mark the beginning and end of the custom grains section
