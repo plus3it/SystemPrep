@@ -9,6 +9,6 @@ base:
     - match: grain
     - pshelp
 
-    '*'
+  '*'
     - ash-windows.stig
     - ash-windows.delta
