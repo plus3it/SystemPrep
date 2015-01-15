@@ -1,6 +1,6 @@
 .NET:
-  4.5.2:
-    installer: 'salt://dotnet_pkg/dotnetfiles/4.5.2/NDP452-KB2901907-x86-x64-AllOS-ENU.exe'
+  4.5.51209:
+    installer: 'salt://dotnet_pkg/dotnetfiles/4.5.51209/NDP452-KB2901907-x86-x64-AllOS-ENU.exe'
     full_name: 'Microsoft .NET Framework 4.5.2'
     reboot: False
     install_flags: '/q /norestart'
