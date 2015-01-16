@@ -101,6 +101,7 @@ $ScriptsToExecute = @(
                                                                                   SaltContentUrl = "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/salt-content.zip" 
                                                                                   FormulasToInclude = @(
                                                                                                         "https://salt-formulas.s3.amazonaws.com/ash-windows-formula-latest.zip",
+                                                                                                        "https://salt-formulas.s3.amazonaws.com/dotnet4-formula-master.zip"
                                                                                                         "https://salt-formulas.s3.amazonaws.com/emet-formula-master.zip",
                                                                                                         "https://salt-formulas.s3.amazonaws.com/netbanner-formula-master.zip"
                                                                                                        )
