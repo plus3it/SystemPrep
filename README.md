@@ -36,7 +36,7 @@ three components:
 *Bootstrap* scripts are very lightweight and static. Their primary task is to 
 download and execute the master script. They may also establish a log file. 
 They may also pass parameters to the master script (and the master script may, 
-in turn, [****kwargs-style][1], pass them to a content script). Bootstrap 
+in turn, [\*\*kwargs-style][1], pass them to a content script). Bootstrap 
 scripts are tailored slightly to account for differences in provisioning 
 mechanisms (E.g. Amazon EC2 instances, VMware templates, Microsoft Azure, 
 Microsoft SCCM, PXE boot, etc). However, once created for the environment they 
