@@ -26,8 +26,8 @@ system. The web server must be reachable from the system executing the
 
 ## SystemPrep Components
 
-**SystemPrep** scripts abstract the provisioning and configuration process into 
-three components:
+**SystemPrep** abstracts the provisioning and configuration process into three 
+components:
 
 - [*Bootstrap* scripts](#bootstrap-scripts)
 - [*Master* scripts](#master-scripts)
@@ -36,22 +36,23 @@ three components:
 
 ### Bootstrap Scripts
 
-*Bootstrap* scripts are very lightweight and static. Their primary task is to 
-download and execute the *Master* script. They may also establish a log file. 
-They may also pass parameters to the *Master* script (and the *Master* script 
-may, in turn, [\*\*kwargs-style][1], pass them to a *Content* script). 
-*Bootstrap* scripts are tailored slightly to account for differences in 
-provisioning mechanisms (E.g. Amazon EC2 instances, VMware templates, 
+*Bootstrap* scripts are very lightweight and relatively static. Their primary 
+task is to download and execute the *Master* script. They may also establish a 
+log file. They may also pass parameters to the *Master* script (and the 
+*Master* script may, in turn, [\*\*kwargs-style][1], pass them to a *Content* 
+script). *Bootstrap* scripts are tailored slightly to account for differences 
+in provisioning mechanisms (E.g. Amazon EC2 instances, VMware templates, 
 Microsoft Azure, Microsoft SCCM, PXE boot, etc). However, once created for the 
 environment they should rarely require any modification. This fixed, static 
 nature is a key feature of a *Bootstrap* script, and makes them suitable for 
 embedding into an image, if required by the environment. We make a handful of 
-*Bootstrap* scripts available [here](BootStrapScripts), and also provide 
-templates for creating others.
+*Bootstrap* scripts available [here](BootStrapScripts)(see the [Use Case]
+(#included-use-cases) section before using them), and also provide templates 
+for creating others.
 
 **Bootstrap Script Templates:**
 - [Linux *Bootstrap* script Template](TemplateScripts/SystemPrep-Bootstrap-Template-Linux.sh)
-- [Windows *Bootstrap script Template](TemplateScripts/SystemPrep-Bootstrap-Template-Windows.ps1)
+- [Windows *Bootstrap* script Template](TemplateScripts/SystemPrep-Bootstrap-Template-Windows.ps1)
 
 
 ### Master Scripts
@@ -73,15 +74,17 @@ will be added a later time.
 
 ### Content Scripts
 
-*Content* scripts are the workhorses of the capability. *Content* scripts 
-download content, install software, and perform configuration actions. While 
-*Content* scripts can be utilized to perform configuration actions directly, 
-we would recommend utilizing a *Content* script to initialize a configuration 
-management solution and apply a specific configuration state. **SystemPrep** 
-provides *Content* script templates that can be modified as necessary.
+*Content* scripts are the workhorses of the **SystemPrep** capability. 
+*Content* scripts download content, install software, and perform 
+configuration actions. While *Content* scripts can be utilized to perform 
+configuration actions directly, we would recommend utilizing a *Content* 
+script to initialize a configuration management solution and apply a specific 
+configuration state. **SystemPrep** provides *Content* script templates that 
+can be modified as necessary.
 
 **Content Script Templates:**
 - [Windows *Content* script Template](TemplateScripts/SystemPrep-Content-WindowsTemplate.ps1)
+- A Linux *Content* script Template will be added later
 
 In addition, to demonstrate the capability, **SystemPrep** includes a single 
 *Content* script that installs [Salt][0] and configures Salt for masterless 
@@ -129,7 +132,7 @@ the system hardening configuration. These files leverage [Salt formulas][1]
 developed to implement pieces of the configuration.
 
 ```
-**NOTE**: Salt formulas are a set of stand-alone Salt states purpose-built 
+<b>NOTE</b>: Salt formulas are a set of stand-alone Salt states purpose-built 
 to implement a specific bit of functionality.
 ```
 
@@ -152,7 +155,7 @@ above, plus a few other script parameters. Parameters passed from a *Master*
 script to a *Content* script override any default values that may exist in the 
 *Content* script. **Adjust the parameters as necessary for the environment.**
 
-*Master* Script Parameters for the Salt *Content* Script (Windows):
+<b>*Master* Script Parameters for the Salt *Content* Script (Windows)</b>:
 
 ```
 ScriptUrl  = "https://url/to/SystemPrep-WindowsSaltInstall.ps1"
@@ -171,17 +174,17 @@ SaltStates = "Highstate"
 ```
 
 There are several [provided *Bootstrap* scripts](BootStrapScripts), the 
-differences being the infrastructure environment and the system role. The 
-system roles (Windows-only) are based on the `role` parameter of the 
-[ash-windows formula][4]. *Bootstrap* scripts also contain parameters that
-are passed through the *Master* script to the *Content* script. Parameters 
+differences among them being the target infrastructure environment and the 
+system role. The system roles (Windows-only) are based on the `role` parameter 
+of the [ash-windows formula][4]. *Bootstrap* scripts also contain parameters 
+that are passed through the *Master* script to the *Content* script. Parameters 
 set in a *Bootstrap* script override parameter values in a *Master* script, 
 and they override default values that may exist in a *Content* script. This 
 behaviour reduces the need to have multiple *Master* scripts. **These 
 parameters may be modified as necessary at runtime to adjust the behaviour of 
 the system being provisioned.**
 
-*Bootstrap* Script Parameters for the *Master* Script (Windows):
+<b>*Bootstrap* Script Parameters for the *Master* Script (Windows)</b>:
 
 ```
 $SystemPrepParams = @{
@@ -213,7 +216,7 @@ or `$false`.
 #### Usage Details
 
 With the *Master* script, the *Content* script, and any required content 
-properly hosted on a web server (see [Dependencies](#dependencies), using the 
+properly hosted on a web server (see [Dependencies](#dependencies)), using the 
 **SystemPrep** framework is simply a matter of executing the *Bootstrap* script
 on the system. The method by which that is accomplished depends on the 
 infrastructure environment.
