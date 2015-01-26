@@ -131,8 +131,8 @@ addition, we distribute a handful of files that instruct Salt how to apply
 the system hardening configuration. These files leverage [Salt formulas][1] 
 developed to implement pieces of the configuration.
 
-> **NOTE**: Salt formulas are a set of stand-alone Salt states purpose-built 
-to implement a specific bit of functionality.
+> **NOTE**: A Salt formula is a set of one or more stand-alone Salt states 
+purpose-built to implement a specific bit of functionality.
 
 **Required Salt Formulas:**
 
@@ -236,8 +236,8 @@ basically a static image, so this is sub-optimal, but it's still better than
 managing all of the configuration settings within the static image itself.)
 
 - **PXE-boot**: On a Linux system, the *Bootstrap* script could be integrated 
-into a `%post` kickstart script. Windows systems support similar capability 
-via Microsoft WDS, MDT, and ADK.
+into a `%post` kickstart script. Windows systems support similar functionality 
+via a combination of Microsoft WDS, MDT, and ADK.
 
 
 ## References
