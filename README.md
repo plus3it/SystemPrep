@@ -37,30 +37,30 @@ three components:
 ### Bootstrap Scripts
 
 *Bootstrap* scripts are very lightweight and static. Their primary task is to 
-download and execute the master script. They may also establish a log file. 
-They may also pass parameters to the master script (and the master script may, 
-in turn, [\*\*kwargs-style][1], pass them to a content script). Bootstrap 
-scripts are tailored slightly to account for differences in provisioning 
-mechanisms (E.g. Amazon EC2 instances, VMware templates, Microsoft Azure, 
-Microsoft SCCM, PXE boot, etc). However, once created for the environment they 
-should rarely require any modification. This fixed, static nature is a key 
-feature of a bootstrap script, and makes them suitable for embedding into an 
-image, if required by the environment. We make a handful of *Bootstrap* 
-scripts available [here](BootStrapScripts), and also provide templates for 
-creating others.
+download and execute the *Master* script. They may also establish a log file. 
+They may also pass parameters to the *Master* script (and the *Master* script 
+may, in turn, [\*\*kwargs-style][1], pass them to a *Content* script). 
+*Bootstrap* scripts are tailored slightly to account for differences in 
+provisioning mechanisms (E.g. Amazon EC2 instances, VMware templates, 
+Microsoft Azure, Microsoft SCCM, PXE boot, etc). However, once created for the 
+environment they should rarely require any modification. This fixed, static 
+nature is a key feature of a *Bootstrap* script, and makes them suitable for 
+embedding into an image, if required by the environment. We make a handful of 
+*Bootstrap* scripts available [here](BootStrapScripts), and also provide 
+templates for creating others.
 
 **Bootstrap Script Templates:**
-- [Linux Bootstrap script Template](TemplateScripts/SystemPrep-Bootstrap-Template-Linux.sh)
-- [Windows Bootstrap script Template](TemplateScripts/SystemPrep-Bootstrap-Template-Windows.ps1)
+- [Linux *Bootstrap* script Template](TemplateScripts/SystemPrep-Bootstrap-Template-Linux.sh)
+- [Windows *Bootstrap script Template](TemplateScripts/SystemPrep-Bootstrap-Template-Windows.ps1)
 
 
 ### Master Scripts
 
 *Master* scripts orchestrate the execution of *Content* scripts. A *Master* 
 script contains a list of all the *Content* scripts to execute and any 
-required parameters, and it executes the content scripts accordingly. 
-Separating the bootstrap script and the master script in this manner makes it 
-simple to adjust the provisioning framework as requirements change, without 
+required parameters, and it executes the *Content* scripts accordingly. 
+Separating the *Bootstrap* script and the *Master* script in this manner makes 
+it simple to adjust the provisioning framework as requirements change, without 
 changing the OS image in any way. Further, it also streamlines the process for 
 providing new OS versions or updating OS images with patches, as there is no 
 impact to any embedded components of the provisioning and configuration 
@@ -73,15 +73,15 @@ will be added a later time.
 
 ### Content Scripts
 
-*Content* scripts are the workhorses of the capability. Content scripts 
+*Content* scripts are the workhorses of the capability. *Content* scripts 
 download content, install software, and perform configuration actions. While 
-content scripts can be utilized to perform configuration actions directly, we 
-would recommend utilizing a content script to initialize a configuration 
+*Content* scripts can be utilized to perform configuration actions directly, 
+we would recommend utilizing a *Content* script to initialize a configuration 
 management solution and apply a specific configuration state. **SystemPrep** 
 provides *Content* script templates that can be modified as necessary.
 
 **Content Script Templates:**
-- [Windows Content script Template](TemplateScripts/SystemPrep-Content-WindowsTemplate.ps1)
+- [Windows *Content* script Template](TemplateScripts/SystemPrep-Content-WindowsTemplate.ps1)
 
 In addition, to demonstrate the capability, **SystemPrep** includes a single 
 *Content* script that installs [Salt][0] and configures Salt for masterless 
@@ -193,7 +193,8 @@ $SystemPrepParams = @{
 ```
 
 - `AshRole`: Configures the system according to the system role. This parameter
-is based on the `role` setting from the ash-windows Formula. Accepted values:
+is based on the `role` setting from the [ash-windows Formula][4]. Any value 
+other than those listed will revert to the system default:
   - `"Memberserver"`
   - `"DomainController"`
   - `"Workstation"`
@@ -217,7 +218,7 @@ properly hosted on a web server (see [Dependencies](#dependencies), using the
 on the system. The method by which that is accomplished depends on the 
 infrastructure environment.
 
-- **Amazon EC2**: Use the Bootstrap script as `user data` when creating the 
+- **Amazon EC2**: Use the *Bootstrap* script as `user data` when creating the 
 instance. Amazon's documentation on this is rather lacking, but hints on how 
 it works can be found [here][8] and [here][9]. There are a number of other 
 sites with more helpful examples, for example, [here][10], [here][11], and 
@@ -225,15 +226,15 @@ sites with more helpful examples, for example, [here][10], [here][11], and
 *Bootstrap* script into the "User data" section (*Step 3*->*Advanced Details*) 
 of the "Launch Instance" wizard.
 
-- **VMware vCenter/vSphere**: Inject the Bootstrap script into the template and 
-call it with a run-once script. For Windows, calling the script can be 
+- **VMware vCenter/vSphere**: Inject the *Bootstrap* script into the template 
+and call it with a run-once script. For Windows, calling the script can be 
 accomplished via a Customization Specification; Linux customization 
 specifications lack the run-once capability, so it would need to be executed 
 via the `init` system. (Either case requires managing the template, which is 
 basically a static image, so this is sub-optimal, but it's still better than 
 managing all of the configuration settings within the static image itself.)
 
-- **PXE-boot**: On a Linux system, the Bootstrap script could be integrated 
+- **PXE-boot**: On a Linux system, the *Bootstrap* script could be integrated 
 into a `%post` kickstart script. Windows systems support similar capability 
 via Microsoft WDS, MDT, and ADK.
 
