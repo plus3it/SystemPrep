@@ -15,12 +15,14 @@ may be layered in as part of the **SystemPrep** framework. We use [Salt][0] to
 demonstrate how to layer in a CM tool and build a functioning system hardening 
 capability, but feel free to use any CM tool of your choice.
 
+
 ## Dependencies
 
 - A web server to host the *Master* script(s) and *Content* script(s), as well
 as any content (binaries, config files, etc) that must be distributed to the 
 system. The web server must be reachable from the system executing the 
 *Bootstrap* script.
+
 
 ## SystemPrep Components
 
@@ -30,6 +32,7 @@ three components:
 - [*Bootstrap* scripts](#bootstrap-scripts)
 - [*Master* scripts](#master-scripts)
 - [*Content* scripts](#content-scripts)
+
 
 ### Bootstrap Scripts
 
@@ -50,21 +53,23 @@ creating others.
 - [Linux Bootstrap script Template](TemplateScripts/SystemPrep-Bootstrap-Template-Linux.sh)
 - [Windows Bootstrap script Template](TemplateScripts/SystemPrep-Bootstrap-Template-Windows.ps1)
 
+
 ### Master Scripts
 
-*Master* scripts orchestrate the execution of content scripts. A master script 
-contains a list of all the content scripts to execute and any required 
-parameters, and it executes the content scripts accordingly. Separating the 
-bootstrap script and the master script in this manner makes it simple to 
-adjust the provisioning framework as requirements change, without 
+*Master* scripts orchestrate the execution of *Content* scripts. A *Master* 
+script contains a list of all the *Content* scripts to execute and any 
+required parameters, and it executes the content scripts accordingly. 
+Separating the bootstrap script and the master script in this manner makes it 
+simple to adjust the provisioning framework as requirements change, without 
 changing the OS image in any way. Further, it also streamlines the process for 
 providing new OS versions or updating OS images with patches, as there is no 
 impact to any embedded components of the provisioning and configuration 
 framework.
 
-The included [*Master* scripts](MasterScripts) may be used as templates for 
+The [included *Master* scripts](MasterScripts) may be used as templates for 
 creating alternative *Master* scripts. Dedicated *Master* script templates
 will be added a later time.
+
 
 ### Content Scripts
 
@@ -90,15 +95,19 @@ operations. Optionally, the Salt *Content* script will also:
 [Windows](SystemContent/Windows/Salt/SystemPrep-WindowsSaltInstall.ps1), 
 but they perform the same function for their respective OS.)
 
+**Included Content Scripts:**
+
 - [Linux Salt Install *Content* script](SystemContent/Linux/Salt/SystemPrep-LinuxSaltInstall.py)
 - [Windows Salt Install *Content* script](SystemContent/Windows/Salt/SystemPrep-WindowsSaltInstall.ps1)
+
 
 ## Included Use Cases
 
 Pulling all of this together, **SystemPrep** includes one use case today, 
-System Hardening, and may include more in the future.
+_System Hardening_. Additional use cases may be developed in the future.
 
 - [System Hardening](#system-hardening)
+
 
 ### System Hardening
 
@@ -114,31 +123,34 @@ system. This approach is far more dynamic, and far easier to extend or update,
 than a static gold disk. 
 
 To implement this use case, *Bootstrap* scripts and *Master* scripts were 
-developed that leverage the Salt *Content* script. In addition, we distribute
-a handful of files that instruct Salt how to apply the system hardening 
-configuration. These files leverage Salt formulas developed to implement 
-pieces of the configuration.
+developed that leverage the Salt *Content* script (described above). In 
+addition, we distribute a handful of files that instruct Salt how to apply 
+the system hardening configuration. These files leverage [Salt formulas][1] 
+developed to implement pieces of the configuration.
 
-    [Salt formulas][1] are a set of stand-alone Salt states purpose-built to 
-    implement a specific bit of functionality.
+```
+**NOTE**: Salt formulas are a set of stand-alone Salt states purpose-built 
+to implement a specific bit of functionality.
+```
 
 **Required Salt Formulas:**
 
-- [Automated System Hardening - Windows (ash-windows) Formula](../../../ash-windows-formula)
-- [Automated System Hardening - Linux (ash-linux) Formula](../../../ash-linux-formula)
+- [Automated System Hardening - Windows (ash-windows) Formula][4]
+- [Automated System Hardening - Linux (ash-linux) Formula][5]
 - [Microsoft EMET Formula](../../../emet-formula)
 - [Microsoft Netbanner Formula](../../../netbanner-formula)
 
-**Implementation Details:**
+
+####Implementation Details
 
 The [provided *Master* scripts](MasterScripts) include the set of parameters 
 and values to pass to the Salt *Content* scripts. (There is one of each script 
 type for Windows and one for Linux.) These parameters include the URL to the 
 Salt *Content* script, the URL source of the salt-content.zip file (containing 
 the Salt configuration files), and the URL sources of the Salt formulas listed 
-above. Parameters passed from a *Master* script to a *Content* script override 
-any default values that may exist in the *Content* script. **Adjust the 
-parameters as necessary for the environment.**
+above, plus a few other script parameters. Parameters passed from a *Master* 
+script to a *Content* script override any default values that may exist in the 
+*Content* script. **Adjust the parameters as necessary for the environment.**
 
 *Master* Script Parameters for the Salt *Content* Script (Windows):
 
@@ -161,15 +173,24 @@ SaltStates = "Highstate"
 There are several [provided *Bootstrap* scripts](BootStrapScripts), the 
 differences being the infrastructure environment and the system role. The 
 system roles (Windows-only) are based on the `role` parameter of the 
-ash-windows formula. Bootstrap scripts also contain parameters that
+ash-windows formula. *Bootstrap* scripts also contain parameters that
 are passed through the *Master* script to the *Content* script. Parameters 
 set in a *Bootstrap* script override parameter values in a *Master* script, 
 and they override default values that may exist in a *Content* script. This 
-behaviour reduces the need to have multiple *Master* scripts. These parameters
-may be modified as necessary to adjust the behaviour of the system being
-provisioned.
+behaviour reduces the need to have multiple *Master* scripts. **These 
+parameters may be modified as necessary at runtime to adjust the behaviour of 
+the system being provisioned.**
 
 *Bootstrap* Script Parameters for the *Master* Script (Windows):
+
+- `AshRole`: Configures the system according to the system role. This parameter
+is based on the `role` setting from the ash-windows Formula. Accepted values:
+  - `"Memberserver"`
+  - `"DomainController"`
+  - `"Workstation"`
+
+- `NetBannerLabel`: Applies the Netbanner settings associated with the 
+specified label. See the [Netbanner Formula] for details.
 
 ```
 $SystemPrepParams = @{
@@ -180,13 +201,61 @@ $SystemPrepParams = @{
 }
 ```
 
+
+#### Usage Details
+
+With the *Master* script, the *Content* script, and any required content 
+properly hosted on a web server (see [Dependencies](#dependencies), using the 
+**SystemPrep** framework is simply a matter of executing the *Bootstrap* script
+on the system. The method by which that is accomplished depends on the 
+infrastructure environment.
+
+- **Amazon EC2**: Use the Bootstrap script as `user data` when creating the 
+instance. Amazon's documentation on this is rather lacking, but hints on how 
+it works can be found [here][8] and [here][9]. There are a number of other 
+sites with more helpful examples, for example, [here][10], [here][11], and 
+[here][12]. If using the AWS Console, simply paste the contents of the 
+*Bootstrap* script into the "User data" section (Step 3->Advanced Details) of 
+the "Launch Instance" wizard.
+
+- **VMware vCenter/vSphere**: Inject the Bootstrap script into the template and 
+call it with a run-once script. For Windows, calling the script can be 
+accomplished via a Customization Specification; Linux customization 
+specifications lack the run-once capability, so it would need to be executed 
+via the `init` system. (Either case requires managing the template, which is 
+basically a static image, so this is sub-optimal, but it's still better than 
+managing all of the configuration settings within the static image itself.)
+
+- **PXE-boot**: On a Linux system, the Bootstrap script could be integrated 
+into a `%post` kickstart script. Windows systems support similar capability 
+via Microsoft WDS, MDT, and ADK.
+
+
 ## References
 - [SaltStack Salt - Community Edition][0]
 - [Salt Formulas][1]
 - [Python Docs on **kwargs][2]
-- [Another Description of **kwargs[3]
+- [Another Description of **kwargs][3]
+- [Automated System Hardening - Windows (ash-windows)][4]
+- [Automated System Hardening - Linux (ash-linux) Formula][5]
+- [Microsoft EMET Formula][6]
+- [Microsoft Netbanner Formula][7]
+- [AWS - Running Commands at Instance Launch][8]
+- [AWS - Using the EC2Config Service for Windows][9]
+- [Automate EC2 Instance Setup with user-data Scripts][10]
+- [Automatically provisioning Amazon EC2 instances with Tentacle installed][11]
+- [Bootstrapping Windows Servers][12]
 
 [0]: https://github.com/saltstack/salt
 [1]: http://docs.saltstack.com/en/latest/topics/development/conventions/formulas.html
 [2]: https://docs.python.org/3.4/tutorial/controlflow.html#keyword-arguments
 [3]: http://agiliq.com/blog/2012/06/understanding-args-and-kwargs/
+[4]: ../../../ash-windows-formula
+[5]: ../../../ash-linux-formula
+[6]: ../../../emet-formula
+[7]: ../../../netbanner-formula
+[8]: http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html
+[9]: http://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/UsingConfig_WinAMI.html
+[10]: http://alestic.com/2009/06/ec2-user-data-scripts
+[11]: http://octopusdeploy.com/blog/auto-provision-ec2-instances-with-tentacle-installed
+[12]: http://www.masterzen.fr/2014/01/11/bootstrapping-windows-servers-with-puppet/
