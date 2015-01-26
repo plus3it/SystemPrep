@@ -2,9 +2,11 @@
 set -ex
 
 #User variables
-SYSTEMPREPMASTERSCRIPTSOURCE="https://systemprep.s3.amazonaws.com/MasterScripts/systemprep-linuxmaster.py"
-SYSTEMPREPPARAMS=( "SaltStates=Highstate"
-                   "NoReboot=False" )
+SYSTEMPREPMASTERSCRIPTSOURCE="https://url/to/masterscript-linux.py"
+SYSTEMPREPPARAMS=( "Param1=Value1"
+                   "Param2=Value2"
+                   "Param3=Value3"
+                   "Param4=Value4" )
 
 #System variables
 SCRIPTNAME=$0

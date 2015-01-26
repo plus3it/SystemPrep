@@ -1,5 +1,5 @@
 #User variables
-$SystemPrepMasterScriptUrl = 'https://url/to/masterscript.ps1'
+$SystemPrepMasterScriptUrl = 'https://url/to/masterscript-windows.ps1'
 $SystemPrepParams = @{
     Param1 = "Value1"
     Param2 = "Value2"
