@@ -131,7 +131,7 @@ addition, we distribute a handful of files that instruct Salt how to apply
 the system hardening configuration. These files leverage [Salt formulas][1] 
 developed to implement pieces of the configuration.
 
-    **NOTE**: Salt formulas are a set of stand-alone Salt states purpose-built 
+> **NOTE**: Salt formulas are a set of stand-alone Salt states purpose-built 
 to implement a specific bit of functionality.
 
 **Required Salt Formulas:**
