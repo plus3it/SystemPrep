@@ -186,7 +186,7 @@ $SystemPrepParams = @{
 - [Python Docs on **kwargs][2]
 - [Another Description of **kwargs[3]
 
-[0](https://github.com/saltstack/salt)
-[1](http://docs.saltstack.com/en/latest/topics/development/conventions/formulas.html)
-[2](https://docs.python.org/3.4/tutorial/controlflow.html#keyword-arguments)
-[3](http://agiliq.com/blog/2012/06/understanding-args-and-kwargs/)
+[0]: https://github.com/saltstack/salt
+[1]: http://docs.saltstack.com/en/latest/topics/development/conventions/formulas.html
+[2]: https://docs.python.org/3.4/tutorial/controlflow.html#keyword-arguments
+[3]: http://agiliq.com/blog/2012/06/understanding-args-and-kwargs/
