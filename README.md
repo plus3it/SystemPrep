@@ -173,7 +173,7 @@ SaltStates = "Highstate"
 There are several [provided *Bootstrap* scripts](BootStrapScripts), the 
 differences being the infrastructure environment and the system role. The 
 system roles (Windows-only) are based on the `role` parameter of the 
-ash-windows formula. *Bootstrap* scripts also contain parameters that
+[ash-windows formula][4]. *Bootstrap* scripts also contain parameters that
 are passed through the *Master* script to the *Content* script. Parameters 
 set in a *Bootstrap* script override parameter values in a *Master* script, 
 and they override default values that may exist in a *Content* script. This 
@@ -182,15 +182,6 @@ parameters may be modified as necessary at runtime to adjust the behaviour of
 the system being provisioned.**
 
 *Bootstrap* Script Parameters for the *Master* Script (Windows):
-
-- `AshRole`: Configures the system according to the system role. This parameter
-is based on the `role` setting from the ash-windows Formula. Accepted values:
-  - `"Memberserver"`
-  - `"DomainController"`
-  - `"Workstation"`
-
-- `NetBannerLabel`: Applies the Netbanner settings associated with the 
-specified label. See the [Netbanner Formula] for details.
 
 ```
 $SystemPrepParams = @{
@@ -201,6 +192,22 @@ $SystemPrepParams = @{
 }
 ```
 
+- `AshRole`: Configures the system according to the system role. This parameter
+is based on the `role` setting from the ash-windows Formula. Accepted values:
+  - `"Memberserver"`
+  - `"DomainController"`
+  - `"Workstation"`
+
+- `NetBannerLabel`: Applies the Netbanner settings associated with the 
+specified label. See the [Netbanner Formula][7] for details.
+
+- `SaltStates`: Comma-separated list of Salt states to apply to the system. 
+This parameter is passed through to the Salt Install *Content* script. 
+`"Highstate"` is a special keyword that applies the [Salt Highstate][13]. 
+
+- `NoReboot`: Boolean parameter that controls whether the *Master* script will 
+reboot the system upon completion of the script. Acceptable values are `$true`
+or `$false`.
 
 #### Usage Details
 
@@ -215,8 +222,8 @@ instance. Amazon's documentation on this is rather lacking, but hints on how
 it works can be found [here][8] and [here][9]. There are a number of other 
 sites with more helpful examples, for example, [here][10], [here][11], and 
 [here][12]. If using the AWS Console, simply paste the contents of the 
-*Bootstrap* script into the "User data" section (Step 3->Advanced Details) of 
-the "Launch Instance" wizard.
+*Bootstrap* script into the "User data" section (*Step 3*->*Advanced Details*) 
+of the "Launch Instance" wizard.
 
 - **VMware vCenter/vSphere**: Inject the Bootstrap script into the template and 
 call it with a run-once script. For Windows, calling the script can be 
@@ -234,6 +241,7 @@ via Microsoft WDS, MDT, and ADK.
 ## References
 - [SaltStack Salt - Community Edition][0]
 - [Salt Formulas][1]
+- [Salt Highstate][13]
 - [Python Docs on **kwargs][2]
 - [Another Description of **kwargs][3]
 - [Automated System Hardening - Windows (ash-windows)][4]
@@ -259,3 +267,4 @@ via Microsoft WDS, MDT, and ADK.
 [10]: http://alestic.com/2009/06/ec2-user-data-scripts
 [11]: http://octopusdeploy.com/blog/auto-provision-ec2-instances-with-tentacle-installed
 [12]: http://www.masterzen.fr/2014/01/11/bootstrapping-windows-servers-with-puppet/
+[13]: http://docs.saltstack.com/en/latest/ref/states/highstate.html
