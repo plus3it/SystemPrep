@@ -98,6 +98,7 @@ $ScriptsToExecute = @(
                             ScriptUrl  = "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/SystemPrep-WindowsSaltInstall.ps1"
                             Parameters = (Join-Hashtables $RemainingArgsHash  @{ 
                                                                                   SaltWorkingDir = "${SystemPrepWorkingDir}\SystemContent\Windows\Salt" 
+                                                                                  SaltInstallerUrl = "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/salt-installer.zip" 
                                                                                   SaltContentUrl = "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/salt-content.zip" 
                                                                                   FormulasToInclude = @(
                                                                                                         "https://salt-formulas.s3.amazonaws.com/ash-windows-formula-latest.zip",
