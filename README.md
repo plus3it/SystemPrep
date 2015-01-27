@@ -138,8 +138,9 @@ purpose-built to implement a specific bit of functionality.
 
 - [Automated System Hardening - Windows (ash-windows) Formula][4]
 - [Automated System Hardening - Linux (ash-linux) Formula][5]
-- [Microsoft EMET Formula](../../../emet-formula)
-- [Microsoft Netbanner Formula](../../../netbanner-formula)
+- [Microsoft dotnet Formula][14]
+- [Microsoft EMET Formula][6]
+- [Microsoft Netbanner Formula][7]
 
 
 ####Implementation Details
@@ -248,6 +249,7 @@ via a combination of Microsoft WDS, MDT, and ADK.
 - [Another Description of **kwargs][3]
 - [Automated System Hardening - Windows (ash-windows)][4]
 - [Automated System Hardening - Linux (ash-linux) Formula][5]
+- [Microsoft dotnet Formula][14]
 - [Microsoft EMET Formula][6]
 - [Microsoft Netbanner Formula][7]
 - [AWS - Running Commands at Instance Launch][8]
@@ -270,3 +272,4 @@ via a combination of Microsoft WDS, MDT, and ADK.
 [11]: http://octopusdeploy.com/blog/auto-provision-ec2-instances-with-tentacle-installed
 [12]: http://www.masterzen.fr/2014/01/11/bootstrapping-windows-servers-with-puppet/
 [13]: http://docs.saltstack.com/en/latest/ref/states/highstate.html
+[14]: ../../../dotnet-formula
