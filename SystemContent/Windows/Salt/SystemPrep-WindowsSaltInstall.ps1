@@ -8,6 +8,10 @@ Param(
     ,
 	[Parameter(Mandatory=$true,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
     [ValidateScript({ $_ -match "^http[s]?://.*\.zip$" })]
+    [string] $SaltInstallerUrl
+    ,
+	[Parameter(Mandatory=$true,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
+    [ValidateScript({ $_ -match "^http[s]?://.*\.zip$" })]
     [string] $SaltContentUrl
     ,
 	[Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
@@ -36,7 +40,9 @@ Param(
 #$SaltWorkingDir      #Fully-qualified path to a directory that will be used as a staging location for download and unzip salt content
                       #specified in $SaltContentUrl and any formulas in $FormulasToInclude
 
-#$SaltContentUrl      #Url to a zip file containing the salt installer executable and the files_root salt content
+#$SaltContentUrl      #Url to a zip file containing the salt installer executable
+
+#$SaltContentUrl      #Url to a zip file containing the `files_root` salt content
 
 #$FormulasToInclude   #Array of strings, where each string is the url of a zipped salt formula to be included in the salt configuration.
                       #Formula content *must* be contained in a zip file.
@@ -126,6 +132,7 @@ if (-Not (Test-Path $SaltWorkingDir)) { New-Item -Path $SaltWorkingDir -ItemType
 log $ScriptStart
 log "Within ${ScriptName} --"
 log "SaltWorkingDir = ${SaltWorkingDir}"
+log "SaltInstallerUrl = ${SaltInstallerUrl}"
 log "SaltContentUrl = ${SaltContentUrl}"
 log "FormulasToInclude = ${FormulasToInclude}"
 log "FormulaTerminationStrings = ${FormulaTerminationStrings}"
@@ -136,10 +143,17 @@ log "RemainingArgsHash = $(($RemainingArgsHash.GetEnumerator() | % { `"-{0}: {1}
 
 #Insert script commands
 ###
+#Download and extract the salt installer
+$SaltInstallerFile = (${SaltInstallerUrl}.split('/'))[-1]
+Download-File -Url $SaltInstallerUrl -SaveTo "${SaltWorkingDir}\${SaltInstallerFile}" | log
+Expand-ZipFile -FileName ${SaltInstallerFile} -SourcePath ${SaltWorkingDir} -DestPath ${SaltWorkingDir}
+
+#Download and extract the salt content
 $SaltContentFile = (${SaltContentUrl}.split('/'))[-1]
 Download-File -Url $SaltContentUrl -SaveTo "${SaltWorkingDir}\${SaltContentFile}" | log
 Expand-ZipFile -FileName ${SaltContentFile} -SourcePath ${SaltWorkingDir} -DestPath ${SaltWorkingDir}
 
+#Download and extract the salt formulas
 foreach ($Formula in $FormulasToInclude) {
     $FormulaFile = (${Formula}.split('/'))[-1]
     Download-File -Url ${Formula} -SaveTo "${SaltWorkingDir}\${FormulaFile}" | log
