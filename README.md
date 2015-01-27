@@ -148,17 +148,20 @@ purpose-built to implement a specific bit of functionality.
 The [provided *Master* scripts](MasterScripts) include the set of parameters 
 and values to pass to the Salt *Content* scripts. (There is one of each script 
 type for Windows and one for Linux.) These parameters include the URL to the 
-Salt *Content* script, the URL source of the salt-content.zip file (containing 
-the Salt configuration files), and the URL sources of the Salt formulas listed 
-above, plus a few other script parameters. Parameters passed from a *Master* 
-script to a *Content* script override any default values that may exist in the 
-*Content* script. **Adjust the parameters as necessary for the environment.**
+Salt *Content* script, the URL source of the salt-installer.zip file (containing 
+the binaries required to install Salt), the URL source of the salt-content.zip 
+file (containing the Salt configuration files), and the URL sources of the Salt 
+formulas listed above, plus a few other script parameters. Parameters passed 
+from a *Master* script to a *Content* script override any default values that 
+may exist in the *Content* script. **Adjust the parameters as necessary for the 
+environment.**
 
 <b>*Master* Script Parameters for the Salt *Content* Script (Windows)</b>:
 
 ```
 ScriptUrl  = "https://url/to/SystemPrep-WindowsSaltInstall.ps1"
 SaltWorkingDir = "${SystemPrepWorkingDir}\SystemContent\Windows\Salt" 
+SaltInstallerUrl = "https://url/to/salt-installer.zip" 
 SaltContentUrl = "https://url/to/salt-content.zip" 
 FormulasToInclude = @(
                     "https://url/to/ash-windows-formula-master.zip",
