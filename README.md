@@ -22,13 +22,13 @@ capability, but feel free to use any CM tool of your choice.
 script(s), as well as any content (binaries, config files, etc) that must be 
 distributed to the system. The service must be reachable from the system 
 executing the *Bootstrap* script
-  -- If using a basic web server to host the files, the web server must not 
-     require authentication.
-  -- If using an S3 bucket to host the files, and running **SystemPrep** from
-     an EC2 instance, the instance must have an IAM role that grants it the 
-     `GetObject` privilege to the bucket. Set `SourceIsS3Bucket` to `true` in 
-     the *Bootstrap* script. See [Implementation Details]
-     (#implementation-details).
+  - If using a basic web server to host the files, the web server must not 
+    require authentication.
+  - If using an S3 bucket to host the files, and running **SystemPrep** from
+    an EC2 instance, the instance must have an IAM role that grants it the 
+    `GetObject` privilege to the bucket. Set `SourceIsS3Bucket` to `true` in 
+    the *Bootstrap* script. See [Implementation Details]
+    (#implementation-details).
 
 
 ## SystemPrep Components
@@ -145,7 +145,7 @@ purpose-built to implement a specific bit of functionality.
 
 - [Automated System Hardening - Windows (ash-windows) Formula][4]
 - [Automated System Hardening - Linux (ash-linux) Formula][5]
-- [Microsoft dotnet Formula][14]
+- [Microsoft dotnet4 Formula][14]
 - [Microsoft EMET Formula][6]
 - [Microsoft Netbanner Formula][7]
 
@@ -218,12 +218,12 @@ the bucket. If an S3 bucket is the source, set this parameter to `$true` (the
 default). Otherwise, set it to `$false`.
 
   The bucket URL format must use the path-style form:
-  -- `https://<s3endpoint>/<bucketname>/path/to/file`
+  - `https://<s3endpoint>/<bucketname>/path/to/file`
 
   Note that the URL uses the path-style syntax to access the bucket, where 
-  <bucketname> is after <s3endpoint>. The **SystemPrep** scripts currently do 
-  not support using the virtual-host syntax. See Amazon's [S3 documentation on 
-  virtual hosting][15].
+  `<bucketname>` is in the URI path after `<s3endpoint>`. The **SystemPrep** 
+  scripts currently do not support using the virtual-host syntax. See Amazon's 
+  [S3 documentation on virtual hosting][15].
 
 - `AshRole`: Configures the system according to the system role. This parameter
 is based on the `role` setting from the [ash-windows Formula][4]. Any value 
@@ -304,5 +304,5 @@ via a combination of Microsoft WDS, MDT, and ADK.
 [11]: http://octopusdeploy.com/blog/auto-provision-ec2-instances-with-tentacle-installed
 [12]: http://www.masterzen.fr/2014/01/11/bootstrapping-windows-servers-with-puppet/
 [13]: http://docs.saltstack.com/en/latest/ref/states/highstate.html
-[14]: ../../../dotnet-formula
+[14]: ../../../dotnet4-formula
 [15]: http://docs.aws.amazon.com/AmazonS3/latest/dev/VirtualHosting.html
