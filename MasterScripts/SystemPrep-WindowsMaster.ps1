@@ -1,13 +1,20 @@
 [CmdLetBinding()]
 Param(
-    [Parameter(Mandatory=$false,Position=0,ValueFromRemainingArguments=$true)] $RemainingArgs,
-    [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] [switch] $NoReboot
+    [Parameter(Mandatory=$false,Position=0,ValueFromRemainingArguments=$true)] 
+    $RemainingArgs
+    ,
+    [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] 
+    [switch] $SourceIsS3Bucket
+    ,
+    [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] 
+    [switch] $NoReboot
 )
 #Parameter Descriptions
 #$RemainingArgs       #Parameter that catches any undefined parameters passed to the script.
                       #Used by the bootstrapping framework to pass those parameters through to other scripts. 
                       #This way, we don't need to know in advance all the parameter names for downstream scripts.
-                      
+
+#$SourceIsS3Bucket    #Set to $true if all content to be downloaded is hosted in an S3 bucket and should be retrieved using AWS tools.
 #$NoReboot            #Switch to disable the system reboot. By default, the master script will reboot the system when the script is complete.
 
 #System variables
@@ -83,33 +90,44 @@ function Download-File {
     [CmdLetBinding()]
     Param(
         [Parameter(Mandatory=$true,Position=0,ValueFromPipeLine=$true,ValueFromPipeLineByPropertyName=$true)] [string] $Url,
-        [Parameter(Mandatory=$true,Position=1,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] [string] $SaveTo
+        [Parameter(Mandatory=$true,Position=1,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] [string] $SaveTo,
+        [Parameter(Mandatory=$false,Position=2,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] [switch] $SourceIsS3Bucket
     )
     PROCESS {
-        Write-Output "Saving file -- ${SaveTo}"
-        New-Item "${SaveTo}" -ItemType "file" -Force > $null
-        (new-object net.webclient).DownloadFile("${Url}","${SaveTo}") 2>&1 | log
+        if ($SourceIsS3Bucket) {
+            Write-Output "Downloading from S3 bucket and saving to: ${SaveTo}"
+            $SplitUrl = $Url.split('/') | where { $_ -notlike "" }
+            $BucketName = $SplitUrl[2]
+            $Key = $SplitUrl[3..($SplitUrl.count-1)] -join '/'
+            Read-S3Object -BucketName $BucketName -Key $Key -File $SaveTo 2>&1
+        }
+        else {
+            Write-Output "Downloading from HTTP host and saving to: ${SaveTo}"
+            New-Item "${SaveTo}" -ItemType "file" -Force > $null
+            (new-object net.webclient).DownloadFile("${Url}","${SaveTo}") 2>&1
+        }
     }
 }
 
 #User variables
 $ScriptsToExecute = @(
                         @{
-                            ScriptUrl  = "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/SystemPrep-WindowsSaltInstall.ps1"
+                            ScriptUrl  = "https://s3.amazonaws.com/systemprep/SystemContent/Windows/Salt/SystemPrep-WindowsSaltInstall.ps1"
                             Parameters = (Join-Hashtables $RemainingArgsHash  @{ 
-                                                                                  SaltWorkingDir = "${SystemPrepWorkingDir}\SystemContent\Windows\Salt" 
-                                                                                  SaltInstallerUrl = "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/salt-installer.zip" 
-                                                                                  SaltContentUrl = "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/salt-content.zip" 
+                                                                                  SaltWorkingDir = "${SystemPrepWorkingDir}\Salt" 
+                                                                                  SaltInstallerUrl = "https://systemprep.s3.amazonaws.com/systemprep/SystemContent/Windows/Salt/salt-installer.zip" 
+                                                                                  SaltContentUrl = "https://systemprep.s3.amazonaws.com/systemprep/SystemContent/Windows/Salt/salt-content.zip" 
                                                                                   FormulasToInclude = @(
-                                                                                                        "https://salt-formulas.s3.amazonaws.com/ash-windows-formula-latest.zip",
-                                                                                                        "https://salt-formulas.s3.amazonaws.com/dotnet4-formula-master.zip"
-                                                                                                        "https://salt-formulas.s3.amazonaws.com/emet-formula-master.zip",
-                                                                                                        "https://salt-formulas.s3.amazonaws.com/netbanner-formula-master.zip"
+                                                                                                        "https://s3.amazonaws.com/salt-formulas/ash-windows-formula-latest.zip",
+                                                                                                        "https://s3.amazonaws.com/salt-formulas/dotnet4-formula-master.zip"
+                                                                                                        "https://s3.amazonaws.com/salt-formulas/emet-formula-master.zip",
+                                                                                                        "https://s3.amazonaws.com/salt-formulas/netbanner-formula-master.zip"
                                                                                                        )
                                                                                   FormulaTerminationStrings = @( "-latest", "-master" )
                                                                                   AshRole = "MemberServer"
                                                                                   NetBannerLabel = "Unclass"
                                                                                   SaltStates = "Highstate"
+                                                                                  SourceIsS3Bucket = $SourceIsS3Bucket
                                                                                 } -Force 
                                          )
                          }
@@ -131,6 +149,7 @@ if (-Not (Test-Path $SystemPrepWorkingDir)) { New-Item -Path $SystemPrepWorkingD
 #Create log entry to note the script name
 log $ScriptStart
 log "Within ${ScriptName} -- Beginning system preparation"
+log "SourceIsS3Bucket = ${SourceIsS3Bucket}"
 log "NoReboot = ${NoReboot}"
 log "RemainingArgsHash = $(($RemainingArgsHash.GetEnumerator() | % { `"-{0}: {1}`" -f $_.key, $_.value }) -join ' ')"
 
@@ -154,9 +173,9 @@ foreach ($ScriptObject in $ScriptsToExecute) {
     $Script = $ScriptObject["ScriptUrl"]
     $ScriptParams = $ScriptObject["Parameters"]
     $Split = $Script.split('/') | where { $_ -notlike "" }
-    $RelativePath = $Split[2..($Split.count-1)] -join '\'
-    $FullPath = "${SystemPrepWorkingDir}\$RelativePath"
-    Download-File -Url $Script -SaveTo $FullPath 2>&1 | log
+    $FileName = $Split[($Split.Count-1)]
+    $FullPath = "${SystemPrepWorkingDir}\$FileName"
+    Download-File -Url $Script -SaveTo $FullPath -SourceIsS3Bucket:$SourceIsS3Bucket 2>&1 | log
     log "Calling script -- ${FullPath}"
     Invoke-Expression "& ${FullPath} @ScriptParams"
 }

@@ -2,6 +2,10 @@
 Param(
     [Parameter(Mandatory=$false,Position=0,ValueFromRemainingArguments=$true)] 
     $RemainingArgs
+    ,
+    [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] 
+    [switch] $SourceIsS3Bucket
+
 #    ,
 #	[Parameter(Mandatory=$true,Position=0,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] 
 #   [ValidateSet("value1","value2","etc")]
@@ -12,8 +16,10 @@ Param(
                       #Used by the bootstrapping framework to pass those parameters through to other scripts. 
                       #This way, we don't need to know in advance all the parameter names for downstream scripts.
 
+#$SourceIsS3Bucket    #Set to $true if all content to be downloaded is hosted in an S3 bucket and should be retrieved using AWS tools.
+
 #$ParamName           #ParamDescription...
-                      
+
 #System variables
 $ScriptName = $MyInvocation.mycommand.name
 $SystemPrepDir = "${env:SystemDrive}\SystemPrep"
@@ -46,12 +52,22 @@ function Download-File {
     [CmdLetBinding()]
     Param(
         [Parameter(Mandatory=$true,Position=0,ValueFromPipeLine=$true,ValueFromPipeLineByPropertyName=$true)] [string] $Url,
-        [Parameter(Mandatory=$true,Position=1,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] [string] $SaveTo
+        [Parameter(Mandatory=$true,Position=1,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] [string] $SaveTo,
+        [Parameter(Mandatory=$false,Position=2,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] [switch] $SourceIsS3Bucket
     )
     PROCESS {
-        Write-Output "Saving file -- ${SaveTo}"
-        New-Item "${SaveTo}" -ItemType "file" -Force 1> $null
-        (new-object net.webclient).DownloadFile("${Url}","${SaveTo}") 2>&1 | log
+        if ($SourceIsS3Bucket) {
+            Write-Output "Downloading from S3 bucket and saving to: ${SaveTo}"
+            $SplitUrl = $Url.split('/') | where { $_ -notlike "" }
+            $BucketName = $SplitUrl[2]
+            $Key = $SplitUrl[3..($SplitUrl.count-1)] -join '/'
+            Read-S3Object -BucketName $BucketName -Key $Key -File $SaveTo 2>&1
+        }
+        else {
+            Write-Output "Downloading from HTTP host and saving to: ${SaveTo}"
+            New-Item "${SaveTo}" -ItemType "file" -Force > $null
+            (new-object net.webclient).DownloadFile("${Url}","${SaveTo}") 2>&1
+        }
     }
 }
 

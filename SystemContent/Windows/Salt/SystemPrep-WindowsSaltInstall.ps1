@@ -31,6 +31,9 @@ Param(
     ,
     [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] 
     [string] $SaltStates = "None"
+    ,
+    [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] 
+    [switch] $SourceIsS3Bucket
 )
 #Parameter Descriptions
 #$RemainingArgs       #Parameter that catches any undefined parameters passed to the script.
@@ -70,6 +73,8 @@ Param(
                       #-- "Highstate"         -- Special keyword; applies the salt "highstate" as defined in the SystemPrep top.sls file
                       #-- "user,defined,list" -- User may pass in a comma-separated list of salt states to apply to the system; state names are case-sensitive and must match exactly
 
+#$SourceIsS3Bucket    #Set to $true if all content to be downloaded is hosted in an S3 bucket and should be retrieved using AWS tools.
+
 #System variables
 $ScriptName = $MyInvocation.mycommand.name
 $SystemRoot = $env:SystemRoot
@@ -100,12 +105,22 @@ function Download-File {
     [CmdLetBinding()]
     Param(
         [Parameter(Mandatory=$true,Position=0,ValueFromPipeLine=$true,ValueFromPipeLineByPropertyName=$true)] [string] $Url,
-        [Parameter(Mandatory=$true,Position=1,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] [string] $SaveTo
+        [Parameter(Mandatory=$true,Position=1,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] [string] $SaveTo,
+        [Parameter(Mandatory=$false,Position=2,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] [switch] $SourceIsS3Bucket
     )
     PROCESS {
-        Write-Output "Saving file -- ${SaveTo}"
-        New-Item "${SaveTo}" -ItemType "file" -Force > $null
-        (new-object net.webclient).DownloadFile("${Url}","${SaveTo}") 2>&1
+        if ($SourceIsS3Bucket) {
+            Write-Output "Downloading from S3 bucket and saving to: ${SaveTo}"
+            $SplitUrl = $Url.split('/') | where { $_ -notlike "" }
+            $BucketName = $SplitUrl[2]
+            $Key = $SplitUrl[3..($SplitUrl.count-1)] -join '/'
+            Read-S3Object -BucketName $BucketName -Key $Key -File $SaveTo 2>&1
+        }
+        else {
+            Write-Output "Downloading from HTTP host and saving to: ${SaveTo}"
+            New-Item "${SaveTo}" -ItemType "file" -Force > $null
+            (new-object net.webclient).DownloadFile("${Url}","${SaveTo}") 2>&1
+        }
     }
 }
 
@@ -139,24 +154,25 @@ log "FormulaTerminationStrings = ${FormulaTerminationStrings}"
 log "AshRole = ${AshRole}"
 log "NetBannerLabel = ${NetBannerLabel}"
 log "SaltStates = ${SaltStates}"
+log "SourceIsS3Bucket = ${SourceIsS3Bucket}"
 log "RemainingArgsHash = $(($RemainingArgsHash.GetEnumerator() | % { `"-{0}: {1}`" -f $_.key, $_.value }) -join ' ')"
 
 #Insert script commands
 ###
 #Download and extract the salt installer
 $SaltInstallerFile = (${SaltInstallerUrl}.split('/'))[-1]
-Download-File -Url $SaltInstallerUrl -SaveTo "${SaltWorkingDir}\${SaltInstallerFile}" | log
+Download-File -Url $SaltInstallerUrl -SaveTo "${SaltWorkingDir}\${SaltInstallerFile}" -SourceIsS3Bucket:$SourceIsS3Bucket | log
 Expand-ZipFile -FileName ${SaltInstallerFile} -SourcePath ${SaltWorkingDir} -DestPath ${SaltWorkingDir}
 
 #Download and extract the salt content
 $SaltContentFile = (${SaltContentUrl}.split('/'))[-1]
-Download-File -Url $SaltContentUrl -SaveTo "${SaltWorkingDir}\${SaltContentFile}" | log
+Download-File -Url $SaltContentUrl -SaveTo "${SaltWorkingDir}\${SaltContentFile}" -SourceIsS3Bucket:$SourceIsS3Bucket | log
 Expand-ZipFile -FileName ${SaltContentFile} -SourcePath ${SaltWorkingDir} -DestPath ${SaltWorkingDir}
 
 #Download and extract the salt formulas
 foreach ($Formula in $FormulasToInclude) {
     $FormulaFile = (${Formula}.split('/'))[-1]
-    Download-File -Url ${Formula} -SaveTo "${SaltWorkingDir}\${FormulaFile}" | log
+    Download-File -Url ${Formula} -SaveTo "${SaltWorkingDir}\${FormulaFile}" -SourceIsS3Bucket:$SourceIsS3Bucket | log
     Expand-ZipFile -FileName ${FormulaFile} -SourcePath ${SaltWorkingDir} -DestPath "${SaltWorkingDir}\formulas"
 }
 
@@ -176,6 +192,7 @@ $SaltWinRepo = "${SaltFileRoot}\winrepo"
 $MinionConf = "${SaltBase}\conf\minion"
 $MinionExe = "${SaltBase}\salt-call.exe"
 $MinionService = "salt-minion"
+$SaltOutputLogFile = "${SaltWorkingDir}\state.output.log"
 
 log "Installing Microsoft Visual C++ 2008 SP1 MFC Security Update redist package -- ${VcRedistInstaller}"
 $VcRedistInstallResult = Start-Process -FilePath $VcRedistInstaller -ArgumentList "/q" -NoNewWindow -PassThru -Wait
@@ -283,10 +300,10 @@ if ("None" -eq $SaltStates) {
     log "Detected the States parameter is set to: ${SaltStates}. Will not apply any salt states."
 } elseif ("Highstate" -eq $SaltStates ) {
     log "Detected the States parameter is set to: ${SaltStates}. Applying the salt `"highstate`" to the system."
-    $ApplyStatesResult = Start-Process $MinionExe -ArgumentList "--local state.highstate" -NoNewWindow -PassThru -Wait
+    $ApplyStatesResult = Start-Process $MinionExe -ArgumentList "--local state.highstate --log-file ${SaltOutputLogFile} --log-file-level debug" -NoNewWindow -PassThru -Wait
 } else {
     log "Detected the States parameter is set to: ${SaltStates}. Applying the user-defined list of states to the system."
-    $ApplyStatesResult = Start-Process $MinionExe -ArgumentList "--local state.sls ${SaltStates}" -NoNewWindow -PassThru -Wait
+    $ApplyStatesResult = Start-Process $MinionExe -ArgumentList "--local state.sls ${SaltStates} --log-file ${SaltOutputLogFile} --log-file-level debug" -NoNewWindow -PassThru -Wait
 }
 ###
 
