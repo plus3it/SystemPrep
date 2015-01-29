@@ -18,10 +18,17 @@ capability, but feel free to use any CM tool of your choice.
 
 ## Dependencies
 
-- A web server to host the *Master* script(s) and *Content* script(s), as well
-as any content (binaries, config files, etc) that must be distributed to the 
-system. The web server must be reachable from the system executing the 
-*Bootstrap* script.
+- A web-accessible service to host the *Master* script(s) and *Content* 
+script(s), as well as any content (binaries, config files, etc) that must be 
+distributed to the system. The service must be reachable from the system 
+executing the *Bootstrap* script
+  -- If using a basic web server to host the files, the web server must not 
+     require authentication.
+  -- If using an S3 bucket to host the files, and running **SystemPrep** from
+     an EC2 instance, the instance must have an IAM role that grants it the 
+     `GetObject` privilege to the bucket. Set `SourceIsS3Bucket` to `true` in 
+     the *Bootstrap* script. See [Implementation Details]
+     (#implementation-details).
 
 
 ## SystemPrep Components
@@ -189,13 +196,34 @@ the system being provisioned.**
 <b>*Bootstrap* Script Parameters for the *Master* Script (Windows)</b>:
 
 ```
+$SystemPrepMasterScriptUrl = 'https://url/to/SystemPrep-WindowsMaster.ps1'
+$SourceIsS3Bucket = $true
 $SystemPrepParams = @{
     AshRole = "MemberServer"
     NetBannerLabel = "Unclass"
     SaltStates = "Highstate"
     NoReboot = $false
+    SourceIsS3Bucket = $SourceIsS3Bucket
 }
 ```
+
+- `SystemPrepMasterScriptUrl`: The URL hosting the *Master* script. This URL
+must be accessible to the system when it runs the *Bootstrap* script.
+
+- `SourceIsS3Bucket`: The **SystemPrep** framework supports using an S3 bucket
+to host all files. If using this feature, **ALL** files must be hosted in an S3 
+bucket (though they could be in different buckets). Also, the EC2 instance must 
+have an IAM role that grants it the `GetObject` privilege to access objects in 
+the bucket. If an S3 bucket is the source, set this parameter to `$true` (the 
+default). Otherwise, set it to `$false`.
+
+  The bucket URL format must use the path-style form:
+  -- `https://<s3endpoint>/<bucketname>/path/to/file`
+
+  Note that the URL uses the path-style syntax to access the bucket, where 
+  <bucketname> is after <s3endpoint>. The **SystemPrep** scripts currently do 
+  not support using the virtual-host syntax. See Amazon's [S3 documentation on 
+  virtual hosting][15].
 
 - `AshRole`: Configures the system according to the system role. This parameter
 is based on the `role` setting from the [ash-windows Formula][4]. Any value 
@@ -257,6 +285,7 @@ via a combination of Microsoft WDS, MDT, and ADK.
 - [Microsoft Netbanner Formula][7]
 - [AWS - Running Commands at Instance Launch][8]
 - [AWS - Using the EC2Config Service for Windows][9]
+- [AWS - [S3 documentation on virtual hosting][15]
 - [Automate EC2 Instance Setup with user-data Scripts][10]
 - [Automatically provisioning Amazon EC2 instances with Tentacle installed][11]
 - [Bootstrapping Windows Servers][12]
@@ -276,3 +305,4 @@ via a combination of Microsoft WDS, MDT, and ADK.
 [12]: http://www.masterzen.fr/2014/01/11/bootstrapping-windows-servers-with-puppet/
 [13]: http://docs.saltstack.com/en/latest/ref/states/highstate.html
 [14]: ../../../dotnet-formula
+[15]: http://docs.aws.amazon.com/AmazonS3/latest/dev/VirtualHosting.html
