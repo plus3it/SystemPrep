@@ -41,14 +41,15 @@ Use `merge_dicts({yourdict}, scriptparams)` to merge command line parameters wit
             { 
                 'ScriptSource': "https://systemprep.s3.amazonaws.com/SystemContent/Linux/Salt/SystemPrep-LinuxSaltInstall.py",
                 'Parameters': merge_dicts({
-                    'saltbootstrapsource': "https://raw.githubusercontent.com/saltstack/salt-bootstrap/develop/bootstrap-salt.sh",
+                    'saltbootstrapsource': "https://raw.githubusercontent.com/saltstack/salt-bootstrap/stable/bootstrap-salt.sh",
                     'saltgitrepo': "git://github.com/saltstack/salt.git",
-                    'saltversion': "v2014.1.11",
+                    'saltversion': "v2014.7.0",
                     'saltcontentsource': "https://systemprep.s3.amazonaws.com/SystemContent/Linux/Salt/salt-content.zip",
                     'formulastoinclude': [
-                        #"https://salt-formulas.s3.amazonaws.com/ash-linux-formula-latest.zip",
+                        "https://salt-formulas.s3.amazonaws.com/ash-linux-formula.zip",
                     ],
                     'formulaterminationstrings': [
+                        "-master",
                         "-latest",
                     ],
                     'saltstates': 'Highstate',
