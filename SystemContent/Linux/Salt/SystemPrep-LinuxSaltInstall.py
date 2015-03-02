@@ -51,7 +51,10 @@ Returns the path to the working directory.
     return workingdir
 
 
-def extract_contents(filepath, to_directory='.'):
+def extract_contents(filepath,
+                     to_directory='.',
+                     createdirfromfilename=None,
+                     pathseparator='/'):
     """
     Extracts a compressed file to the specified directory.
     Supports files that end in .zip, .tar.gz, .tgz, tar.bz2, or tbz.
@@ -68,6 +71,16 @@ def extract_contents(filepath, to_directory='.'):
     else:
         raise ValueError('Could not extract ' + filepath + ' as no appropriate extractor is found')
 
+    if createdirfromfilename:
+        to_directory = to_directory + \
+                 pathseparator + \
+                 '.'.join(filepath.split(pathseparator)[-1:][0].split('.')[:-1])
+    try:
+        os.makedirs(to_directory)
+    except OSError:
+        if not os.path.isdir(to_directory):
+            raise
+
     cwd = os.getcwd()
     os.chdir(to_directory)
 
@@ -79,6 +92,9 @@ def extract_contents(filepath, to_directory='.'):
             openfile.close()
     finally:
         os.chdir(cwd)
+
+    print('Extracted file -- \n    source      = ' + filepath + '\n    dest = ' + to_directory)
+    return True
 
 
 def cleanup(workingdir):
@@ -145,10 +161,10 @@ def main(saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-b
 
     minionconf = '/etc/salt/minion'
     saltcall = '/usr/bin/salt-call'
-    saltfilebase = '/srv'
-    saltfileroot = saltfilebase + '/salt'
+    saltfilebase = '/srv/salt'
+    saltfileroot = saltfilebase + '/states'
     saltbaseenv = saltfileroot + '/base'
-    saltformularoot = saltfilebase + '/saltformulas'
+    saltformularoot = saltfilebase + '/formulas'
     workingdir = create_working_dir('/usr/tmp/', 'saltinstall-')
 
     #Download the salt bootstrap installer and install salt
@@ -176,14 +192,15 @@ def main(saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-b
     #Download and extract any salt formulas specified in formulastoinclude
     saltformulaconf = []
     for formulasource in formulastoinclude:
-        formulafilename = formulasource.split('/')[-1]
-        for string in formulaterminationstrings:
-            if formulafilename.endswith(string):
-                formulafilename = formulafilename[:-len(string)]
+        formulafilename = formulasource.split('/')[-1:][0]
         formulafile = workingdir + '/' + formulafilename
         download_file(formulasource, formulafile)
         extract_contents(filepath=formulafile, to_directory=saltformularoot)
-        saltformulaconf += '    - ' + saltformularoot + '/' + formulafilename + '\n',
+        formulafilebase = '.'.join(formulafilename.split('.')[:-1])
+        for string in formulaterminationstrings:
+            if formulafilebase.endswith(string):
+                formulafilebase = formulafilebase[:-len(string)]
+        saltformulaconf += '    - ' + saltformularoot + '/' + formulafilebase + '\n',
 
     #Create a list that contains the new file_roots configuration
     saltfilerootconf = []
