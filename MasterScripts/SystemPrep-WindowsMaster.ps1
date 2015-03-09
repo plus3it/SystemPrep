@@ -7,6 +7,9 @@ Param(
     [switch] $SourceIsS3Bucket
     ,
     [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] 
+    [string] $AwsRegion
+    ,
+    [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] 
     [switch] $NoReboot
 )
 #Parameter Descriptions
@@ -15,6 +18,7 @@ Param(
                       #This way, we don't need to know in advance all the parameter names for downstream scripts.
 
 #$SourceIsS3Bucket    #Set to $true if all content to be downloaded is hosted in an S3 bucket and should be retrieved using AWS tools.
+#$AwsRegion			  #Set to the region in which the S3 bucket is located.
 #$NoReboot            #Switch to disable the system reboot. By default, the master script will reboot the system when the script is complete.
 
 #System variables
@@ -81,31 +85,40 @@ function log {
         [Parameter(Mandatory=$true,Position=0,ValueFromPipeLine=$true,ValueFromPipeLineByPropertyName=$true)] [string[]] $LogMessage
     )
     PROCESS {
-        #Writes the input $LogMessage to the output for capture by the bootstrap script.
-        Write-Output "${Scriptname}: $LogMessage"
+		foreach ($message in $LogMessage) {
+			#Writes the input $LogMessage to the output for capture by the bootstrap script.
+			Write-Output "${Scriptname}: $message"
+		}
     }
 }
 
 function Download-File {
     [CmdLetBinding()]
     Param(
-        [Parameter(Mandatory=$true,Position=0,ValueFromPipeLine=$true,ValueFromPipeLineByPropertyName=$true)] [string] $Url,
-        [Parameter(Mandatory=$true,Position=1,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] [string] $SaveTo,
-        [Parameter(Mandatory=$false,Position=2,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] [switch] $SourceIsS3Bucket
+        [Parameter(Mandatory=$true,Position=0,ValueFromPipeLine=$true,ValueFromPipeLineByPropertyName=$true)] [string[]] $Url,
+        [Parameter(Mandatory=$true,Position=1,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] [string] $SavePath,
+        [Parameter(Mandatory=$false,Position=2,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] [switch] $SourceIsS3Bucket,
+        [Parameter(Mandatory=$false,Position=3,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] [string] $AwsRegion
     )
+	BEGIN {
+		New-Item -Path ${SavePath} -ItemType Directory -Force -WarningAction SilentlyContinue > $null
+	}
     PROCESS {
-        if ($SourceIsS3Bucket) {
-            Write-Output "Downloading from S3 bucket and saving to: ${SaveTo}"
-            $SplitUrl = $Url.split('/') | where { $_ -notlike "" }
-            $BucketName = $SplitUrl[2]
-            $Key = $SplitUrl[3..($SplitUrl.count-1)] -join '/'
-            Read-S3Object -BucketName $BucketName -Key $Key -File $SaveTo 2>&1
-        }
-        else {
-            Write-Output "Downloading from HTTP host and saving to: ${SaveTo}"
-            New-Item "${SaveTo}" -ItemType "file" -Force > $null
-            (new-object net.webclient).DownloadFile("${Url}","${SaveTo}") 2>&1
-        }
+		foreach ($url_item in $Url) {
+			$FileName = "${SavePath}\$((${url_item}.split('/'))[-1])"
+			if ($SourceIsS3Bucket) {
+				Write-Verbose "Downloading file from S3 bucket: ${url_item}"
+				$SplitUrl = $url_item.split('/') | where { $_ -notlike "" }
+				$BucketName = $SplitUrl[2]
+				$Key = $SplitUrl[3..($SplitUrl.count-1)] -join '/'
+				$ret = Invoke-Expression "Powershell Read-S3Object -BucketName $BucketName -Key $Key -File $FileName -Region $AwsRegion"
+			}
+			else {
+				Write-Verbose "Downloading file from HTTP host: ${url_item}"
+				(new-object net.webclient).DownloadFile("${url_item}","${FileName}")
+			}
+			Write-Output (Get-Item $FileName)
+		}
     }
 }
 
@@ -128,6 +141,7 @@ $ScriptsToExecute = @(
                                                                                   NetBannerLabel = "Unclass"
                                                                                   SaltStates = "Highstate"
                                                                                   SourceIsS3Bucket = $SourceIsS3Bucket
+																				  AwsRegion = $AwsRegion
                                                                                 } -Force 
                                          )
                          }
@@ -158,7 +172,7 @@ log "Registering a scheduled task to notify users at logon that system customiza
 $msg = "Please wait... System customization is in progress. The system will reboot automatically when customization is complete."
 $taskname = "System Prep Logon Message"
 if ($PSVersionTable.psversion.major -ge 4) {
-    $A = New-ScheduledTaskAction –Execute "msg.exe" -Argument "* /SERVER:%computername% $msg"
+    $A = New-ScheduledTaskAction -Execute "msg.exe" -Argument "* /SERVER:%computername% ${msg}"
     $T = New-ScheduledTaskTrigger -AtLogon
     $P = New-ScheduledTaskPrincipal -UserId "NT AUTHORITY\SYSTEM" -RunLevel "Highest" -LogonType "ServiceAccount"
     $S = New-ScheduledTaskSettingsSet
@@ -172,12 +186,9 @@ if ($PSVersionTable.psversion.major -ge 4) {
 foreach ($ScriptObject in $ScriptsToExecute) {
     $Script = $ScriptObject["ScriptUrl"]
     $ScriptParams = $ScriptObject["Parameters"]
-    $Split = $Script.split('/') | where { $_ -notlike "" }
-    $FileName = $Split[($Split.Count-1)]
-    $FullPath = "${SystemPrepWorkingDir}\$FileName"
-    Download-File -Url $Script -SaveTo $FullPath -SourceIsS3Bucket:$SourceIsS3Bucket 2>&1 | log
-    log "Calling script -- ${FullPath}"
-    Invoke-Expression "& ${FullPath} @ScriptParams"
+    $File = Download-File -Url $Script -SavePath $SystemPrepWorkingDir -SourceIsS3Bucket:$SourceIsS3Bucket -AwsRegion $AwsRegion -Verbose
+    log "Calling script -- ${File}"
+    Invoke-Expression "& ${File} @ScriptParams"
 }
 
 log "Removing the scheduled task notifying users at logon of system customization"
@@ -187,7 +198,7 @@ if ($NoReboot) {
     log "Detected NoReboot switch. System will not be rebooted."
 } else {
     log "Reboot scheduled. System will reboot in 30 seconds."
-    invoke-expression "& ${env:systemroot}\system32\shutdown.exe /r /t 30 /d p:2:4 /c `"SystemPrep complete. Rebooting computer.`"" 
+    invoke-expression "& ${env:systemroot}\system32\shutdown.exe /r /t 30 /d p:2:4 /c `"SystemPrep complete. Rebooting computer.`"" 2>&1 | log
 }
 
 log "${ScriptName} complete!"
