@@ -7,28 +7,72 @@ import shutil
 import tarfile
 import zipfile
 import re
+import boto
 
-def download_file(url, filename):
+from boto.exception import BotoClientError
+
+
+def download_file(url, filename, sourceiss3bucket=None):
     """
-Download the file from `url` and save it locally under `filename`:
+Download the file from `url` and save it locally under `filename`.
     :rtype : bool
     :param url:
     :param filename:
+    :param sourceiss3bucket:
     """
-    try:
-        response = urllib2.urlopen(url)
-    except:
-        #TODO: Update `except` logic
-        raise SystemError('Unable to open connection to web server. \nurl =\n    ' + url)
+    conn = None
 
-    try:
-        with open(filename, 'wb') as outfile:
-            shutil.copyfileobj(response, outfile)
-    except:
-        #TODO: Update `except` logic
-        raise SystemError('Unable to save file. \nfilename = \n    ' + filename)
-
-    print('Downloaded file -- \n    url      = ' + url + '\n    filename = ' + filename)
+    if sourceiss3bucket:
+        bucket_name = url.split('/')[3]
+        key_name = '/'.join(url.split('/')[4:])
+        try:
+            conn = boto.connect_s3()
+            bucket = conn.get_bucket(bucket_name)
+            key = bucket.get_key(key_name)
+            key.get_contents_to_filename(filename=filename)
+        except (NameError, BotoClientError):
+            try:
+                bucket_name = url.split('/')[2].split('.')[0]
+                key_name = '/'.join(url.split('/')[3:])
+                bucket = conn.get_bucket(bucket_name)
+                key = bucket.get_key(key_name)
+                key.get_contents_to_filename(filename=filename)
+            except Exception as exc:
+                raise SystemError('Unable to download file from S3 bucket.\n'
+                                  'url = {0}\n'
+                                  'bucket = {1}\n'
+                                  'key = {2}\n'
+                                  'file = {3}\n'
+                                  'Exception: {4}'
+                                  .format(url, bucket_name, key_name,
+                                          filename, exc))
+        except Exception as exc:
+            raise SystemError('Unable to download file from S3 bucket.\n'
+                              'url = {0}\n'
+                              'bucket = {1}\n'
+                              'key = {2}\n'
+                              'file = {3}\n'
+                              'Exception: {4}'
+                              .format(url, bucket_name, key_name,
+                                      filename, exc))
+        print('Downloaded file from S3 bucket -- \n'
+              '    url      = {0}\n'
+              '    filename = {1}'.format(url, filename))
+    else:
+        try:
+            response = urllib2.urlopen(url)
+            with open(filename, 'wb') as outfile:
+                shutil.copyfileobj(response, outfile)
+        except Exception as exc:
+            # TODO: Update `except` logic
+            raise SystemError('Unable to download file from web server.\n'
+                              'url = {0}\n'
+                              'filename = {1}\n'
+                              'Exception: {2}'
+                              .format(url, filename, exc))
+        print('Downloaded file from web server -- \n'
+              '    url      = {0}\n'
+              '    filename = {1}'.format(url, filename))
     return True
 
 
@@ -44,9 +88,10 @@ Returns the path to the working directory.
     workingdir = None
     try:
         workingdir = tempfile.mkdtemp(prefix=dirprefix, dir=basedir)
-    except:
-        #TODO: Update `except` logic
-        raise SystemError('Could not create workingdir in ' + str('basedir'))
+    except Exception as exc:
+        # TODO: Update `except` logic
+        raise SystemError('Could not create workingdir in {0}.\n'
+                          'Exception: {1}'.format(basedir, exc))
 
     return workingdir
 
@@ -69,12 +114,12 @@ def extract_contents(filepath,
     elif filepath.endswith('.tar.bz2') or filepath.endswith('.tbz'):
         opener, mode = tarfile.open, 'r:bz2'
     else:
-        raise ValueError('Could not extract ' + filepath + ' as no appropriate extractor is found')
+        raise ValueError('Could not extract `"{0}`" as no appropriate '
+                         'extractor is found'.format(filepath))
 
     if createdirfromfilename:
-        to_directory = to_directory + \
-                 pathseparator + \
-                 '.'.join(filepath.split(pathseparator)[-1:][0].split('.')[:-1])
+        to_directory = pathseparator.join((to_directory,
+                                           '.'.join(filepath.split(pathseparator)[-1].split('.')[:-1])))
     try:
         os.makedirs(to_directory)
     except OSError:
@@ -93,7 +138,9 @@ def extract_contents(filepath,
     finally:
         os.chdir(cwd)
 
-    print('Extracted file -- \n    source      = ' + filepath + '\n    dest = ' + to_directory)
+    print('Extracted file -- \n'
+          '    source = {0}\n'
+          '    dest   = {1}'.format(filepath, to_directory))
     return True
 
 
@@ -107,9 +154,10 @@ def cleanup(workingdir):
     print('Cleanup Time...')
     try:
         shutil.rmtree(workingdir)
-    except:
-        #TODO: Update `except` logic
-        raise SystemError('Cleanup Failed!')
+    except Exception as exc:
+        # TODO: Update `except` logic
+        raise SystemError('Cleanup Failed!\n'
+                          'Exception: {0}'.format(exc))
 
     print('Removed temporary data in working directory -- ' + workingdir)
     print('Exiting cleanup routine...')
@@ -124,6 +172,7 @@ def main(saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-b
          formulastoinclude=None,
          formulaterminationstrings=None,
          saltstates='none',
+         sourceiss3bucket='false',
          **kwargs):
     """
     Manages the salt installation and configuration.
@@ -141,10 +190,11 @@ def main(saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-b
     """
     scriptname = __file__
 
-    if formulastoinclude is None:
-        formulastoinclude = []
-    if formulaterminationstrings is None:
-        formulaterminationstrings = []
+    # Check special parameter types
+    formulastoinclude = [] if formulastoinclude is None else formulastoinclude
+    formulaterminationstrings = [] if formulaterminationstrings is None else \
+        formulaterminationstrings
+    sourceiss3bucket = 'true' == sourceiss3bucket.lower()
 
     print('+' * 80)
     print('Entering script -- ' + scriptname)
@@ -157,23 +207,25 @@ def main(saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-b
     print('    formulaterminationstrings = ' + str(formulaterminationstrings))
     print('    saltstates = ' + str(saltstates))
     for key, value in kwargs.items():
-        print('    ' + str(key) + ' = ' + str(value))
+        print('    {0} = {1}'.format(key, value))
 
     minionconf = '/etc/salt/minion'
     saltcall = '/usr/bin/salt-call'
-    saltfilebase = '/srv/salt'
-    saltfileroot = saltfilebase + '/states'
-    saltbaseenv = saltfileroot + '/base'
-    saltformularoot = saltfilebase + '/formulas'
+    saltsrv = '/srv/salt'
+    saltfileroot = '/'.join((saltsrv, 'states'))
+    saltformularoot = '/'.join((saltsrv, 'formulas'))
+    saltbaseenv = '/'.join((saltfileroot, 'base'))
     workingdir = create_working_dir('/usr/tmp/', 'saltinstall-')
 
     #Download the salt bootstrap installer and install salt
-    saltbootstrapfile = workingdir + '/' + saltbootstrapsource.split('/')[-1]
+    saltbootstrapfilename = saltbootstrapsource.split('/')[-1]
+    saltbootstrapfile = '/'.join((workingdir, saltbootstrapfilename))
     download_file(saltbootstrapsource, saltbootstrapfile)
     if saltversion:
-        os.system('sh ' + saltbootstrapfile + ' -g ' + saltgitrepo + ' git ' + saltversion)
+        os.system('sh {0} -g {1} git {2}'.format(saltbootstrapfile,
+                                                 saltgitrepo, saltversion))
     else:
-        os.system('sh ' + saltbootstrapfile + ' -g ' + saltgitrepo)
+        os.system('sh {0} -g {1}'.format(saltbootstrapfile, saltgitrepo))
 
     #Create directories for salt content and formulas
     for saltdir in [saltfileroot, saltbaseenv, saltformularoot]:
@@ -185,33 +237,39 @@ def main(saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-b
 
     #Download and extract the salt content specified by saltcontentsource
     if saltcontentsource:
-        saltcontentfile = workingdir + '/' + saltcontentsource.split('/')[-1]
-        download_file(saltcontentsource, saltcontentfile)
-        extract_contents(filepath=saltcontentfile, to_directory=saltfilebase)
+        saltcontentfilename = saltcontentsource.split('/')[-1]
+        saltcontentfile = '/'.join((workingdir, saltcontentfilename))
+        download_file(saltcontentsource, saltcontentfile, sourceiss3bucket)
+        extract_contents(filepath=saltcontentfile,
+                         to_directory=saltsrv)
 
     #Download and extract any salt formulas specified in formulastoinclude
     saltformulaconf = []
     for formulasource in formulastoinclude:
-        formulafilename = formulasource.split('/')[-1:][0]
-        formulafile = workingdir + '/' + formulafilename
+        formulafilename = formulasource.split('/')[-1]
+        formulafile = '/'.join((workingdir, formulafilename))
         download_file(formulasource, formulafile)
-        extract_contents(filepath=formulafile, to_directory=saltformularoot)
+        extract_contents(filepath=formulafile,
+                         to_directory=saltformularoot)
         formulafilebase = '.'.join(formulafilename.split('.')[:-1])
+        formuladir = '/'.join((saltformularoot, formulafilebase))
         for string in formulaterminationstrings:
             if formulafilebase.endswith(string):
-                formulafilebase = formulafilebase[:-len(string)]
-        saltformulaconf += '    - ' + saltformularoot + '/' + formulafilebase + '\n',
+                newformuladir = formuladir[:-len(string)]
+                shutil.move(formuladir, newformuladir)
+                formuladir = newformuladir
+        saltformulaconf += '    - {0}\n'.format(formuladir),
 
     #Create a list that contains the new file_roots configuration
     saltfilerootconf = []
     saltfilerootconf += 'file_roots:\n',
     saltfilerootconf += '  base:\n',
-    saltfilerootconf += '    - ' + saltbaseenv + '\n',
+    saltfilerootconf += '    - {0}\n'.format(saltbaseenv),
     saltfilerootconf += saltformulaconf
     saltfilerootconf += '\n',
 
     #Backup the minionconf file
-    shutil.copyfile(minionconf, minionconf + '.bak')
+    shutil.copyfile(minionconf, '{0}.bak'.format(minionconf))
 
     #Read the minionconf file into a list
     with open(minionconf, 'r') as f:
@@ -231,14 +289,16 @@ def main(saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-b
         n += 1
 
     #Update the file_roots section with the new configuration
-    minionconflines = minionconflines[0:beginindex] + saltfilerootconf + minionconflines[endindex+1:]
+    minionconflines = minionconflines[0:beginindex] + \
+                      saltfilerootconf + minionconflines[endindex + 1:]
 
     #Write the new configuration to minionconf
     try:
         with open(minionconf, 'w') as f:
             f.writelines(minionconflines)
-    except:
-        raise SystemError('Could not write to minion conf file' + minionconf)
+    except Exception as exc:
+        raise SystemError('Could not write to minion conf file: {0}\n'
+                          'Exception: {1}'.format(minionconf, exc))
     else:
         print('Saved the new minion configuration successfully.')
 
@@ -246,12 +306,14 @@ def main(saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-b
     if 'none' == saltstates.lower():
         print('No States were specified. Will not apply any salt states.')
     elif 'highstate' == saltstates.lower():
-        print('Detected the States parameter is set to `highstate`. Applying the salt `"highstate`" to the system.')
-        os.system(saltcall + ' --local state.highstate')
+        print('Detected the States parameter is set to `highstate`. '
+              'Applying the salt `"highstate`" to the system.')
+        os.system('{0} --local state.highstate'.format(saltcall))
     else:
-        print('Detected the States parameter is set to: ' + saltstates +
-              '. Applying the user-defined list of states to the system.')
-        os.system(saltcall + ' --local state.sls ' + saltstates)
+        print('Detected the States parameter is set to: {0}. '
+              'Applying the user-defined list of states to the system.'
+              .format(saltstates))
+        os.system('{0} --local state.sls {1}'.format(saltcall, saltstates))
 
     #Remove working files
     cleanup(workingdir)
@@ -261,16 +323,18 @@ def main(saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-b
 
 
 if __name__ == "__main__":
-    #convert command line parameters of the form `param=value` to a dict
+    # convert command line parameters of the form `param=value` to a dict
     kwargs = dict(x.split('=', 1) for x in sys.argv[1:])
     #Convert parameter keys to lowercase, parameter values are unmodified
     kwargs = dict((k.lower(), v) for k, v in kwargs.items())
 
-    #Need to convert comma-delimited strings strings to lists, where the strings may have parentheses or brackets
+    #Need to convert comma-delimited strings strings to lists,
+    #where the strings may have parentheses or brackets
     #First, remove any parentheses or brackets
     kwargs['formulastoinclude'] = kwargs['formulastoinclude'].translate(None, '()[]')
     kwargs['formulaterminationstrings'] = kwargs['formulaterminationstrings'].translate(None, '()[]')
-    #Then, split the string on the comma to convert to a list, and remove empty strings with filter
+    #Then, split the string on the comma to convert to a list,
+    #and remove empty strings with filter
     kwargs['formulastoinclude'] = filter(None, kwargs['formulastoinclude'].split(','))
     kwargs['formulaterminationstrings'] = filter(None, kwargs['formulaterminationstrings'].split(','))
 

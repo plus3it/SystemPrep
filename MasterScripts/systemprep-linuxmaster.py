@@ -5,7 +5,9 @@ import platform
 import tempfile
 import urllib2
 import shutil
+import boto
 
+from boto.exception import BotoClientError
 
 def merge_dicts(a, b):
     """
@@ -17,9 +19,14 @@ Merge two dictionaries. If there is a key collision, `b` overrides `a`.
     
     try:
         a.update(b)
-    except:
+    except Exception as exc:
         #TODO: Update `except` logic
-        raise SystemError('Failed to merge dictionaries. Dictionary A:\n\n' + a + '\n\nDictionary B:\n\n' + b)
+        raise SystemError('Failed to merge dictionaries. Dictionary A:\n\n'
+                          '{0}\n\n'
+                          'Dictionary B:\n\n'
+                          '{1}\n\n'
+                          'Exception: {2}'
+                          .format(a, b, exc))
     
     return a
 
@@ -46,13 +53,14 @@ Use `merge_dicts({yourdict}, scriptparams)` to merge command line parameters wit
                     'saltversion': "v2014.7.0",
                     'saltcontentsource': "https://systemprep.s3.amazonaws.com/SystemContent/Linux/Salt/salt-content.zip",
                     'formulastoinclude': [
-                        "https://salt-formulas.s3.amazonaws.com/ash-linux-formula.zip",
+                        "https://salt-formulas.s3.amazonaws.com/ash-linux-formula-master.zip",
                     ],
                     'formulaterminationstrings': [
                         "-master",
                         "-latest",
                     ],
                     'saltstates': 'Highstate',
+                    'sourceiss3bucket': 'True',
                 }, scriptparams)
             },
         )
@@ -61,7 +69,7 @@ Use `merge_dicts({yourdict}, scriptparams)` to merge command line parameters wit
             {
                 'ScriptSource': "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/SystemPrep-WindowsSaltInstall.ps1",
                 'Parameters': merge_dicts({
-                    'saltworkingdir': workingdir + '\\SystemContent\\Windows\\Salt',
+                    'saltworkingdir': '{0}\\SystemContent\\Windows\\Salt'.format(workingdir),
                     'saltcontentsource': "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/salt-content.zip",
                     'formulastoinclude': [
                         "https://salt-formulas.s3.amazonaws.com/ash-windows-formula-latest.zip",
@@ -77,7 +85,7 @@ Use `merge_dicts({yourdict}, scriptparams)` to merge command line parameters wit
         )
     else:
         #TODO: Update `except` logic
-        raise SystemError('System, ' + system + ', is not recognized?')
+        raise SystemError('System, {0}, is not recognized?'.format(system))
     
     return scriptstoexecute
 
@@ -94,9 +102,10 @@ Returns the path to the working directory.
     workingdir = None
     try:
         workingdir = tempfile.mkdtemp(prefix=dirprefix, dir=basedir)
-    except:
+    except Exception as exc:
         #TODO: Update `except` logic
-        raise SystemError('Could not create workingdir in ' + str(basedir))
+        raise SystemError('Could not create workingdir in {0}.\n'
+                          'Exception: {1}'.format(basedir, exc))
 
     return workingdir
 
@@ -121,39 +130,78 @@ Returns a dictionary of OS platform-specific parameters.
         systemdrive = os.environ['SYSTEMDRIVE']
         tempdir = os.environ['TEMP']
         a['pathseparator'] = '\\'
-        a['readyfile'] = systemdrive + '\system-is-ready'
-        a['restart'] = str(systemroot +
-                           '\system32\shutdown.exe/r /t 30 /d p:2:4 /c "SystemPrep complete. Rebooting computer."')
+        a['readyfile'] = '\system-is-ready'.format(systemdrive)
+        a['restart'] = '{0}\system32\shutdown.exe/r /t 30 /d p:2:4 /c "SystemPrep complete. Rebooting computer."'.format(systemroot)
     else:
         #TODO: Update `except` logic
-        raise SystemError('System, ' + system + ', is not recognized?')
+        raise SystemError('System, {0}, is not recognized?'.format(system))
 
     a['workingdir'] = create_working_dir(tempdir, workingdirprefix)
 
     return a
 
 
-def download_file(url, filename):
+def download_file(url, filename, sourceiss3bucket=None):
     """
-Download the file from `url` and save it locally under `filename`:
+Download the file from `url` and save it locally under `filename`.
     :rtype : bool
     :param url:
     :param filename:
+    :param sourceiss3bucket:
     """
-    try:
-        response = urllib2.urlopen(url)
-    except:
-        #TODO: Update `except` logic
-        raise SystemError('Unable to open connection to web server. \nurl =\n    ' + url)
-    
-    try:
-        with open(filename, 'wb') as outfile:
-            shutil.copyfileobj(response, outfile)
-    except:
-        #TODO: Update `except` logic
-        raise SystemError('Unable to save file. \nfilename = \n    ' + filename)
+    conn = None
 
-    print('Downloaded file -- \n    url      = ' + url + '\n    filename = ' + filename)
+    if sourceiss3bucket:
+        bucket_name = url.split('/')[3]
+        key_name = '/'.join(url.split('/')[4:])
+        try:
+            conn = boto.connect_s3()
+            bucket = conn.get_bucket(bucket_name)
+            key = bucket.get_key(key_name)
+            key.get_contents_to_filename(filename=filename)
+        except (NameError, BotoClientError):
+            try:
+                bucket_name = url.split('/')[2].split('.')[0]
+                key_name = '/'.join(url.split('/')[3:])
+                bucket = conn.get_bucket(bucket_name)
+                key = bucket.get_key(key_name)
+                key.get_contents_to_filename(filename=filename)
+            except Exception as exc:
+                raise SystemError('Unable to download file from S3 bucket.\n'
+                                  'url = {0}\n'
+                                  'bucket = {1}\n'
+                                  'key = {2}\n'
+                                  'file = {3}\n'
+                                  'Exception: {4}'
+                                  .format(url, bucket_name, key_name,
+                                          filename, exc))
+        except Exception as exc:
+            raise SystemError('Unable to download file from S3 bucket.\n'
+                              'url = {0}\n'
+                              'bucket = {1}\n'
+                              'key = {2}\n'
+                              'file = {3}\n'
+                              'Exception: {4}'
+                              .format(url, bucket_name, key_name,
+                                      filename, exc))
+        print('Downloaded file from S3 bucket -- \n'
+              '    url      = {0}\n'
+              '    filename = {1}'.format(url, filename))
+    else:
+        try:
+            response = urllib2.urlopen(url)
+            with open(filename, 'wb') as outfile:
+                shutil.copyfileobj(response, outfile)
+        except Exception as exc:
+            #TODO: Update `except` logic
+            raise SystemError('Unable to download file from web server.\n'
+                              'url = {0}\n'
+                              'filename = {1}\n'
+                              'Exception: {2}'
+                              .format(url, filename, exc))
+        print('Downloaded file from web server -- \n'
+              '    url      = {0}\n'
+              '    filename = {1}'.format(url, filename))
     return True
 
 
@@ -167,9 +215,10 @@ def cleanup(workingdir):
     print('Cleanup Time...')
     try:
         shutil.rmtree(workingdir)
-    except:
+    except Exception as exc:
         #TODO: Update `except` logic
-        raise SystemError('Cleanup Failed!')
+        raise SystemError('Cleanup Failed!\n'
+                          'Exception: {0}'.format(exc))
 
     print('Removed temporary data in working directory -- ' + workingdir)
     print('Exiting cleanup routine...')
@@ -186,32 +235,34 @@ def main(noreboot='false', **kwargs):
 
     #Check special parameter types
     noreboot = 'true' == noreboot.lower()
+    sourceiss3bucket = 'true' == kwargs.get('sourceiss3bucket', 'false').lower()
 
     print('+' * 80)
-    print('Entering script -- ' + scriptname)
+    print('Entering script -- {0}'.format(scriptname))
     print('Printing parameters --')
-    print('    noreboot = ' + str(noreboot))
+    print('    noreboot = {0}'.format(noreboot))
     for key, value in kwargs.items():
-        print('    ' + str(key) + ' = ' + str(value))
-    
+        print('    {0} = {1}'.format(key, value))
+
     system = platform.system()
     systemparams = get_system_params(system)
     scriptstoexecute = get_scripts_to_execute(system, systemparams['workingdir'], **kwargs)
     
     #Loop through each 'script' in scriptstoexecute
     for script in scriptstoexecute:
-        filename = script['ScriptSource'].split('/')[-1]
+        url = script['ScriptSource']
+        filename = url.split('/')[-1]
         fullfilepath = systemparams['workingdir'] + systemparams['pathseparator'] + filename
         #Download each script, script['ScriptSource']
-        download_file(script['ScriptSource'], fullfilepath)
+        download_file(url, fullfilepath, sourceiss3bucket)
         #Execute each script, passing it the parameters in script['Parameters']
         #TODO: figure out if there's a better way to call and execute the script
         print('Running script -- ' + script['ScriptSource'])
         print('Sending parameters --')
         for key, value in script['Parameters'].items():
-            print('    ' + str(key) + ' = ' + str(value))
+            print('    {0} = {1}'.format(key, value))
         paramstring = ' '.join("%s='%s'" % (key, val) for (key, val) in script['Parameters'].iteritems())
-        fullcommand = 'python ' + fullfilepath + ' ' + paramstring
+        fullcommand = 'python {0} {1}'.format(fullfilepath, paramstring)
         os.system(fullcommand)  # likely a dirty hack, probably want to code the
                                 # python sub-script with an importable module instead
     
@@ -223,7 +274,7 @@ def main(noreboot='false', **kwargs):
         print('Reboot scheduled. System will reboot after the script exits.')
         os.system(systemparams['restart'])
 
-    print(str(scriptname) + ' complete!')
+    print('{0} complete!'.format(scriptname))
     print('-' * 80)
 
 
