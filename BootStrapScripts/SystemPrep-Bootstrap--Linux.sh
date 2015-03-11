@@ -64,7 +64,7 @@ if [[ "true" = ${SOURCEISS3BUCKET,,} ]]; then
     if [[ (-x ${AWS}) && (! -z ${AWS}) ]]; then
         echo "Using AWS Tools to download from S3 Bucket -- ${SYSTEMPREPMASTERSCRIPTSOURCE}" 2>&1 | log
         KEY=$(echo ${SYSTEMPREPMASTERSCRIPTSOURCE} | awk -F'/' '{$1=$2=$3=""; print substr($0,4)}' OFS="/")
-        ${AWS} s3 cp s3://${KEY} ${SCRIPTFULLPATH} --source-region ${AWSREGION}
+        ${AWS} s3 cp s3://${KEY} ${SCRIPTFULLPATH} --source-region ${AWSREGION} 2>&1 | log
     else
         echo "Missing 'aws' in path. Could not download file. Quitting..." 2>&1 | log
         exit
@@ -72,10 +72,10 @@ if [[ "true" = ${SOURCEISS3BUCKET,,} ]]; then
 else
     if [[ (-x ${CURL}) && (! -z ${CURL}) ]]; then
         echo "Using 'curl' to download from web host -- ${SYSTEMPREPMASTERSCRIPTSOURCE}" 2>&1 | log
-        ${CURL} -O -s -S ${SYSTEMPREPMASTERSCRIPTSOURCE} 2>&1 | log
+        ${CURL} -L -O -s -S ${SYSTEMPREPMASTERSCRIPTSOURCE} 2>&1 | log
     elif [[ (-x ${WGET}) && (! -z ${WGET}) ]]; then
         echo "Using 'wget' to download from web host -- ${SYSTEMPREPMASTERSCRIPTSOURCE}" 2>&1 | log
-        ${WGET} -O -s ${SYSTEMPREPMASTERSCRIPTSOURCE} 2>&1 | log
+        ${WGET} --quiet ${SYSTEMPREPMASTERSCRIPTSOURCE} 2>&1 | log
     else
         echo "Missing 'curl' or 'wget' in path. Could not download file. Quitting..." 2>&1 | log
         exit
