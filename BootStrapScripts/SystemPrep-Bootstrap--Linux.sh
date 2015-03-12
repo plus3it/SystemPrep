@@ -32,22 +32,21 @@ fi
 # Validate log directory exists
 if [[ ! -d ${LOGDIR} ]]; then
   echo "Creating ${LOGDIR} directory." >(${LOGGER} -t "${LOGTAG}" -s 2> /dev/console) 2>&1
-  mkdir ${LOGDIR} >(${LOGGER} -t "${LOGTAG}" -s 2> /dev/console) 2>&1
+  mkdir ${LOGDIR} >(${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console) 2>&1
 fi
 
 # Validate working directory exists
 if [[ ! -d ${WORKINGDIR} ]]; then
   echo "Creating ${WORKINGDIR} directory" >(${LOGGER} -t "${LOGTAG}" -s 2> /dev/console) 2>&1
-  mkdir ${WORKINGDIR} >(${LOGGER} -t "${LOGTAG}" -s 2> /dev/console) 2>&1
+  mkdir ${WORKINGDIR} >(${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console) 2>&1
 fi
 
 # Establish logging to write to the logfile, syslog, and the console
-exec > >(tee "${LOGFILE}" | "${LOGGER}" -t "${LOGTAG}" -s 2> /dev/console) 2>&1
+exec > >(tee "${LOGFILE}" | "${LOGGER}" -i -t "${LOGTAG}" -s 2> /dev/console) 2>&1
 
 # Create the link to the logfile
 touch ${LOGFILE}
 ln -s -f ${LOGFILE} ${LOGLINK}
-
 
 # Change to the working directory
 cd ${WORKINGDIR}
