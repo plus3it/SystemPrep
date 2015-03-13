@@ -190,6 +190,8 @@ $SaltContentDir = Expand-ZipFile -FileName ${SaltContentFile} -DestPath ${SaltWo
 foreach ($Formula in $FormulasToInclude) {
     $FormulaFile = Download-File -Url ${Formula} -SavePath $SaltWorkingDir -SourceIsS3Bucket:$SourceIsS3Bucket -AwsRegion $AwsRegion -Verbose
     $FormulaDir = Expand-ZipFile -FileName ${FormulaFile} -DestPath "${SaltWorkingDir}\formulas" -Verbose
+    $FormulaBaseName = ($Formula.split('/')[-1].split('.') | Select-Object -Skip 1 -last 10000000) -join '.'
+    $FormulaDir = Get-Item "${FormulaDir}\${FormulaBaseName}"
 	#If the formula directory ends in a string in $FormulaTerminationStrings, delete the string from the directory name
 	$FormulaTerminationStrings | foreach { if ($FormulaDir.Name -match "${_}$") { mv $FormulaDir.FullName $FormulaDir.FullName.substring(0,$FormulaDir.FullName.length-$_.length) } }
 }
@@ -197,10 +199,11 @@ foreach ($Formula in $FormulasToInclude) {
 $VcRedistInstaller = (Get-ChildItem "${SaltWorkingDir}" | where {$_.Name -like "vcredist_x64.exe"}).FullName
 $SaltInstaller = (Get-ChildItem "${SaltWorkingDir}" | where {$_.Name -like "Salt-Minion-*-Setup.exe"}).FullName
 $SaltBase = "C:\salt"
-$SaltFileRoot = "${SaltBase}\file_roots"
+$SaltSrv = "C:\salt\srv"
+$SaltFileRoot = "${SaltSrv}\states"
 $SaltBaseEnv = "${SaltFileRoot}\base"
-$SaltFormulaRoot = "${SaltBase}\formulas"
-$SaltWinRepo = "${SaltFileRoot}\winrepo"
+$SaltFormulaRoot = "${SaltSrv}\formulas"
+$SaltWinRepo = "${SaltSrv}\winrepo"
 $MinionConf = "${SaltBase}\conf\minion"
 $MinionExe = "${SaltBase}\salt-call.exe"
 $MinionService = "salt-minion"
@@ -215,9 +218,9 @@ $SaltInstallResult = Start-Process -FilePath $SaltInstaller -ArgumentList "/S" -
 log "Return code of salt install: $(${SaltInstallResult}.ExitCode)"
 
 log "Populating salt file_roots"
-mv "${SaltWorkingDir}\file_roots" "${SaltBase}" -Force
+mv "${SaltWorkingDir}\srv" "${SaltBase}" -Force
 log "Populating salt formulas"
-mv "${SaltWorkingDir}\formulas" "${SaltBase}" -Force
+mv "${SaltWorkingDir}\formulas" "${SaltSrv}" -Force
 
 log "Setting salt-minion configuration to local mode"
 cp $MinionConf "${MinionConf}.bak"
