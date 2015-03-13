@@ -7,7 +7,7 @@ $SystemPrepParams = @{
     SaltStates = "Highstate"
     NoReboot = $false
     SourceIsS3Bucket = $true
-    AwsRegion = $null
+    AwsRegion = "us-east-1"
 }
 $AwsToolsUrl = $null
 $RootCertUrl = $null
