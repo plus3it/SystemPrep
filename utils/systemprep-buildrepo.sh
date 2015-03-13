@@ -85,11 +85,5 @@ done
 createrepo -v --deltas "${REPO}"
 
 yum -y install s3cmd
-cat >~/.s3cfg <<EOM
-[default]
-access_key =
-secret_key =
-security_token =
-EOM
 
 s3cmd sync ${REPO} s3://${BUCKET}
