@@ -357,12 +357,14 @@ if ("none" -eq $SaltStates.tolower()) {
         log -LogTag ${ScriptName} "Return code of salt-call: $(${ApplyStatesResult}.ExitCode)"
     }
     #Check for errors in the results file
-    if (Select-String -Path ${SaltResultsLogFile} -Pattern '"result": false') {
-        # One of the salt states failed, log and throw an error
-        log -LogTag ${ScriptName} "ERROR: One of the salt states failed! Check the log file for details, ${SaltResultsLogFile}"
-        throw ("ERROR: One of the salt states failed! Check the log file for details, ${SaltResultsLogFile}")
-    } else {
+    if ((-not (Select-String -Path ${SaltResultsLogFile} -Pattern '"result": false')) -and
+        (Select-String -Path ${SaltResultsLogFile} -Pattern '"result": true')) {
+        #At least one state succeeded, and no states failed, so log success
         log -LogTag ${ScriptName} "Salt states applied successfully! Details are in the log, ${SaltResultsLogFile}"
+    } else {
+        # One of the salt states failed, log and throw an error
+        log -LogTag ${ScriptName} "ERROR: There was a problem running the salt states! Check for errors and failed states in the log file, ${SaltResultsLogFile}"
+        throw ("ERROR: There was a problem running the salt states! Check for errors and failed states in the log file, ${SaltResultsLogFile}")
     }
 }
 ###
