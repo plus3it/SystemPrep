@@ -33,6 +33,12 @@ Param(
     [string] $SaltStates = "None"
     ,
     [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] 
+    [string] $SaltDebugLog
+    ,
+    [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] 
+    [string] $SaltResultsLog
+    ,
+    [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] 
     [switch] $SourceIsS3Bucket
 	,
     [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] 
@@ -91,21 +97,25 @@ if ($PSVersionTable.PSVersion -eq "2.0") { #PowerShell 2.0 receives remainingarg
 	$RemainingArgsHash = $RemainingArgs | ForEach-Object -Begin { $index = 0; $hash = @{} } -Process { if ($_ -match "^-.*:$") { $hash[($_.trim("-",":"))] = $RemainingArgs[$index+1] }; $index++ } -End { Write-Output $hash }
 }###
 
-#User variables
 ###
-
+#Define functions
+###
 function log {
     [CmdLetBinding()]
     Param(
-        [Parameter(Mandatory=$true,Position=0,ValueFromPipeLine=$true,ValueFromPipeLineByPropertyName=$true)] [string[]] $LogMessage
+        [Parameter(Mandatory=$false,Position=0,ValueFromPipeLine=$true,ValueFromPipeLineByPropertyName=$true)] [string[]] 
+        $LogMessage,
+        [Parameter(Mandatory=$false,Position=1,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$true)] [string] 
+        $LogTag
     )
     PROCESS {
-		foreach ($message in $LogMessage) {
-			#Writes the input $LogMessage to the output for capture by the bootstrap script.
-			Write-Output "${Scriptname}: $message"
-		}
+        foreach ($message in $LogMessage) {
+            $date = get-date -format "yyyyMMdd.HHmm.ss"
+            "${date}: ${LogTag}: $message" | Out-Default
+        }
     }
 }
+
 
 function Download-File {
     [CmdLetBinding()]
@@ -122,20 +132,21 @@ function Download-File {
 		foreach ($url_item in $Url) {
 			$FileName = "${SavePath}\$((${url_item}.split('/'))[-1])"
 			if ($SourceIsS3Bucket) {
-				Write-Verbose "Downloading file from S3 bucket: ${url_item}"
+				log -LogTag ${ScriptName} "Downloading file from S3 bucket: ${url_item}"
 				$SplitUrl = $url_item.split('/') | where { $_ -notlike "" }
 				$BucketName = $SplitUrl[2]
 				$Key = $SplitUrl[3..($SplitUrl.count-1)] -join '/'
 				$ret = Invoke-Expression "Powershell Read-S3Object -BucketName $BucketName -Key $Key -File $FileName -Region $AwsRegion"
 			}
 			else {
-				Write-Verbose "Downloading file from HTTP host: ${url_item}"
+				log -LogTag ${ScriptName} "Downloading file from HTTP host: ${url_item}"
 				(new-object net.webclient).DownloadFile("${url_item}","${FileName}")
 			}
 			Write-Output (Get-Item $FileName)
 		}
     }
 }
+
 
 function Expand-ZipFile {
     [CmdLetBinding()]
@@ -150,7 +161,7 @@ function Expand-ZipFile {
 			if (!(Test-Path "$file")) {
 				throw "$file does not exist" 
 			}
-			Write-Verbose "Unzipping file: ${file}"
+			log -LogTag ${ScriptName} "Unzipping file: ${file}"
 			if ($CreateDirFromFileName) { $DestPath = "${DestPath}\$((Get-Item $file).BaseName)" }
 			New-Item -Path $DestPath -ItemType Directory -Force -WarningAction SilentlyContinue > $null
 			$Shell.namespace($DestPath).copyhere($Shell.namespace("$file").items(), 0x14) 
@@ -159,37 +170,48 @@ function Expand-ZipFile {
 	}
 }
 
+
+###
+#Begin Script
+###
 #Make sure the salt working directories exist
-if (-Not (Test-Path $SaltWorkingDir)) { New-Item -Path $SaltWorkingDir -ItemType "directory" -Force > $null; log "Created working directory -- ${SaltWorkingDir}" } else { log "Working directory already exists -- ${SaltWorkingDir}" }
+if (-Not (Test-Path $SaltWorkingDir)) { 
+    New-Item -Path $SaltWorkingDir -ItemType "directory" -Force > $null
+    log -LogTag ${ScriptName} "Created working directory -- ${SaltWorkingDir}" 
+} else { 
+    log -LogTag ${ScriptName} "Working directory already exists -- ${SaltWorkingDir}" 
+}
 
 #Create log entry to note the script that is executing
-log $ScriptStart
-log "Within ${ScriptName} --"
-log "SaltWorkingDir = ${SaltWorkingDir}"
-log "SaltInstallerUrl = ${SaltInstallerUrl}"
-log "SaltContentUrl = ${SaltContentUrl}"
-log "FormulasToInclude = ${FormulasToInclude}"
-log "FormulaTerminationStrings = ${FormulaTerminationStrings}"
-log "AshRole = ${AshRole}"
-log "NetBannerLabel = ${NetBannerLabel}"
-log "SaltStates = ${SaltStates}"
-log "SourceIsS3Bucket = ${SourceIsS3Bucket}"
-log "RemainingArgsHash = $(($RemainingArgsHash.GetEnumerator() | % { `"-{0}: {1}`" -f $_.key, $_.value }) -join ' ')"
+log -LogTag ${ScriptName} $ScriptStart
+log -LogTag ${ScriptName} "Within ${ScriptName} --"
+log -LogTag ${ScriptName} "SaltWorkingDir = ${SaltWorkingDir}"
+log -LogTag ${ScriptName} "SaltInstallerUrl = ${SaltInstallerUrl}"
+log -LogTag ${ScriptName} "SaltContentUrl = ${SaltContentUrl}"
+log -LogTag ${ScriptName} "FormulasToInclude = ${FormulasToInclude}"
+log -LogTag ${ScriptName} "FormulaTerminationStrings = ${FormulaTerminationStrings}"
+log -LogTag ${ScriptName} "AshRole = ${AshRole}"
+log -LogTag ${ScriptName} "NetBannerLabel = ${NetBannerLabel}"
+log -LogTag ${ScriptName} "SaltStates = ${SaltStates}"
+log -LogTag ${ScriptName} "SaltDebugLog = ${SaltDebugLog}"
+log -LogTag ${ScriptName} "SaltResultsLog = ${SaltResultsLog}"
+log -LogTag ${ScriptName} "SourceIsS3Bucket = ${SourceIsS3Bucket}"
+log -LogTag ${ScriptName} "RemainingArgsHash = $(($RemainingArgsHash.GetEnumerator() | % { `"-{0}: {1}`" -f $_.key, $_.value }) -join ' ')"
 
 #Insert script commands
 ###
 #Download and extract the salt installer
-$SaltInstallerFile = Download-File -Url $SaltInstallerUrl -SavePath $SaltWorkingDir -SourceIsS3Bucket:$SourceIsS3Bucket -AwsRegion $AwsRegion -Verbose
-$SaltInstallerDir = Expand-ZipFile -FileName ${SaltInstallerFile} -DestPath ${SaltWorkingDir} -Verbose
+$SaltInstallerFile = Download-File -Url $SaltInstallerUrl -SavePath $SaltWorkingDir -SourceIsS3Bucket:$SourceIsS3Bucket -AwsRegion $AwsRegion
+$SaltInstallerDir = Expand-ZipFile -FileName ${SaltInstallerFile} -DestPath ${SaltWorkingDir}
 
 #Download and extract the salt content
-$SaltContentFile = Download-File -Url $SaltContentUrl -SavePath $SaltWorkingDir -SourceIsS3Bucket:$SourceIsS3Bucket -AwsRegion $AwsRegion -Verbose
-$SaltContentDir = Expand-ZipFile -FileName ${SaltContentFile} -DestPath ${SaltWorkingDir} -Verbose
+$SaltContentFile = Download-File -Url $SaltContentUrl -SavePath $SaltWorkingDir -SourceIsS3Bucket:$SourceIsS3Bucket -AwsRegion $AwsRegion
+$SaltContentDir = Expand-ZipFile -FileName ${SaltContentFile} -DestPath ${SaltWorkingDir}
 
 #Download and extract the salt formulas
 foreach ($Formula in $FormulasToInclude) {
-    $FormulaFile = Download-File -Url ${Formula} -SavePath $SaltWorkingDir -SourceIsS3Bucket:$SourceIsS3Bucket -AwsRegion $AwsRegion -Verbose
-    $FormulaDir = Expand-ZipFile -FileName ${FormulaFile} -DestPath "${SaltWorkingDir}\formulas" -Verbose
+    $FormulaFile = Download-File -Url ${Formula} -SavePath $SaltWorkingDir -SourceIsS3Bucket:$SourceIsS3Bucket -AwsRegion $AwsRegion
+    $FormulaDir = Expand-ZipFile -FileName ${FormulaFile} -DestPath "${SaltWorkingDir}\formulas"
     $FormulaBaseName = ($Formula.split('/')[-1].split('.') | Select-Object -Skip 1 -last 10000000) -join '.'
     $FormulaDir = Get-Item "${FormulaDir}\${FormulaBaseName}"
 	#If the formula directory ends in a string in $FormulaTerminationStrings, delete the string from the directory name
@@ -207,23 +229,36 @@ $SaltWinRepo = "${SaltSrv}\winrepo"
 $MinionConf = "${SaltBase}\conf\minion"
 $MinionExe = "${SaltBase}\salt-call.exe"
 $MinionService = "salt-minion"
-$SaltOutputLogFile = "${SaltWorkingDir}\state.output.log"
+if (-not $SaltDebugLog) {
+    $SaltDebugLogFile = "${SaltWorkingDir}\salt.staterun.debug.log"
+} else {
+    $SaltDebugLogFile = $SaltDebugLog
+}
+if (-not $SaltResultsLog) {
+    $SaltResultsLogFile = "${SaltWorkingDir}\salt.staterun.results.log"
+} else {
+    $SaltResultsLogFile = $SaltResultsLog
+}
 
-log "Installing Microsoft Visual C++ 2008 SP1 MFC Security Update redist package -- ${VcRedistInstaller}"
+log -LogTag ${ScriptName} "Installing Microsoft Visual C++ 2008 SP1 MFC Security Update redist package -- ${VcRedistInstaller}"
 $VcRedistInstallResult = Start-Process -FilePath $VcRedistInstaller -ArgumentList "/q" -NoNewWindow -PassThru -Wait
-log "Return code of vcredist install: $(${VcRedistInstallResult}.ExitCode)"
+log -LogTag ${ScriptName} "Return code of vcredist install: $(${VcRedistInstallResult}.ExitCode)"
 
-log "Installing salt -- ${SaltInstaller}"
+log -LogTag ${ScriptName} "Installing salt -- ${SaltInstaller}"
 $SaltInstallResult = Start-Process -FilePath $SaltInstaller -ArgumentList "/S" -NoNewWindow -PassThru -Wait
-log "Return code of salt install: $(${SaltInstallResult}.ExitCode)"
+log -LogTag ${ScriptName} "Return code of salt install: $(${SaltInstallResult}.ExitCode)"
 
-log "Populating salt file_roots"
-mv "${SaltWorkingDir}\srv" "${SaltBase}" -Force
-log "Populating salt formulas"
-mv "${SaltWorkingDir}\formulas" "${SaltSrv}" -Force
+log -LogTag ${ScriptName} "Populating salt file_roots"
+mkdir -Force $SaltSrv 2>&1 > $null
+cp "${SaltWorkingDir}\srv" "${SaltBase}" -Force -Recurse 2>&1 | log -LogTag ${ScriptName}
+rm "${SaltWorkingDir}\srv" -Force -Recurse 2>&1 | log -LogTag ${ScriptName}
+log -LogTag ${ScriptName} "Populating salt formulas"
+mkdir -Force $SaltFormulaRoot 2>&1 > $null
+cp "${SaltWorkingDir}\formulas" "${SaltSrv}" -Force -Recurse 2>&1 | log -LogTag ${ScriptName}
+rm "${SaltWorkingDir}\formulas" -Force -Recurse 2>&1 | log -LogTag ${ScriptName}
 
-log "Setting salt-minion configuration to local mode"
-cp $MinionConf "${MinionConf}.bak"
+log -LogTag ${ScriptName} "Setting salt-minion configuration to local mode"
+cp $MinionConf "${MinionConf}.bak" 2>&1 | log -LogTag ${ScriptName}
 #get the contents of the minion's conf file
 $MinionConfContent = Get-Content $MinionConf
 #set file_client: to "local"
@@ -266,13 +301,13 @@ if ( ($AshRole -ne "None") -or ($NetBannerLabel -ne "None") ) {
     $CustomGrainsContent += "grains:"
 
     if ($AshRole -ne "None") {
-        log "Writing the Ash role to a grain in the salt configuration file"
+        log -LogTag ${ScriptName} "Writing the Ash role to a grain in the salt configuration file"
         $AshRoleCustomGrain = @()
         $AshRoleCustomGrain += "  ash-windows:"
         $AshRoleCustomGrain += "    role: ${AshRole}"
     }
     if ($NetBannerLabel -ne "None") {
-        log "Writing the NetBanner label to a grain in the salt configuration file"
+        log -LogTag ${ScriptName} "Writing the NetBanner label to a grain in the salt configuration file"
         $NetBannerLabelCustomGrain = @()
         $NetBannerLabelCustomGrain += "  netbanner:"
         $NetBannerLabelCustomGrain += "    network_label: ${NetBannerLabel}"
@@ -305,20 +340,33 @@ if ( ($AshRole -ne "None") -or ($NetBannerLabel -ne "None") ) {
 #Write the updated minion conf file to disk
 $MinionConfContent | Set-Content $MinionConf
 
-log "Generating salt winrepo cachefile"
+log -LogTag ${ScriptName} "Generating salt winrepo cachefile"
 $GenRepoResult = Start-Process $MinionExe -ArgumentList "--local winrepo.genrepo" -NoNewWindow -PassThru -Wait
 
-if ("None" -eq $SaltStates) {
-    log "Detected the States parameter is set to: ${SaltStates}. Will not apply any salt states."
-} elseif ("Highstate" -eq $SaltStates ) {
-    log "Detected the States parameter is set to: ${SaltStates}. Applying the salt `"highstate`" to the system."
-    $ApplyStatesResult = Start-Process $MinionExe -ArgumentList "--local state.highstate --log-file ${SaltOutputLogFile} --log-file-level debug" -NoNewWindow -PassThru -Wait
+if ("none" -eq $SaltStates.tolower()) {
+    log -LogTag ${ScriptName} "Detected the SaltStates parameter is set to: ${SaltStates}. Will not apply any salt states."
 } else {
-    log "Detected the States parameter is set to: ${SaltStates}. Applying the user-defined list of states to the system."
-    $ApplyStatesResult = Start-Process $MinionExe -ArgumentList "--local state.sls ${SaltStates} --log-file ${SaltOutputLogFile} --log-file-level debug" -NoNewWindow -PassThru -Wait
+    #Run the specified salt state
+    if ("highstate" -eq $SaltStates.tolower() ) {
+        log -LogTag ${ScriptName} "Detected the States parameter is set to: ${SaltStates}. Applying the salt `"highstate`" to the system."
+        $ApplyStatesResult = Start-Process $MinionExe -ArgumentList "--local state.highstate --out json --out-file ${SaltResultsLogFile} --return local --log-file ${SaltDebugLogFile} --log-file-level debug" -NoNewWindow -PassThru -Wait
+        log -LogTag ${ScriptName} "Return code of salt-call: $(${ApplyStatesResult}.ExitCode)"
+    } else {
+        log -LogTag ${ScriptName} "Detected the States parameter is set to: ${SaltStates}. Applying the user-defined list of states to the system."
+        $ApplyStatesResult = Start-Process $MinionExe -ArgumentList "--local state.sls ${SaltStates} --out json --out-file ${SaltResultsLogFile} --return local --log-file ${SaltDebugLogFile} --log-file-level debug" -NoNewWindow -PassThru -Wait
+        log -LogTag ${ScriptName} "Return code of salt-call: $(${ApplyStatesResult}.ExitCode)"
+    }
+    #Check for errors in the results file
+    if (Select-String -Path ${SaltResultsLogFile} -Pattern '"result": false') {
+        # One of the salt states failed, log and throw an error
+        log -LogTag ${ScriptName} "ERROR: One of the salt states failed! Check the log file for details, ${SaltResultsLogFile}"
+        throw ("ERROR: One of the salt states failed! Check the log file for details, ${SaltResultsLogFile}")
+    } else {
+        log -LogTag ${ScriptName} "Salt states applied successfully! Details are in the log, ${SaltResultsLogFile}"
+    }
 }
 ###
 
 #Log exit from script
-log "Exiting ${ScriptName} -- salt install complete"
-log $ScriptEnd
+log -LogTag ${ScriptName} "Exiting ${ScriptName} -- salt install complete"
+log -LogTag ${ScriptName} $ScriptEnd

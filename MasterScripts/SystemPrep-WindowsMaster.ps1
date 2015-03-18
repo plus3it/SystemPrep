@@ -24,6 +24,7 @@ Param(
 #System variables
 $ScriptName = $MyInvocation.mycommand.name
 $SystemPrepDir = "${env:SystemDrive}\SystemPrep"
+$SystemPrepLogDir = "${env:SystemDrive}\SystemPrep\Logs"
 $SystemPrepWorkingDir = "${SystemPrepDir}\WorkingFiles" #Location on the system to download the bucket contents.
 $ScriptStart = "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 $ScriptEnd = "--------------------------------------------------------------------------------"
@@ -33,6 +34,7 @@ if ($PSVersionTable.PSVersion -eq "2.0") { #PowerShell 2.0 receives remainingarg
 } else {
 	$RemainingArgsHash = $RemainingArgs | ForEach-Object -Begin { $index = 0; $hash = @{} } -Process { if ($_ -match "^-.*:$") { $hash[($_.trim("-",":"))] = $RemainingArgs[$index+1] }; $index++ } -End { Write-Output $hash }
 }
+
 
 Function Join-Hashtables {
 #credit http://powershell.org/wp/2013/01/23/join-powershell-hash-tables/
@@ -79,18 +81,23 @@ Function Join-Hashtables {
 
 } #end Join-Hashtable
 
+
 function log {
     [CmdLetBinding()]
     Param(
-        [Parameter(Mandatory=$true,Position=0,ValueFromPipeLine=$true,ValueFromPipeLineByPropertyName=$true)] [string[]] $LogMessage
+        [Parameter(Mandatory=$false,Position=0,ValueFromPipeLine=$true,ValueFromPipeLineByPropertyName=$true)] [string[]] 
+        $LogMessage,
+        [Parameter(Mandatory=$false,Position=1,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$true)] [string] 
+        $LogTag
     )
     PROCESS {
-		foreach ($message in $LogMessage) {
-			#Writes the input $LogMessage to the output for capture by the bootstrap script.
-			Write-Output "${Scriptname}: $message"
-		}
+        foreach ($message in $LogMessage) {
+            $date = get-date -format "yyyyMMdd.HHmm.ss"
+            "${date}: ${LogTag}: $message" | Out-Default
+        }
     }
 }
+
 
 function Download-File {
     [CmdLetBinding()]
@@ -107,14 +114,14 @@ function Download-File {
 		foreach ($url_item in $Url) {
 			$FileName = "${SavePath}\$((${url_item}.split('/'))[-1])"
 			if ($SourceIsS3Bucket) {
-				Write-Verbose "Downloading file from S3 bucket: ${url_item}"
+				log -LogTag ${ScriptName} "Downloading file from S3 bucket: ${url_item}"
 				$SplitUrl = $url_item.split('/') | where { $_ -notlike "" }
 				$BucketName = $SplitUrl[2]
 				$Key = $SplitUrl[3..($SplitUrl.count-1)] -join '/'
 				$ret = Invoke-Expression "Powershell Read-S3Object -BucketName $BucketName -Key $Key -File $FileName -Region $AwsRegion"
 			}
 			else {
-				Write-Verbose "Downloading file from HTTP host: ${url_item}"
+				log -LogTag ${ScriptName} "Downloading file from HTTP host: ${url_item}"
 				(new-object net.webclient).DownloadFile("${url_item}","${FileName}")
 			}
 			Write-Output (Get-Item $FileName)
@@ -122,12 +129,15 @@ function Download-File {
     }
 }
 
+
 #User variables
 $ScriptsToExecute = @(
                         @{
                             ScriptUrl  = "https://s3.amazonaws.com/systemprep/SystemContent/Windows/Salt/SystemPrep-WindowsSaltInstall.ps1"
                             Parameters = (Join-Hashtables $RemainingArgsHash  @{ 
                                                                                   SaltWorkingDir = "${SystemPrepWorkingDir}\Salt" 
+                                                                                  SaltDebugLog = "${SystemPrepLogDir}\salt.staterun.debug.log"
+                                                                                  SaltResultsLog = "${SystemPrepLogDir}\salt.staterun.results.log"
                                                                                   SaltInstallerUrl = "https://s3.amazonaws.com/systemprep/SystemContent/Windows/Salt/salt-installer.zip" 
                                                                                   SaltContentUrl = "https://s3.amazonaws.com/systemprep/SystemContent/Windows/Salt/salt-content.zip" 
                                                                                   FormulasToInclude = @(
@@ -156,19 +166,39 @@ $ScriptsToExecute = @(
                        #Scripts must be written in PowerShell.
                        #Scripts will be downloaded and executed in the order listed. 
 
-#Make sure the system prep and working directories exist
-if (-Not (Test-Path $SystemPrepDir)) { New-Item -Path $SystemPrepDir -ItemType "directory" -Force > $null; log "Created SystemPrep directory -- ${SystemPrepDir}" } else { log "SystemPrep directory already exists -- $SystemPrepDir" }
-if (-Not (Test-Path $SystemPrepWorkingDir)) { New-Item -Path $SystemPrepWorkingDir -ItemType "directory" -Force > $null; log "Created working directory -- ${SystemPrepWorkingDir}" } else { log "Working directory already exists -- ${SystemPrepWorkingDir}" }
+
+###
+#Begin Script
+###
+#Make sure the systemprep, log, and working directories exist
+if (-Not (Test-Path $SystemPrepDir)) { 
+    New-Item -Path $SystemPrepDir -ItemType "directory" -Force > $null
+    log -LogTag ${ScriptName} "Created SystemPrep directory -- ${SystemPrepDir}" 
+} else { 
+    log -LogTag ${ScriptName} "SystemPrep directory already exists -- $SystemPrepDir" 
+}
+if (-Not (Test-Path $SystemPrepLogDir)) { 
+    New-Item -Path $SystemPrepLogDir -ItemType "directory" -Force > $null
+    log -LogTag ${ScriptName} "Created log directory -- ${SystemPrepLogDir}" 
+} else { 
+    log -LogTag ${ScriptName} "Log directory already exists -- ${SystemPrepLogDir}" 
+}
+if (-Not (Test-Path $SystemPrepWorkingDir)) { 
+    New-Item -Path $SystemPrepWorkingDir -ItemType "directory" -Force > $null
+    log -LogTag ${ScriptName} "Created working directory -- ${SystemPrepWorkingDir}" 
+} else { 
+    log -LogTag ${ScriptName} "Working directory already exists -- ${SystemPrepWorkingDir}" 
+}
 
 #Create log entry to note the script name
-log $ScriptStart
-log "Within ${ScriptName} -- Beginning system preparation"
-log "SourceIsS3Bucket = ${SourceIsS3Bucket}"
-log "NoReboot = ${NoReboot}"
-log "RemainingArgsHash = $(($RemainingArgsHash.GetEnumerator() | % { `"-{0}: {1}`" -f $_.key, $_.value }) -join ' ')"
+log -LogTag ${ScriptName} $ScriptStart
+log -LogTag ${ScriptName} "Within ${ScriptName} -- Beginning system preparation"
+log -LogTag ${ScriptName} "SourceIsS3Bucket = ${SourceIsS3Bucket}"
+log -LogTag ${ScriptName} "NoReboot = ${NoReboot}"
+log -LogTag ${ScriptName} "RemainingArgsHash = $(($RemainingArgsHash.GetEnumerator() | % { `"-{0}: {1}`" -f $_.key, $_.value }) -join ' ')"
 
 #Create an atlogon scheduled task to notify users that system customization is in progress
-log "Registering a scheduled task to notify users at logon that system customization is in progress"
+log -LogTag ${ScriptName} "Registering a scheduled task to notify users at logon that system customization is in progress"
 $msg = "Please wait... System customization is in progress. The system will reboot automatically when customization is complete."
 $taskname = "System Prep Logon Message"
 if ($PSVersionTable.psversion.major -ge 4) {
@@ -177,29 +207,29 @@ if ($PSVersionTable.psversion.major -ge 4) {
     $P = New-ScheduledTaskPrincipal -UserId "NT AUTHORITY\SYSTEM" -RunLevel "Highest" -LogonType "ServiceAccount"
     $S = New-ScheduledTaskSettingsSet
     $D = New-ScheduledTask -Action $A -Principal $P -Trigger $T -Settings $S
-    Register-ScheduledTask -TaskName $taskname -InputObject $D 2>&1 | log
+    Register-ScheduledTask -TaskName $taskname -InputObject $D 2>&1 | log -LogTag ${ScriptName}
 } else {
-    invoke-expression "& $env:systemroot\system32\schtasks.exe /create /SC ONLOGON /RL HIGHEST /NP /V1 /RU SYSTEM /F /TR `"msg * /SERVER:%computername% ${msg}`" /TN `"${taskname}`"" 2>&1 | log
+    invoke-expression "& $env:systemroot\system32\schtasks.exe /create /SC ONLOGON /RL HIGHEST /NP /V1 /RU SYSTEM /F /TR `"msg * /SERVER:%computername% ${msg}`" /TN `"${taskname}`"" 2>&1 | log -LogTag ${ScriptName}
 }
 
 #Download and execute each script
 foreach ($ScriptObject in $ScriptsToExecute) {
     $Script = $ScriptObject["ScriptUrl"]
     $ScriptParams = $ScriptObject["Parameters"]
-    $File = Download-File -Url $Script -SavePath $SystemPrepWorkingDir -SourceIsS3Bucket:$SourceIsS3Bucket -AwsRegion $AwsRegion -Verbose
-    log "Calling script -- ${File}"
+    $File = Download-File -Url $Script -SavePath $SystemPrepWorkingDir -SourceIsS3Bucket:$SourceIsS3Bucket -AwsRegion $AwsRegion
+    log -LogTag ${ScriptName} "Calling script -- ${File}"
     Invoke-Expression "& ${File} @ScriptParams"
 }
 
-log "Removing the scheduled task notifying users at logon of system customization"
-invoke-expression "& ${env:systemroot}\system32\schtasks.exe /delete /f /TN `"System Prep Logon Message`"" 2>&1 | log
+log -LogTag ${ScriptName} "Removing the scheduled task notifying users at logon of system customization"
+invoke-expression "& ${env:systemroot}\system32\schtasks.exe /delete /f /TN `"System Prep Logon Message`"" 2>&1 | log -LogTag ${ScriptName}
 
 if ($NoReboot) {
-    log "Detected NoReboot switch. System will not be rebooted."
+    log -LogTag ${ScriptName} "Detected NoReboot switch. System will not be rebooted."
 } else {
-    log "Reboot scheduled. System will reboot in 30 seconds."
-    invoke-expression "& ${env:systemroot}\system32\shutdown.exe /r /t 30 /d p:2:4 /c `"SystemPrep complete. Rebooting computer.`"" 2>&1 | log
+    log -LogTag ${ScriptName} "Reboot scheduled. System will reboot in 30 seconds."
+    invoke-expression "& ${env:systemroot}\system32\shutdown.exe /r /t 30 /d p:2:4 /c `"SystemPrep complete. Rebooting computer.`"" 2>&1 | log -LogTag ${ScriptName}
 }
 
-log "${ScriptName} complete!"
-log $ScriptEnd
+log -LogTag ${ScriptName} "${ScriptName} complete!"
+log -LogTag ${ScriptName} $ScriptEnd
