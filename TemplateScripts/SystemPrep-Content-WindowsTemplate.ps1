@@ -41,20 +41,26 @@ if ($PSVersionTable.PSVersion -eq "2.0") { #PowerShell 2.0 receives remainingarg
 $PackageUrl = ""
 $TemplateWorkingDir = ""
 
-###
 
+###
+#Define functions
+###
 function log {
     [CmdLetBinding()]
     Param(
-        [Parameter(Mandatory=$true,Position=0,ValueFromPipeLine=$true,ValueFromPipeLineByPropertyName=$true)] [string[]] $LogMessage
+        [Parameter(Mandatory=$false,Position=0,ValueFromPipeLine=$true,ValueFromPipeLineByPropertyName=$true)] [string[]] 
+        $LogMessage,
+        [Parameter(Mandatory=$false,Position=1,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$true)] [string] 
+        $LogTag
     )
     PROCESS {
-		foreach ($message in $LogMessage) {
-			#Writes the input $LogMessage to the output for capture by the bootstrap script.
-			Write-Output "${Scriptname}: $message"
-		}
+        foreach ($message in $LogMessage) {
+            $date = get-date -format "yyyyMMdd.HHmm.ss"
+            "${date}: ${LogTag}: $message" | Out-Default
+        }
     }
 }
+
 
 function Download-File {
     [CmdLetBinding()]
@@ -71,20 +77,21 @@ function Download-File {
 		foreach ($url_item in $Url) {
 			$FileName = "${SavePath}\$((${url_item}.split('/'))[-1])"
 			if ($SourceIsS3Bucket) {
-				Write-Verbose "Downloading file from S3 bucket: ${url_item}"
+				log -LogTag ${ScriptName} "Downloading file from S3 bucket: ${url_item}"
 				$SplitUrl = $url_item.split('/') | where { $_ -notlike "" }
 				$BucketName = $SplitUrl[2]
 				$Key = $SplitUrl[3..($SplitUrl.count-1)] -join '/'
 				$ret = Invoke-Expression "Powershell Read-S3Object -BucketName $BucketName -Key $Key -File $FileName -Region $AwsRegion"
 			}
 			else {
-				Write-Verbose "Downloading file from HTTP host: ${url_item}"
+				log -LogTag ${ScriptName} "Downloading file from HTTP host: ${url_item}"
 				(new-object net.webclient).DownloadFile("${url_item}","${FileName}")
 			}
 			Write-Output (Get-Item $FileName)
 		}
     }
 }
+
 
 function Expand-ZipFile {
     [CmdLetBinding()]
@@ -99,7 +106,7 @@ function Expand-ZipFile {
 			if (!(Test-Path "$file")) {
 				throw "$file does not exist" 
 			}
-			Write-Verbose "Unzipping file: ${file}"
+			log -LogTag ${ScriptName} "Unzipping file: ${file}"
 			if ($CreateDirFromFileName) { $DestPath = "${DestPath}\$((Get-Item $file).BaseName)" }
 			New-Item -Path $DestPath -ItemType Directory -Force -WarningAction SilentlyContinue > $null
 			$Shell.namespace($DestPath).copyhere($Shell.namespace("$file").items(), 0x14) 
@@ -108,18 +115,23 @@ function Expand-ZipFile {
 	}
 }
 
+
+###
+#Begin Script
+###
+
 #Create log entry to note the script that is executing
-log $ScriptStart
-log "Within ${ScriptName} --"
-log "RemainingArgsHash = $(($RemainingArgsHash.GetEnumerator() | % { `"-{0}: {1}`" -f $_.key, $_.value }) -join ' ')"
+log -LogTag ${ScriptName} $ScriptStart
+log -LogTag ${ScriptName} "Within ${ScriptName} --"
+log -LogTag ${ScriptName} "RemainingArgsHash = $(($RemainingArgsHash.GetEnumerator() | % { `"-{0}: {1}`" -f $_.key, $_.value }) -join ' ')"
 
 #Insert script commands
 ###
-$PackageFile = Download-File -Url $PackageUrl -SavePath "${TemplateWorkingDir}" -SourceIsS3Bucket:$SourceIsS3Bucket -AwsRegion $AwsRegion -Verbose
-$PackageDir = Expand-ZipFile -FileName ${PackageFile} -DestPath -DestPath ${TemplateWorkingDir} -Verbose
+$PackageFile = Download-File -Url $PackageUrl -SavePath "${TemplateWorkingDir}" -SourceIsS3Bucket:$SourceIsS3Bucket -AwsRegion $AwsRegion
+$PackageDir = Expand-ZipFile -FileName ${PackageFile} -DestPath -DestPath ${TemplateWorkingDir}
 
 ###
 
 #Log exit from script
-log "Exiting ${ScriptName} --"
-log $ScriptEnd
+log -LogTag ${ScriptName} "Exiting ${ScriptName} --"
+log -LogTag ${ScriptName} $ScriptEnd
