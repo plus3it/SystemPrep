@@ -236,19 +236,19 @@ function Add-Ec2EventLogSource {
                 $xmlElement = $xml.EventLogConfig.AppendChild($xml.CreateElement("Event"))
 
                 $xml_category = $xmlElement.AppendChild($xml.CreateElement("Category"))
-                $xml_category.AppendChild($xml.CreateTextNode("Application"))
+                $xml_category.AppendChild($xml.CreateTextNode("Application")) | Out-null
 
                 $xml_errortype = $xmlElement.AppendChild($xml.CreateElement("ErrorType"))
-                $xml_errortype.AppendChild($xml.CreateTextNode($MessageType))
+                $xml_errortype.AppendChild($xml.CreateTextNode($MessageType)) | Out-null
 
                 $xml_numentries = $xmlElement.AppendChild($xml.CreateElement("NumEntries"))
-                $xml_numentries.AppendChild($xml.CreateTextNode("9999"))
+                $xml_numentries.AppendChild($xml.CreateTextNode("9999")) | Out-null
 
                 $xml_appname = $xmlElement.AppendChild($xml.CreateElement("AppName"))
-                $xml_appname.AppendChild($xml.CreateTextNode("${Source}"))
+                $xml_appname.AppendChild($xml.CreateTextNode("${Source}")) | Out-null
 
                 $xml_lastmessagetime = $xmlElement.AppendChild($xml.CreateElement("LastMessageTime"))
-                $xml_lastmessagetime.AppendChild($xml.CreateTextNode($(get-date -Format "yyyy-MM-ddTHH:mm:ss.0000000+00:00")))
+                $xml_lastmessagetime.AppendChild($xml.CreateTextNode($(get-date -Format "yyyy-MM-ddTHH:mm:ss.0000000+00:00"))) | Out-null
             }
             
             $xml.Save($EC2EventLogFile)
