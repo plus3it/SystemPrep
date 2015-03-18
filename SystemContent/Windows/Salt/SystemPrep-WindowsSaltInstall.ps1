@@ -223,6 +223,7 @@ $SaltInstaller = (Get-ChildItem "${SaltWorkingDir}" | where {$_.Name -like "Salt
 $SaltBase = "C:\salt"
 $SaltSrv = "C:\salt\srv"
 $SaltFileRoot = "${SaltSrv}\states"
+$SaltPillarRoot = "${SaltSrv}\pillar"
 $SaltBaseEnv = "${SaltFileRoot}\base"
 $SaltFormulaRoot = "${SaltSrv}\formulas"
 $SaltWinRepo = "${SaltSrv}\winrepo"
@@ -248,12 +249,15 @@ log -LogTag ${ScriptName} "Installing salt -- ${SaltInstaller}"
 $SaltInstallResult = Start-Process -FilePath $SaltInstaller -ArgumentList "/S" -NoNewWindow -PassThru -Wait
 log -LogTag ${ScriptName} "Return code of salt install: $(${SaltInstallResult}.ExitCode)"
 
-log -LogTag ${ScriptName} "Populating salt file_roots"
+log -LogTag ${ScriptName} "Creating salt directory structure"
 mkdir -Force $SaltSrv 2>&1 > $null
+mkdir -Force $SaltFormulaRoot 2>&1 > $null
+mkdir -Force $SaltPillarRoot 2>&1 > $null
+
+log -LogTag ${ScriptName} "Populating salt file_roots and pillar_roots"
 cp "${SaltWorkingDir}\srv" "${SaltBase}" -Force -Recurse 2>&1 | log -LogTag ${ScriptName}
 rm "${SaltWorkingDir}\srv" -Force -Recurse 2>&1 | log -LogTag ${ScriptName}
 log -LogTag ${ScriptName} "Populating salt formulas"
-mkdir -Force $SaltFormulaRoot 2>&1 > $null
 cp "${SaltWorkingDir}\formulas" "${SaltSrv}" -Force -Recurse 2>&1 | log -LogTag ${ScriptName}
 rm "${SaltWorkingDir}\formulas" -Force -Recurse 2>&1 | log -LogTag ${ScriptName}
 
@@ -267,6 +271,8 @@ $MinionConfContent = $MinionConfContent | ForEach-Object {$_ -replace "^#file_cl
 $MinionConfContent = $MinionConfContent | ForEach-Object {$_ -replace "^# win_repo_cachefile: 'salt://win/repo/winrepo.p'","win_repo_cachefile: '${SaltWinRepo}\winrepo.p'`r`nwin_repo: '${SaltWinRepo}'"}
 #Construct an array of all the Formula directories to include in the minion conf file
 $FormulaFileRootConf = (Get-ChildItem ${SaltFormulaRoot} | where {$_.Attributes -eq "Directory"}) | ForEach-Object { "    - " + $(${_}.fullname) }
+
+log -LogTag ${ScriptName} "Updating the salt file_roots configuration"
 #Construct the contents for the file_roots section of the minion conf file
 $SaltFileRootConf = @()
 $SaltFileRootConf += "file_roots:"
@@ -277,22 +283,49 @@ $SaltFileRootConf += $FormulaFileRootConf
 $SaltFileRootConf += ""
 
 #Regex strings to mark the beginning and end of the file_roots section
-$FilerootsBegin = "^#file_roots:|^file_roots:"
-$FilerootsEnd = "^$"
+$FileRootsBegin = "^#file_roots:|^file_roots:"
+$FileRootsEnd = "^$"
 
 #Find the file_roots section in the minion conf file and replace it with the new configuration in $SaltFileRootConf
 $MinionConfContent | foreach -Begin { 
     $n=0; $beginindex=$null; $endindex=$null 
 } -Process { 
-    if ($_ -match "$FilerootsBegin") { 
+    if ($_ -match "$FileRootsBegin") { 
         $beginindex = $n 
     }
-    if ($beginindex -and -not $endindex -and $_ -match "$FilerootsEnd") { 
+    if ($beginindex -and -not $endindex -and $_ -match "$FileRootsEnd") { 
         $endindex = $n 
     }
     $n++ 
 } -End { 
     $MinionConfContent = $MinionConfContent[0..($beginindex-1)] + $SaltFileRootConf + $MinionConfContent[($endindex+1)..$MinionConfContent.Length]
+}
+
+log -LogTag ${ScriptName} "Updating the salt pillar_roots configuration"
+#Construct the contents for the pillar_roots section of the minion conf file
+$SaltPillarRootConf = @()
+$SaltPillarRootConf += "pillar_roots:"
+$SaltPillarRootConf += "  base:"
+$SaltPillarRootConf += "    - ${SaltPillarRoot}"
+$SaltPillarRootConf += ""
+
+#Regex strings to mark the beginning and end of the file_roots section
+$PillarRootsBegin = "^#pillar_roots:|^pillar_roots:"
+$PillarRootsEnd = "^$"
+
+#Find the pillar_roots section in the minion conf file and replace it with the new configuration in $SaltPillarRootConf
+$MinionConfContent | foreach -Begin { 
+    $n=0; $beginindex=$null; $endindex=$null 
+} -Process { 
+    if ($_ -match "$PillarRootsBegin") { 
+        $beginindex = $n 
+    }
+    if ($beginindex -and -not $endindex -and $_ -match "$PillarRootsEnd") { 
+        $endindex = $n 
+    }
+    $n++ 
+} -End { 
+    $MinionConfContent = $MinionConfContent[0..($beginindex-1)] + $SaltPillarRootConf + $MinionConfContent[($endindex+1)..$MinionConfContent.Length]
 }
 
 #Write custom grains to the salt configuration file
@@ -301,13 +334,13 @@ if ( ($AshRole -ne "None") -or ($NetBannerLabel -ne "None") ) {
     $CustomGrainsContent += "grains:"
 
     if ($AshRole -ne "None") {
-        log -LogTag ${ScriptName} "Writing the Ash role to a grain in the salt configuration file"
+        log -LogTag ${ScriptName} "Adding the Ash role to a grain in the salt configuration file"
         $AshRoleCustomGrain = @()
         $AshRoleCustomGrain += "  ash-windows:"
         $AshRoleCustomGrain += "    role: ${AshRole}"
     }
     if ($NetBannerLabel -ne "None") {
-        log -LogTag ${ScriptName} "Writing the NetBanner label to a grain in the salt configuration file"
+        log -LogTag ${ScriptName} "Adding the NetBanner label to a grain in the salt configuration file"
         $NetBannerLabelCustomGrain = @()
         $NetBannerLabelCustomGrain += "  netbanner:"
         $NetBannerLabelCustomGrain += "    network_label: ${NetBannerLabel}"
