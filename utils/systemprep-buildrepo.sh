@@ -12,12 +12,13 @@ BUILDERDEPS=(
 SALT_OSDEPS=( 
     "PyYAML"
     "audit-libs-python"
+    "hwdata"
     "libcgroup"
     "libselinux-python"
     "libsemanage-python"
     "libyaml"
     "m2crypto"
-    # "pciutils"
+    "pciutils"
     "policycoreutils-python"
     "python-babel"
     "python-backports"
@@ -25,19 +26,19 @@ SALT_OSDEPS=(
     "python-chardet"
     "python-crypto"
     "python-jinja2"
+    "python-markupsafe"
     "python-ordereddict"
     "python-requests"
     "python-six"
     "python-urllib3"
     "setools-libs"
     "setools-libs-python"
+    "systemd-python"
     "yum-utils"
 )
 
 SALT_EPELDEPS=(
-    # "openpgm"
     "python-msgpack"
-    # "sshpass"
 )
 
 SALT_COPRZMQ_DEPS=(
@@ -55,11 +56,45 @@ GPGKEY_EPEL="RPM-GPG-KEY-EPEL-[0-9]"
 GPGKEY_CENTOS="RPM-GPG-KEY-CentOS-[0-9]"
 GPGKEY_AMZN="RPM-GPG-KEY-amazon-ga"
 GPGKEY_RHEL="RPM-GPG-KEY-redhat-release"
-GPGKEY_COPRZMQ="https://copr-be.cloud.fedoraproject.org/results/saltstack/salt/pubkey.gpg"
-GPGKEY_COPRSALT="http://copr-be.cloud.fedoraproject.org/results/saltstack/zeromq4/pubkey.gpg"
+GPGKEY_COPRZMQ="http://copr-be.cloud.fedoraproject.org/results/saltstack/zeromq4/pubkey.gpg"
+GPGKEY_COPRSALT="https://copr-be.cloud.fedoraproject.org/results/saltstack/salt/pubkey.gpg"
+
+# Temporarily suppress rsyslog rate limiting
+if [[ -e /etc/rsyslog.conf ]]; then
+    echo "Temporarily disabling rsyslog rate limiting"
+    RSYSLOGFLAG=1
+    # Replace or append the $SystemLogRateLimitInterval parameter
+    grep -q '^$SystemLogRateLimitInterval' /etc/rsyslog.conf && \
+        sed -i.bak -e \
+        "s/^$SystemLogRateLimitInterval.*/$SystemLogRateLimitInterval 0/" \
+        /etc/rsyslog.conf || \
+        sed -i.bak "$ a\$SystemLogRateLimitInterval 0" /etc/rsyslog.conf
+    echo "Restarting rsyslog..."
+    service rsyslog restart
+fi
+# Temporarily suppress journald rate limiting
+if [[ -e /etc/systemd/journald.conf ]]; then
+    echo "Temporarily disabling journald rate limiting"
+    JOURNALDFLAG=1
+    # Replace or append the RateLimitInterval parameter
+    grep -q '^RateLimitInterval' /etc/systemd/journald.conf && \
+        sed -i.bak -e \
+        "s/^RateLimitInterval.*/RateLimitInterval=0/" \
+        /etc/rsyslog.conf || \
+        sed -i.bak "$ a\RateLimitInterval=0" /etc/systemd/journald.conf
+    echo "Restarting systemd-journald..."
+    systemctl restart  systemd-journald.service
+fi
 
 # Manage distribution-specific dependencies
-RELEASE=$(grep "release" /etc/issue)
+if [[ -e /etc/redhat-release ]]; then
+    RELEASE=$(grep "release" /etc/redhat-release)
+elif [[ -e /etc/system-release ]]; then
+    RELEASE=$(grep "release" /etc/system-release)
+else
+    echo "Don't know how to determine the 'release' string for this OS!"
+    exit 1
+fi
 case "${RELEASE}" in
 "Amazon"*)
     OSVER=$(echo ${RELEASE} | grep -o '[0-9]*\.[0-9]*') #e.g. 'OSVER=2014.7'
@@ -75,7 +110,7 @@ case "${RELEASE}" in
     curl -O http://mirror.us.leaseweb.net/epel/6/i386/epel-release-6-8.noarch.rpm && \
     yum install epel-release-6-8.noarch.rpm -y
     ;;
-"Red Hat"*7)
+"Red Hat"*7*)
     DIST="rhel"
     OSVER=$(echo ${RELEASE} | grep -o '[0-9]*\.[0-9]*' | cut -d'.' -f1) #e.g. 'OSVER=7'
     curl -O http://mirror.sfo12.us.leaseweb.net/epel/7/x86_64/e/epel-release-7-5.noarch.rpm && \
@@ -90,7 +125,6 @@ esac
 # Install packages required to create the repo
 BUILDERDEPS_STRING=$( IFS=$' '; echo "${BUILDERDEPS[*]}" )
 yum -y install ${BUILDERDEPS_STRING}
-yum-config-manager --enable epel
 
 # Establish variables
 STAGING=$(echo ~/repo/staging)
@@ -98,7 +132,7 @@ ARCH="${HOSTTYPE}"
 OSREPO=$(echo ~/repo/${DIST}/${OSVER}/${ARCH})
 OSPACKAGES="${OSREPO}/packages"
 OSBUCKET="systemprep-repo/${DIST}/${OSVER}/"
-EPELVER=$(yum info epel-release | grep Version | awk -F ': ' '{print $2}')
+EPELVER=$(rpm -qa |grep epel-release | cut -d'-' -f3)
 EPELREPO=$(echo ~/repo/epel/${EPELVER}/${ARCH})
 EPELPACKAGES="${EPELREPO}/packages"
 EPELBUCKET="systemprep-repo/epel/${EPELVER}/"
@@ -114,11 +148,16 @@ COPR_REPOS=(
     http://copr.fedoraproject.org/coprs/saltstack/salt/repo/epel-${EPELVER}/saltstack-salt-epel-${EPELVER}.repo
     http://copr.fedoraproject.org/coprs/saltstack/zeromq4/repo/epel-${EPELVER}/saltstack-zeromq4-epel-${EPELVER}.repo
 )
-
 #Download required repo files
 cd /etc/yum.repos.d
-for repo in "${COPR_REPOS[*]}"; do
+for repo in "${COPR_REPOS[@]}"; do
     curl -O $repo
+done
+
+# Enable repos
+yum-config-manager --enable "*"
+for repo in "testing" "source" "debug" "contrib" "C6" "media" "preview" "nosrc"; do
+    yum-config-manager --disable "*${repo}*"
 done
 
 # Download packages to the staging directory
@@ -165,5 +204,24 @@ s3cmd sync ${OSREPO} s3://${OSBUCKET}
 s3cmd sync ${EPELREPO} s3://${EPELBUCKET}
 s3cmd sync ${COPRZMQREPO} s3://${COPRZMQBUCKET}
 s3cmd sync ${COPRSALTREPO} s3://${COPRSALTBUCKET}
+
+# Restore prior rsyslog config
+if [[ -n "${RSYSLOGFLAG}" ]]; then
+    # Sleep to let the logger catch up with the output of the python script...
+    sleep 5
+    echo "Re-storing previous rsyslog configuration"
+    mv -f /etc/rsyslog.conf.bak /etc/rsyslog.conf
+    echo "Restarting rsyslog..."
+    service rsyslog restart
+fi
+# Restore prior journald config
+if [[ -n "${JOURNALDFLAG}" ]]; then
+    # Sleep to let the logger catch up with the output of the python script...
+    sleep 5
+    echo "Re-storing previous journald configuration"
+    mv -f /etc/systemd/journald.conf.bak /etc/systemd/journald.conf
+    echo "Restarting systemd-journald..."
+    systemctl restart  systemd-journald.service
+fi
 
 echo "Finished creating the repo!"
