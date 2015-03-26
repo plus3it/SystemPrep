@@ -48,11 +48,11 @@ REPO_NAME_SALT_EPEL7="systemprep-salt-epel7-packages"
 REPO_BASEURL_SALT_EPEL7="${BASE_URL}/saltstack/salt/epel-7/\$basearch/"
 REPO_GPGKEY_SALT_EPEL7="${BASE_URL}/saltstack/salt/epel-7/\$basearch/salt-gpgkey.gpg"
 
-REPO_NAME_ZMQ_EPEL6="systemprep-salt-epel6-packages"
+REPO_NAME_ZMQ_EPEL6="systemprep-zmq-epel6-packages"
 REPO_BASEURL_ZMQ_EPEL6="${BASE_URL}/saltstack/zmq/epel-6/\$basearch/"
 REPO_GPGKEY_ZMQ_EPEL6="${BASE_URL}/saltstack/zmq/epel-6/\$basearch/zmq-gpgkey.gpg"
 
-REPO_NAME_ZMQ_EPEL7="systemprep-salt-epel7-packages"
+REPO_NAME_ZMQ_EPEL7="systemprep-zmq-epel7-packages"
 REPO_BASEURL_ZMQ_EPEL7="${BASE_URL}/saltstack/zmq/epel-7/\$basearch/"
 REPO_GPGKEY_ZMQ_EPEL7="${BASE_URL}/saltstack/zmq/epel-7/\$basearch/zmq-gpgkey.gpg"
 
