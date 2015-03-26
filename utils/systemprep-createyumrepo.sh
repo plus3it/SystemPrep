@@ -118,6 +118,7 @@ __print_repo_file() {
         printf "ERROR: __print_repo_file requires three arguments." 1>&2;
         exit 1
     fi
+    printf "[${name}]\n"
     printf "name=${name}\n"
     printf "baseurl=${baseurl}\n"
     printf "gpgcheck=1\n"
