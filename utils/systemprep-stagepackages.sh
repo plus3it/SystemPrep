@@ -108,13 +108,13 @@ case "${RELEASE}" in
     DIST="rhel"
     OSVER=$(echo ${RELEASE} | grep -o '[0-9]*\.[0-9]*' | cut -d'.' -f1) #e.g. 'OSVER=6'
     curl -O http://mirror.us.leaseweb.net/epel/6/i386/epel-release-6-8.noarch.rpm && \
-    yum install epel-release-6-8.noarch.rpm -y
+    yum -y install epel-release-6-8.noarch.rpm
     ;;
 "Red Hat"*7*)
     DIST="rhel"
     OSVER=$(echo ${RELEASE} | grep -o '[0-9]*\.[0-9]*' | cut -d'.' -f1) #e.g. 'OSVER=7'
     curl -O http://mirror.sfo12.us.leaseweb.net/epel/7/x86_64/e/epel-release-7-5.noarch.rpm && \
-    yum install epel-release-7-5.noarch.rpm -y
+    yum -y install epel-release-7-5.noarch.rpm
     ;;
 *)
     echo "Unsupported OS. Exiting"
@@ -193,12 +193,7 @@ find /etc/pki/rpm-gpg/ -type f | grep -i "${GPGKEY_EPEL}" | xargs -i cp {} "${EP
 curl -o "${COPRZMQREPO}/zeromq-gpgkey.gpg" "${GPGKEY_COPRZMQ}"
 curl -o "${COPRSALTREPO}/salt-gpgkey.gpg" "${GPGKEY_COPRSALT}"
 
-# Create the repo metadata
-for repo in "${OSREPO}" "${EPELREPO}" "${COPRZMQREPO}" "${COPRSALTREPO}"; do
-    createrepo -v --deltas "${repo}"
-done
-
-# Sync the repo to S3
+# Sync the packages to S3
 yum -y install s3cmd
 s3cmd sync ${OSREPO} s3://${OSBUCKET}
 s3cmd sync ${EPELREPO} s3://${EPELBUCKET}
@@ -224,4 +219,4 @@ if [[ -n "${JOURNALDFLAG}" ]]; then
     systemctl restart  systemd-journald.service
 fi
 
-echo "Finished creating the repo!"
+echo "Finished staging the packages!"
