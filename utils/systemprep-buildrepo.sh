@@ -156,7 +156,7 @@ done
 
 # Enable repos
 yum-config-manager --enable "*"
-for repo in "testing" "source" "debug" "contrib" "C6" "media" "preview" "nosrc"; do
+for repo in "testing" "source" "debug" "contrib" "C6" "media" "fasttrack" "preview" "nosrc"; do
     yum-config-manager --disable "*${repo}*"
 done
 
