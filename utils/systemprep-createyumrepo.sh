@@ -60,7 +60,6 @@ BUILDERDEPS=(
     "epel-release"
     "yum-utils"
     "createrepo"
-    "python-pip"
 )
 
 # Manage distribution-specific dependencies
@@ -75,7 +74,11 @@ fi
 case "${RELEASE}" in
 "Amazon"*)
     ;;
-"CentOS"*)
+"CentOS"*6*)
+    service ntpd start 2>&1 > /dev/null && echo "Started ntpd..." || echo "Failed to start ntpd..."
+       ### ^^^Workaround for issue where localtime is misconfigured on CentOS6
+    ;;
+"CentOS"*7*)
     ;;
 "Red Hat"*6*)
     curl -O http://mirror.us.leaseweb.net/epel/6/i386/epel-release-6-8.noarch.rpm && \
@@ -97,6 +100,7 @@ yum -y install ${BUILDERDEPS_STRING}
 
 # Install s3cmd
 yum-config-manager --enable epel
+yum -y install python-pip  # Couldn't install python-pip with the builderdeps because it's in epel
 pip install --upgrade s3cmd
 hash s3cmd 2> /dev/null || PATH="${PATH}:/usr/local/bin"  # Modify PATH for Amazon Linux 2015.03
 
