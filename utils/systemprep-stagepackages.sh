@@ -7,7 +7,6 @@ BUILDERDEPS=(
     "epel-release"
     "yum-utils"
     "createrepo"
-    "python-pip"
 )
 
 SALT_OSDEPS=( 
@@ -101,7 +100,13 @@ case "${RELEASE}" in
     OSVER=$(echo ${RELEASE} | grep -o '[0-9]*\.[0-9]*') #e.g. 'OSVER=2014.7'
     DIST="amzn"
     ;;
-"CentOS"*)
+"CentOS"*6*)
+    DIST="centos"
+    OSVER=$(echo ${RELEASE} | grep -o '[0-9]*\.[0-9]*' | cut -d'.' -f1) #e.g. 'OSVER=6'
+    service ntpd start 2>&1 > /dev/null && echo "Started ntpd..." || echo "Failed to start ntpd..."
+       ### ^^^Workaround for issue where localtime is misconfigured on CentOS6
+    ;;
+"CentOS"*7*)
     DIST="centos"
     OSVER=$(echo ${RELEASE} | grep -o '[0-9]*\.[0-9]*' | cut -d'.' -f1) #e.g. 'OSVER=6'
     ;;
@@ -195,6 +200,7 @@ curl -o "${COPRZMQREPO}/zeromq-gpgkey.gpg" "${GPGKEY_COPRZMQ}"
 curl -o "${COPRSALTREPO}/salt-gpgkey.gpg" "${GPGKEY_COPRSALT}"
 
 # Sync the packages to S3
+yum -y install python-pip  # Couldn't install python-pip with the builderdeps because it's in epel
 pip install --upgrade s3cmd
 hash s3cmd 2> /dev/null || PATH="${PATH}:/usr/local/bin"  # Modify PATH for Amazon Linux 2015.03
 s3cmd sync ${OSREPO} s3://${OSBUCKET}
