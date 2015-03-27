@@ -60,6 +60,7 @@ BUILDERDEPS=(
     "epel-release"
     "yum-utils"
     "createrepo"
+    "python-pip"
 )
 
 # Manage distribution-specific dependencies
@@ -96,7 +97,8 @@ yum -y install ${BUILDERDEPS_STRING}
 
 # Install s3cmd
 yum-config-manager --enable epel
-yum -y install s3cmd
+pip install --upgrade s3cmd
+hash s3cmd 2> /dev/null || PATH="${PATH}:/usr/local/bin"  # Modify PATH for Amazon Linux 2015.03
 
 # Download the packages from the bucket
 mkdir -p "${REPO_DIR}" "${YUM_FILE_DIR}"
