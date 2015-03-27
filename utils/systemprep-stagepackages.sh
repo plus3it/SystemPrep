@@ -7,6 +7,7 @@ BUILDERDEPS=(
     "epel-release"
     "yum-utils"
     "createrepo"
+    "python-pip"
 )
 
 SALT_OSDEPS=( 
@@ -194,7 +195,8 @@ curl -o "${COPRZMQREPO}/zeromq-gpgkey.gpg" "${GPGKEY_COPRZMQ}"
 curl -o "${COPRSALTREPO}/salt-gpgkey.gpg" "${GPGKEY_COPRSALT}"
 
 # Sync the packages to S3
-yum -y install s3cmd
+pip install --upgrade s3cmd
+PATH="${PATH}:/usr/local/bin"
 s3cmd sync ${OSREPO} s3://${OSBUCKET}
 s3cmd sync ${EPELREPO} s3://${EPELBUCKET}
 s3cmd sync ${COPRZMQREPO} s3://${COPRZMQBUCKET}
