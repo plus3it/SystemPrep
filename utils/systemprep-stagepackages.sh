@@ -196,7 +196,7 @@ curl -o "${COPRSALTREPO}/salt-gpgkey.gpg" "${GPGKEY_COPRSALT}"
 
 # Sync the packages to S3
 pip install --upgrade s3cmd
-PATH="${PATH}:/usr/local/bin"
+hash s3cmd 2> /dev/null || PATH="${PATH}:/usr/local/bin"  # Modify PATH for Amazon Linux 2015.03
 s3cmd sync ${OSREPO} s3://${OSBUCKET}
 s3cmd sync ${EPELREPO} s3://${EPELBUCKET}
 s3cmd sync ${COPRZMQREPO} s3://${COPRZMQBUCKET}
