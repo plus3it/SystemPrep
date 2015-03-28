@@ -108,8 +108,9 @@ hash s3cmd 2> /dev/null || PATH="${PATH}:/usr/local/bin"  # Modify PATH for Amaz
 mkdir -p "${REPO_DIR}" "${YUM_FILE_DIR}"
 s3cmd sync "${BUCKET_URL}" "${REPO_DIR}"
 
-# Create the repo metadata
+# Get a list of all directories containing a 'packages' directory
 package_dirs=$(find ${REPO_DIR} -name 'packages' -printf '%h\n' | sort -u)
+# Create the repo metadata for each package_dir
 for repo in ${package_dirs}; do
     createrepo -v --deltas --update "${repo}"
 done
@@ -142,9 +143,18 @@ done
 
 # Create a zip of the repo dir
 cd ${REPO_DIR}
-zip -r "${PWD##*/}.zip" .
+dir_basename="${PWD##*/}"
+datestamp=$(date -u +"%Y%m%d")
+for f in "${dir_basename}-full-*.zip"; do  # There should only ever be one matching file
+    # Create a delta zip with just the changes
+    zip -r "${f}" . -DF --out "${dir_basename}-delta-${datestamp}.zip"
+    rm -f "${f}"
+    break
+done
+# Now create a zip with all the current files
+zip -r "${dir_basename}-full-${datestamp}.zip" .
 
 # Sync the repo directory back to the S3 bucket
-s3cmd sync "${REPO_DIR}/" "${BUCKET_URL}"
+s3cmd sync "${REPO_DIR}/" "${BUCKET_URL}" --delete-removed
 
 echo "Finished creating the repo!"
