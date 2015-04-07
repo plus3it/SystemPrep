@@ -1,3 +1,0 @@
-base:
-  '*':
-    - ash-linux

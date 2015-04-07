@@ -46,12 +46,12 @@ Use `merge_dicts({yourdict}, scriptparams)` to merge command line parameters wit
     if 'Linux' in system:
         scriptstoexecute = (
             { 
-                'ScriptSource': "https://systemprep.s3.amazonaws.com/SystemContent/Linux/Salt/SystemPrep-LinuxSaltInstall.py",
+                'ScriptSource': "https://systemprep.s3.amazonaws.com/ContentScripts/SystemPrep-LinuxSaltInstall.py",
                 'Parameters': merge_dicts({
                     'saltbootstrapsource': "https://raw.githubusercontent.com/saltstack/salt-bootstrap/stable/bootstrap-salt.sh",
                     'saltgitrepo': "git://github.com/saltstack/salt.git",
-                    'saltversion': "v2014.7.0",
-                    'saltcontentsource': "https://systemprep.s3.amazonaws.com/SystemContent/Linux/Salt/salt-content.zip",
+                    'saltversion': "v2014.7.4",
+                    'saltcontentsource': "https://systemprep-content.s3.amazonaws.com/linux/salt/salt-content.zip",
                     'formulastoinclude': [
                         "https://salt-formulas.s3.amazonaws.com/ash-linux-formula-master.zip",
                     ],
