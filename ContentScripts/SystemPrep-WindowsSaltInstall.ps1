@@ -6,11 +6,15 @@ Param(
 	[Parameter(Mandatory=$true,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
     [string] $SaltWorkingDir
     ,
-	[Parameter(Mandatory=$true,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
-    [ValidateScript({ $_ -match "^http[s]?://.*\.zip$" })]
-    [string] $SaltInstallerUrl
+	[Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
+    [ValidateScript({ $_ -match "^http[s]?://.*\.(exe|zip)$" })]
+    [string] $SaltInstallerUrl="http://docs.saltstack.com/downloads/Salt-Minion-2014.7.4-AMD64-Setup.exe"
     ,
-	[Parameter(Mandatory=$true,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
+	[Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
+    [ValidateScript({ $_ -match "^http[s]?://.*\.(exe|zip)$" })]
+    [string] $VcRedistInstallerUrl="http://download.microsoft.com/download/5/D/8/5D8C65CB-C849-4025-8E95-C3966CAFD8AE/vcredist_x64.exe"
+    ,
+	[Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
     [ValidateScript({ $_ -match "^http[s]?://.*\.zip$" })]
     [string] $SaltContentUrl
     ,
@@ -45,19 +49,21 @@ Param(
     [string] $AwsRegion
 )
 #Parameter Descriptions
-#$RemainingArgs       #Parameter that catches any undefined parameters passed to the script.
-                      #Used by the bootstrapping framework to pass those parameters through to other scripts. 
-                      #This way, we don't need to know in the master script all the parameter names for downstream scripts.
+#$RemainingArgs        #Parameter that catches any undefined parameters passed to the script.
+                       #Used by the bootstrapping framework to pass those parameters through to other scripts. 
+                       #This way, we don't need to know in the master script all the parameter names for downstream scripts.
 
-#$SaltWorkingDir      #Fully-qualified path to a directory that will be used as a staging location for download and unzip salt content
-                      #specified in $SaltContentUrl and any formulas in $FormulasToInclude
+#$SaltWorkingDir       #Fully-qualified path to a directory that will be used as a staging location for download and unzip salt content
+                       #specified in $SaltContentUrl and any formulas in $FormulasToInclude
 
-#$SaltContentUrl      #Url to a zip file containing the salt installer executable
+#$SaltInstallerUrl     #Url to an exe of the salt installer or a zip file containing the salt installer executable
 
-#$SaltContentUrl      #Url to a zip file containing the `files_root` salt content
+#$VcRedistInstallerUrl #Url to an exe of the vcredist installer or a zip file containing the vcredist installer executable
 
-#$FormulasToInclude   #Array of strings, where each string is the url of a zipped salt formula to be included in the salt configuration.
-                      #Formula content *must* be contained in a zip file.
+#$SaltContentUrl       #Url to a zip file containing the `files_root` salt content
+
+#$FormulasToInclude    #Array of strings, where each string is the url of a zipped salt formula to be included in the salt configuration.
+                       #Formula content *must* be contained in a zip file.
 
 #$FormulaTerminationStrings = "-latest" #Array of strings
                                         #If an included formula ends with a string in this list, the TerminationString will be removed from the formula name
@@ -200,13 +206,23 @@ log -LogTag ${ScriptName} "RemainingArgsHash = $(($RemainingArgsHash.GetEnumerat
 
 #Insert script commands
 ###
-#Download and extract the salt installer
-$SaltInstallerFile = Download-File -Url $SaltInstallerUrl -SavePath $SaltWorkingDir -SourceIsS3Bucket:$SourceIsS3Bucket -AwsRegion $AwsRegion
-$SaltInstallerDir = Expand-ZipFile -FileName ${SaltInstallerFile} -DestPath ${SaltWorkingDir}
+#Download / extract the salt installer and the vcredist installer
+$SaltInstaller = Download-File -Url $SaltInstallerUrl -SavePath $SaltWorkingDir -SourceIsS3Bucket:$SourceIsS3Bucket -AwsRegion $AwsRegion
+if ($SaltInstaller.FullName -match ".*.zip$") {
+    $SaltInstallerDir = Expand-ZipFile -FileName ${SaltInstaller} -DestPath ${SaltWorkingDir}
+    $SaltInstaller = Get-ChildItem "${SaltWorkingDir}" | where {$_.Name -like "Salt-Minion-*-Setup.exe"}
+}
+$VcRedistInstaller = Download-File -Url $VcRedistInstallerUrl -SavePath $SaltWorkingDir -SourceIsS3Bucket:$SourceIsS3Bucket -AwsRegion $AwsRegion
+if ($VcRedistInstaller.FullName -match ".*.zip$") {
+    $VcRedistInstallerDir = Expand-ZipFile -FileName ${VcRedistInstaller} -DestPath ${SaltWorkingDir}
+    $VcRedistInstaller = Get-ChildItem "${SaltWorkingDir}" | where {$_.Name -like "vcredist_x64.exe"}
+}
 
 #Download and extract the salt content
-$SaltContentFile = Download-File -Url $SaltContentUrl -SavePath $SaltWorkingDir -SourceIsS3Bucket:$SourceIsS3Bucket -AwsRegion $AwsRegion
-$SaltContentDir = Expand-ZipFile -FileName ${SaltContentFile} -DestPath ${SaltWorkingDir}
+if ($SaltContentUrl) {
+    $SaltContentFile = Download-File -Url $SaltContentUrl -SavePath $SaltWorkingDir -SourceIsS3Bucket:$SourceIsS3Bucket -AwsRegion $AwsRegion
+    $SaltContentDir = Expand-ZipFile -FileName ${SaltContentFile} -DestPath ${SaltWorkingDir}
+}
 
 #Download and extract the salt formulas
 foreach ($Formula in $FormulasToInclude) {
@@ -218,8 +234,6 @@ foreach ($Formula in $FormulasToInclude) {
 	$FormulaTerminationStrings | foreach { if ($FormulaDir.Name -match "${_}$") { mv $FormulaDir.FullName $FormulaDir.FullName.substring(0,$FormulaDir.FullName.length-$_.length) } }
 }
 
-$VcRedistInstaller = (Get-ChildItem "${SaltWorkingDir}" | where {$_.Name -like "vcredist_x64.exe"}).FullName
-$SaltInstaller = (Get-ChildItem "${SaltWorkingDir}" | where {$_.Name -like "Salt-Minion-*-Setup.exe"}).FullName
 $SaltBase = "C:\salt"
 $SaltSrv = "C:\salt\srv"
 $SaltFileRoot = "${SaltSrv}\states"
@@ -242,11 +256,11 @@ if (-not $SaltResultsLog) {
 }
 
 log -LogTag ${ScriptName} "Installing Microsoft Visual C++ 2008 SP1 MFC Security Update redist package -- ${VcRedistInstaller}"
-$VcRedistInstallResult = Start-Process -FilePath $VcRedistInstaller -ArgumentList "/q" -NoNewWindow -PassThru -Wait
+$VcRedistInstallResult = Start-Process -FilePath $VcRedistInstaller.FullName -ArgumentList "/q" -NoNewWindow -PassThru -Wait
 log -LogTag ${ScriptName} "Return code of vcredist install: $(${VcRedistInstallResult}.ExitCode)"
 
 log -LogTag ${ScriptName} "Installing salt -- ${SaltInstaller}"
-$SaltInstallResult = Start-Process -FilePath $SaltInstaller -ArgumentList "/S" -NoNewWindow -PassThru -Wait
+$SaltInstallResult = Start-Process -FilePath $SaltInstaller.FullName -ArgumentList "/S" -NoNewWindow -PassThru -Wait
 log -LogTag ${ScriptName} "Return code of salt install: $(${SaltInstallResult}.ExitCode)"
 
 log -LogTag ${ScriptName} "Creating salt directory structure"

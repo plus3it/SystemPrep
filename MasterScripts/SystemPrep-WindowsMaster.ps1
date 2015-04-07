@@ -133,13 +133,14 @@ function Download-File {
 #User variables
 $ScriptsToExecute = @(
                         @{
-                            ScriptUrl  = "https://s3.amazonaws.com/systemprep/SystemContent/Windows/Salt/SystemPrep-WindowsSaltInstall.ps1"
+                            ScriptUrl  = "https://s3.amazonaws.com/systemprep/ContentScripts/SystemPrep-WindowsSaltInstall.ps1"
                             Parameters = (Join-Hashtables $RemainingArgsHash  @{ 
                                                                                   SaltWorkingDir = "${SystemPrepWorkingDir}\Salt" 
                                                                                   SaltDebugLog = "${SystemPrepLogDir}\salt.staterun.debug.log"
                                                                                   SaltResultsLog = "${SystemPrepLogDir}\salt.staterun.results.log"
-                                                                                  SaltInstallerUrl = "https://s3.amazonaws.com/systemprep/SystemContent/Windows/Salt/salt-installer.zip" 
-                                                                                  SaltContentUrl = "https://s3.amazonaws.com/systemprep/SystemContent/Windows/Salt/salt-content.zip" 
+                                                                                  SaltInstallerUrl = "https://s3.amazonaws.com/systemprep-content/windows/salt/salt-installer.zip" 
+                                                                                  VcRedistInstallerUrl = "https://s3.amazonaws.com/systemprep-content/windows/salt/vcredist-installer.zip" 
+                                                                                  SaltContentUrl = "https://s3.amazonaws.com/systemprep-content/windows/salt/salt-content.zip" 
                                                                                   FormulasToInclude = @(
                                                                                                         "https://s3.amazonaws.com/salt-formulas/ash-windows-formula-master.zip",
                                                                                                         "https://s3.amazonaws.com/salt-formulas/dotnet4-formula-master.zip"
