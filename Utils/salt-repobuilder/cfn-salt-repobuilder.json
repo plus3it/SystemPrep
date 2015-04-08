@@ -1,0 +1,423 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Description" : "Stage salt packages and dependencies to S3 bucket, and create yum package metadata and repo files",
+  "Parameters" : {
+    "AmiIdAmzn201409" : {
+      "Type" : "String",
+      "Default" : "ami-ee6e2a86",
+      "Description" : "Amazon Linux 2014.09 AMI to use, must be HVM (cfn script uses the t2.micro instance type)"
+    },
+    "AmiIdAmzn201503" : {
+      "Type" : "String",
+      "Default" : "ami-1ecae776",
+      "Description" : "Amazon Linux 2015.03 AMI to use, must be HVM (cfn script uses the t2.micro instance type)"
+    },
+    "AmiIdCentos6" : {
+      "Type" : "String",
+      "Default" : "ami-74e5d21c",
+      "Description" : "CentOS6 AMI to use, must be HVM (cfn script uses the t2.micro instance type)"
+    },
+    "AmiIdCentos7" : {
+      "Type" : "String",
+      "Default" : "ami-96a818fe",
+      "Description" : "Centos7 AMI to use, must be HVM (cfn script uses the t2.micro instance type)"
+    },
+    "AmiIdRhel6" : {
+      "Type" : "String",
+      "Default" : "ami-b0fed2d8",
+      "Description" : "RHEL6 AMI to use, must be HVM (cfn script uses the t2.micro instance type)"
+    },
+    "AmiIdRhel7" : {
+      "Type" : "String",
+      "Default" : "ami-12663b7a",
+      "Description" : "RHEL7 AMI to use, must be HVM (cfn script uses the t2.micro instance type)"
+    },
+    "BucketName" : {
+      "Type" : "String",
+      "Default" : "saltrepo",
+      "Description" : "Name of the S3 bucket that will host the salt packages and dependencies"
+    },
+    "InstanceType" : {
+      "Type" : "String",
+      "Description" : "The instance type to deploy. Only t2.micro allowed.",
+      "Default" : "t2.micro",
+      "AllowedValues" : [ "t2.micro" ],
+      "ConstraintDescription" : "Only t2.micro is allowed."
+    },
+    "IamProfileName" : {
+      "Type" : "String",
+      "Description" : "Name of the IAM profile/role to assign to the instances.",
+      "Default" : "salt-repobuilder"
+    },
+    "SecurityGroupId" : {
+      "Type" : "AWS::EC2::SecurityGroup::Id",
+      "Description" : "ID of the security group to assign to the instances.",
+      "Default" : "sg-f853cc9c"
+    },
+    "SubnetId" : {
+      "Type" : "AWS::EC2::Subnet::Id",
+      "Description" : "ID of the subnet to assign to the instances. Change this value when updating the stack to force new instances to be deployed, which will cause updated packages to be pushed to the S3 bucket.",
+      "Default" : "subnet-bfadaa97"
+    },
+    "KeyName" : {
+      "Type" : "AWS::EC2::KeyPair::KeyName",
+      "Description" : "Name of the key pair to assign to the instances.",
+      "Default" : "lgordon-govtaccount"
+    }
+  },
+  "Resources" : {
+    "Ec2InstanceAmzn201409" : {
+      "Type" : "AWS::EC2::Instance",
+      "CreationPolicy" : {
+        "ResourceSignal" : {
+          "Count" : "1",
+          "Timeout" : "PT10M"
+        }
+      },
+      "Properties" : {
+        "ImageId" : { "Ref" : "AmiIdAmzn201409" },
+        "Tags" : [
+          { 
+            "Key" : "Name",
+            "Value" : "salt-stagepackages-amzn-2014.09"
+          },
+          {
+            "Key" : "Application",
+            "Value" : "salt-repobuilder"
+          }
+        ],
+        "InstanceType" : { "Ref" : "InstanceType" },
+        "IamInstanceProfile" : { "Ref" : "IamProfileName" },
+        "SecurityGroupIds" : [{ "Ref" : "SecurityGroupId" }],
+        "SubnetId" : { "Ref" : "SubnetId" },
+        "KeyName" : { "Ref" : "KeyName" },
+        "BlockDeviceMappings" : [
+          {
+            "DeviceName" : "/dev/xvda",
+            "Ebs" : { "DeleteOnTermination" : "true" } 
+          }
+        ],
+        "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+          "#!/bin/bash -v\n",
+          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/salt-repobuilder/salt-stagepackages.sh -o /tmp/bootstrap.sh\n",
+          "bash /tmp/bootstrap.sh ", { "Ref" : "BucketName" }, "\n",
+          "result=$?\n",
+          "echo result = $result\n",
+          "hash cfn-signal 2> /dev/null || PATH=\"${PATH}:/usr/local/bin\"\n",
+          "# If all went well, signal success\n",
+          "cfn-signal -e $result -r 'Staged amzn-2014.09 packages' --stack ", { "Ref" : "AWS::StackName" },
+               "         --resource Ec2InstanceAmzn201409\n",
+          "shutdown -h +1 &\n"
+        ]]}}
+      }
+    },
+    "Ec2InstanceAmzn201503" : {
+      "Type" : "AWS::EC2::Instance",
+      "CreationPolicy" : {
+        "ResourceSignal" : {
+          "Count" : "1",
+          "Timeout" : "PT10M"
+        }
+      },
+      "Properties" : {
+        "ImageId" : { "Ref" : "AmiIdAmzn201503" },
+        "Tags" : [
+          { 
+            "Key" : "Name",
+            "Value" : "salt-stagepackages-amzn-2015.03"
+          },
+          {
+            "Key" : "Application",
+            "Value" : "salt-repobuilder"
+          }
+        ],
+        "InstanceType" : { "Ref" : "InstanceType" },
+        "IamInstanceProfile" : { "Ref" : "IamProfileName" },
+        "SecurityGroupIds" : [{ "Ref" : "SecurityGroupId" }],
+        "SubnetId" : { "Ref" : "SubnetId" },
+        "KeyName" : { "Ref" : "KeyName" },
+        "BlockDeviceMappings" : [
+          {
+            "DeviceName" : "/dev/xvda",
+            "Ebs" : { "DeleteOnTermination" : "true" } 
+          }
+        ],
+        "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+          "#!/bin/bash -v\n",
+          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/salt-repobuilder/salt-stagepackages.sh -o /tmp/bootstrap.sh\n",
+          "bash /tmp/bootstrap.sh ", { "Ref" : "BucketName" }, "\n",
+          "result=$?\n",
+          "echo result = $result\n",
+          "hash cfn-signal 2> /dev/null || PATH=\"${PATH}:/usr/local/bin\"\n",
+          "# If all went well, signal success\n",
+          "cfn-signal -e $result -r 'Staged amzn-2015.03 packages' --stack ", { "Ref" : "AWS::StackName" },
+               "         --resource Ec2InstanceAmzn201503\n",
+          "shutdown -h +1 &\n"
+        ]]}}
+      }
+    },
+    "Ec2InstanceCentos6" : {
+      "Type" : "AWS::EC2::Instance",
+      "CreationPolicy" : {
+        "ResourceSignal" : {
+          "Count" : "1",
+          "Timeout" : "PT10M"
+        }
+      },
+      "Properties" : {
+        "ImageId" : { "Ref" : "AmiIdCentos6" },
+        "Tags" : [
+          { 
+            "Key" : "Name",
+            "Value" : "salt-stagepackages-centos6"
+          },
+          {
+            "Key" : "Application",
+            "Value" : "salt-repobuilder"
+          }
+        ],
+        "InstanceType" : { "Ref" : "InstanceType" },
+        "IamInstanceProfile" : { "Ref" : "IamProfileName" },
+        "SecurityGroupIds" : [{ "Ref" : "SecurityGroupId" }],
+        "SubnetId" : { "Ref" : "SubnetId" },
+        "KeyName" : { "Ref" : "KeyName" },
+        "BlockDeviceMappings" : [
+          {
+            "DeviceName" : "/dev/sda1",
+            "Ebs" : { "DeleteOnTermination" : "true" } 
+          }
+        ],
+        "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+          "#!/bin/bash -v\n",
+          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/salt-repobuilder/salt-stagepackages.sh -o /tmp/bootstrap.sh\n",
+          "bash /tmp/bootstrap.sh ", { "Ref" : "BucketName" }, "\n",
+          "result=$?\n",
+          "echo result = $result\n",
+          "hash cfn-signal 2> /dev/null || PATH=\"${PATH}:/usr/local/bin\"\n",
+          "# If all went well, signal success\n",
+          "cfn-signal -e $result -r 'Staged centos6 packages' --stack ", { "Ref" : "AWS::StackName" },
+               "         --resource Ec2InstanceCentos6\n",
+          "shutdown -h +1 &\n"
+        ]]}}
+      }
+    },
+    "Ec2InstanceCentos7" : {
+      "Type" : "AWS::EC2::Instance",
+      "CreationPolicy" : {
+        "ResourceSignal" : {
+          "Count" : "1",
+          "Timeout" : "PT10M"
+        }
+      },
+      "Properties" : {
+        "ImageId" : { "Ref" : "AmiIdCentos7" },
+        "Tags" : [
+          { 
+            "Key" : "Name",
+            "Value" : "salt-stagepackages-centos7"
+          },
+          {
+            "Key" : "Application",
+            "Value" : "salt-repobuilder"
+          }
+        ],
+        "InstanceType" : { "Ref" : "InstanceType" },
+        "IamInstanceProfile" : { "Ref" : "IamProfileName" },
+        "SecurityGroupIds" : [{ "Ref" : "SecurityGroupId" }],
+        "SubnetId" : { "Ref" : "SubnetId" },
+        "KeyName" : { "Ref" : "KeyName" },
+        "BlockDeviceMappings" : [
+          {
+            "DeviceName" : "/dev/sda1",
+            "Ebs" : { "DeleteOnTermination" : "true" } 
+          }
+        ],
+        "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+          "#!/bin/bash -v\n",
+          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/salt-repobuilder/salt-stagepackages.sh -o /tmp/bootstrap.sh\n",
+          "bash /tmp/bootstrap.sh ", { "Ref" : "BucketName" }, "\n",
+          "result=$?\n",
+          "echo result = $result\n",
+          "hash cfn-signal 2> /dev/null || PATH=\"${PATH}:/usr/local/bin\"\n",
+          "# If all went well, signal success\n",
+          "cfn-signal -e $result -r 'Staged centos7 packages' --stack ", { "Ref" : "AWS::StackName" },
+               "         --resource Ec2InstanceCentos7\n",
+          "shutdown -h +1 &\n"
+        ]]}}
+      }
+    },
+    "Ec2InstanceRhel6" : {
+      "Type" : "AWS::EC2::Instance",
+      "CreationPolicy" : {
+        "ResourceSignal" : {
+          "Count" : "1",
+          "Timeout" : "PT10M"
+        }
+      },
+      "Properties" : {
+        "ImageId" : { "Ref" : "AmiIdRhel6" },
+        "Tags" : [
+          { 
+            "Key" : "Name",
+            "Value" : "salt-stagepackages-rhel6"
+          },
+          {
+            "Key" : "Application",
+            "Value" : "salt-repobuilder"
+          }
+        ],
+        "InstanceType" : { "Ref" : "InstanceType" },
+        "IamInstanceProfile" : { "Ref" : "IamProfileName" },
+        "SecurityGroupIds" : [{ "Ref" : "SecurityGroupId" }],
+        "SubnetId" : { "Ref" : "SubnetId" },
+        "KeyName" : { "Ref" : "KeyName" },
+        "BlockDeviceMappings" : [
+          {
+            "DeviceName" : "/dev/sda1",
+            "Ebs" : { "DeleteOnTermination" : "true" } 
+          }
+        ],
+        "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+          "#!/bin/bash -v\n",
+          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/salt-repobuilder/salt-stagepackages.sh -o /tmp/bootstrap.sh\n",
+          "bash /tmp/bootstrap.sh ", { "Ref" : "BucketName" }, "\n",
+          "result=$?\n",
+          "echo result = $result\n",
+          "hash cfn-signal 2> /dev/null || PATH=\"${PATH}:/usr/local/bin\"\n",
+          "# If all went well, signal success\n",
+          "cfn-signal -e $result -r 'Staged rhel6 packages' --stack ", { "Ref" : "AWS::StackName" },
+               "         --resource Ec2InstanceRhel6\n",
+          "shutdown -h +1 &\n"
+        ]]}}
+      }
+    },
+    "Ec2InstanceRhel7" : {
+      "Type" : "AWS::EC2::Instance",
+      "CreationPolicy" : {
+        "ResourceSignal" : {
+          "Count" : "1",
+          "Timeout" : "PT10M"
+        }
+      },
+      "Properties" : {
+        "ImageId" : { "Ref" : "AmiIdRhel7" },
+        "Tags" : [
+          { 
+            "Key" : "Name",
+            "Value" : "salt-stagepackages-rhel7"
+          },
+          {
+            "Key" : "Application",
+            "Value" : "salt-repobuilder"
+          }
+        ],
+        "InstanceType" : { "Ref" : "InstanceType" },
+        "IamInstanceProfile" : { "Ref" : "IamProfileName" },
+        "SecurityGroupIds" : [{ "Ref" : "SecurityGroupId" }],
+        "SubnetId" : { "Ref" : "SubnetId" },
+        "KeyName" : { "Ref" : "KeyName" },
+        "BlockDeviceMappings" : [
+          {
+            "DeviceName" : "/dev/sda1",
+            "Ebs" : { "DeleteOnTermination" : "true" } 
+          }
+        ],
+        "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+          "#!/bin/bash -v\n",
+          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/salt-repobuilder/salt-stagepackages.sh -o /tmp/bootstrap.sh\n",
+          "bash /tmp/bootstrap.sh ", { "Ref" : "BucketName" }, "\n",
+          "result=$?\n",
+          "echo result = $result\n",
+          "hash cfn-signal 2> /dev/null || PATH=\"${PATH}:/usr/local/bin\"\n",
+          "# If all went well, signal success\n",
+          "cfn-signal -e $result -r 'Staged rhel7 packages' --stack ", { "Ref" : "AWS::StackName" },
+               "         --resource Ec2InstanceRhel7\n",
+          "shutdown -h +1 &\n"
+        ]]}}
+      }
+    },
+    "Ec2InstanceCreateYumRepo" : {
+      "Type" : "AWS::EC2::Instance",
+      "CreationPolicy" : {
+        "ResourceSignal" : {
+          "Count" : "1",
+          "Timeout" : "PT10M"
+        }
+      },
+      "DependsOn" : [ 
+        "Ec2InstanceAmzn201409",
+        "Ec2InstanceAmzn201503",
+        "Ec2InstanceCentos6",
+        "Ec2InstanceCentos7",
+        "Ec2InstanceRhel6",
+        "Ec2InstanceRhel7"
+      ],
+      "Properties" : {
+        "ImageId" : { "Ref" : "AmiIdAmzn201503" },
+        "Tags" : [
+          { 
+            "Key" : "Name",
+            "Value" : "salt-createyumrepo"
+          },
+          {
+            "Key" : "Application",
+            "Value" : "salt-repobuilder"
+          }
+        ],
+        "InstanceType" : { "Ref" : "InstanceType" },
+        "IamInstanceProfile" : { "Ref" : "IamProfileName" },
+        "SecurityGroupIds" : [{ "Ref" : "SecurityGroupId" }],
+        "SubnetId" : { "Ref" : "SubnetId" },
+        "KeyName" : { "Ref" : "KeyName" },
+        "BlockDeviceMappings" : [
+          {
+            "DeviceName" : "/dev/xvda",
+            "Ebs" : { "DeleteOnTermination" : "true" } 
+          }
+        ],
+        "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+          "#!/bin/bash -v\n",
+          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/salt-repobuilder/salt-createyumrepo.sh -o /tmp/bootstrap.sh\n",
+          "bash /tmp/bootstrap.sh ", { "Ref" : "BucketName" }, "\n",
+          "result=$?\n",
+          "echo result = $result\n",
+          "hash cfn-signal 2> /dev/null || PATH=\"${PATH}:/usr/local/bin\"\n",
+          "# If all went well, signal success\n",
+          "cfn-signal -e $result -r 'Created yum repos!' --stack ", { "Ref" : "AWS::StackName" },
+               "         --resource Ec2InstanceCreateYumRepo\n",
+          "shutdown -h +1 &\n"
+        ]]}}
+      }
+    }
+  },
+  "Outputs" : {
+    "InstanceIdAmzn201409" : {
+      "Value" : { "Ref" : "Ec2InstanceAmzn201409" },
+      "Description" : "Instance Id of amzn-2014.09 instance"
+    },
+    "InstanceIdAmzn201503" : {
+      "Value" : { "Ref" : "Ec2InstanceAmzn201503" },
+      "Description" : "Instance Id of amzn-2015.03 instance"
+    },
+    "InstanceIdCentos6" : {
+      "Value" : { "Ref" : "Ec2InstanceCentos6" },
+      "Description" : "Instance Id of centos6 instance"
+    },
+    "InstanceIdCentos7" : {
+      "Value" : { "Ref" : "Ec2InstanceCentos7" },
+      "Description" : "Instance Id of centos7 instance"
+    },
+    "InstanceIdRhel6" : {
+      "Value" : { "Ref" : "Ec2InstanceRhel6" },
+      "Description" : "Instance Id of rhel6 instance"
+    },
+    "InstanceIdRhel7" : {
+      "Value" : { "Ref" : "Ec2InstanceRhel7" },
+      "Description" : "Instance Id of rhel7 instance"
+    },
+    "InstanceIdCreateYumRepos" : {
+      "Value" : { "Ref" : "Ec2InstanceCreateYumRepo" },
+      "Description" : "Instance Id of the yum repo builder"
+    }
+  }
+}
