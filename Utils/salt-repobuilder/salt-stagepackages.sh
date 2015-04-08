@@ -63,7 +63,7 @@ GPGKEY_COPRSALT="https://copr-be.cloud.fedoraproject.org/results/saltstack/salt/
 
 EPEL6_RPM="https://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm"
 EPEL7_RPM="https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm"
-AWS_CFN_PKG="https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz"
+PIP_INSTALLER="https://bootstrap.pypa.io/get-pip.py"
 
 # Temporarily suppress rsyslog rate limiting
 if [[ -e /etc/rsyslog.conf ]]; then
@@ -105,8 +105,6 @@ case "${RELEASE}" in
 "Amazon"*)
     OSVER=$(echo ${RELEASE} | grep -o '[0-9]*\.[0-9]*') #e.g. 'OSVER=2014.7'
     DIST="amzn"
-    yum -y erase aws-cfn-bootstrap 2>&1 > /dev/null && echo "Removed aws-cfn-bootstrap rpm"
-       ### ^^^We're going to re-install this with pip later
     ;;
 "CentOS"*6*)
     DIST="centos"
@@ -207,17 +205,20 @@ find /etc/pki/rpm-gpg/ -type f | grep -i "${GPGKEY_EPEL}" | xargs -i cp {} "${EP
 curl -o "${COPRZMQREPO}/zeromq-gpgkey.gpg" "${GPGKEY_COPRZMQ}"
 curl -o "${COPRSALTREPO}/salt-gpgkey.gpg" "${GPGKEY_COPRSALT}"
 
-# Sync the packages to S3
-yum -y install python-pip  # Couldn't install python-pip with the builderdeps because it's in epel
+# Install pip
+curl ${PIP_INSTALLER} -o /tmp/get-pip.py
+python /tmp/get-pip.py
+hash pip 2> /dev/null || PATH="${PATH}:/usr/local/bin"  # Make sure pip is in path
+
+# Install s3cmd
 pip install --upgrade s3cmd
-hash s3cmd 2> /dev/null || PATH="${PATH}:/usr/local/bin"  # Modify PATH for Amazon Linux
+hash s3cmd 2> /dev/null || PATH="${PATH}:/usr/local/bin"  # Make sure s3cmd is in path
+
+# Sync the packages to S3
 s3cmd sync ${OSREPO} s3://${OSBUCKET}
 s3cmd sync ${EPELREPO} s3://${EPELBUCKET}
 s3cmd sync ${COPRZMQREPO} s3://${COPRZMQBUCKET}
 s3cmd sync ${COPRSALTREPO} s3://${COPRSALTBUCKET}
-
-# Install aws-cfn-bootstrap, for use by cloudformation
-pip install "${AWS_CFN_PKG}"
 
 # Restore prior rsyslog config
 if [[ -n "${RSYSLOGFLAG}" ]]; then

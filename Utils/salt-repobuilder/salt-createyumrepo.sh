@@ -66,7 +66,7 @@ BUILDERDEPS=(
 
 EPEL6_RPM="https://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm"
 EPEL7_RPM="https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm"
-AWS_CFN_PKG="https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz"
+PIP_INSTALLER="https://bootstrap.pypa.io/get-pip.py"
 
 # Manage distribution-specific dependencies
 if [[ -e /etc/redhat-release ]]; then
@@ -79,8 +79,6 @@ else
 fi
 case "${RELEASE}" in
 "Amazon"*)
-    yum -y erase aws-cfn-bootstrap 2>&1 > /dev/null && echo "Removed aws-cfn-bootstrap rpm"
-       ### ^^^We're going to re-install this with pip later
     ;;
 "CentOS"*6*)
     service ntpd start 2>&1 > /dev/null && echo "Started ntpd..." || echo "Failed to start ntpd..."
@@ -106,11 +104,14 @@ esac
 BUILDERDEPS_STRING=$( IFS=$' '; echo "${BUILDERDEPS[*]}" )
 yum -y install ${BUILDERDEPS_STRING}
 
+# Install pip
+curl ${PIP_INSTALLER} -o /tmp/get-pip.py
+python /tmp/get-pip.py
+hash pip 2> /dev/null || PATH="${PATH}:/usr/local/bin"  # Make sure pip is in path
+
 # Install s3cmd
-yum-config-manager --enable epel
-yum -y install python-pip  # Couldn't install python-pip with the builderdeps because it's in epel
 pip install --upgrade s3cmd
-hash s3cmd 2> /dev/null || PATH="${PATH}:/usr/local/bin"  # Modify PATH for Amazon Linux 2015.03
+hash s3cmd 2> /dev/null || PATH="${PATH}:/usr/local/bin"  # Make sure s3cmd is in path
 
 # Download the packages from the bucket
 mkdir -p "${REPO_DIR}" "${YUM_FILE_DIR}"
@@ -164,8 +165,5 @@ zip -r "${dir_basename}-full-${datestamp}.zip" . -x \*.zip
 
 # Sync the repo directory back to the S3 bucket
 s3cmd sync "${REPO_DIR}/" "${BUCKET_URL}" --delete-removed
-
-# Install aws-cfn-bootstrap, for use by cloudformation
-pip install "${AWS_CFN_PKG}"
 
 echo "Finished creating the repo!"
