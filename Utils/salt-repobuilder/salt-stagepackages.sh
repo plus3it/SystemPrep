@@ -96,14 +96,7 @@ fi
 yum -y upgrade ca-certificates
 
 # Manage distribution-specific dependencies
-if [[ -e /etc/redhat-release ]]; then
-    RELEASE=$(grep "release" /etc/redhat-release)
-elif [[ -e /etc/system-release ]]; then
-    RELEASE=$(grep "release" /etc/system-release)
-else
-    echo "Don't know how to determine the 'release' string for this OS!"
-    exit 1
-fi
+RELEASE=$(grep "release" /etc/system-release)
 case "${RELEASE}" in
 "Amazon"*)
     OSVER="latest"  # $(echo ${RELEASE} | grep -o '[0-9]*\.[0-9]*') #e.g. 'OSVER=2014.7'
