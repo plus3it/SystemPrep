@@ -23,8 +23,8 @@ REPOS=(
 )
 
 REPO_NAME_AMZN="${BUCKETNAME}-amzn-packages"
-REPO_BASEURL_AMZN="${BASE_URL}/amzn/\$releasever/\$basearch/"
-REPO_GPGKEY_AMZN="${BASE_URL}/amzn/\$releasever/\$basearch/RPM-GPG-KEY-amazon-ga"
+REPO_BASEURL_AMZN="${BASE_URL}/amzn/latest/\$basearch/"
+REPO_GPGKEY_AMZN="${BASE_URL}/amzn/latest/\$basearch/RPM-GPG-KEY-amazon-ga"
 
 REPO_NAME_CENTOS="${BUCKETNAME}-centos-packages"
 REPO_BASEURL_CENTOS="${BASE_URL}/centos/\$releasever/\$basearch/"

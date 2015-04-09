@@ -103,7 +103,7 @@ else
 fi
 case "${RELEASE}" in
 "Amazon"*)
-    OSVER=$(echo ${RELEASE} | grep -o '[0-9]*\.[0-9]*') #e.g. 'OSVER=2014.7'
+    OSVER="latest"  # $(echo ${RELEASE} | grep -o '[0-9]*\.[0-9]*') #e.g. 'OSVER=2014.7'
     DIST="amzn"
     ;;
 "CentOS"*6*)
