@@ -92,6 +92,9 @@ if [[ -e /etc/systemd/journald.conf ]]; then
     systemctl restart systemd-journald.service
 fi
 
+# Make sure the certificates have been updated
+yum -y upgrade ca-certificates
+
 # Manage distribution-specific dependencies
 if [[ -e /etc/redhat-release ]]; then
     RELEASE=$(grep "release" /etc/redhat-release)

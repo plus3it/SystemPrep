@@ -68,6 +68,9 @@ EPEL6_RPM="https://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarc
 EPEL7_RPM="https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm"
 PIP_INSTALLER="https://bootstrap.pypa.io/get-pip.py"
 
+# Make sure the certificates have been updated
+yum -y upgrade ca-certificates
+
 # Manage distribution-specific dependencies
 if [[ -e /etc/redhat-release ]]; then
     RELEASE=$(grep "release" /etc/redhat-release)
