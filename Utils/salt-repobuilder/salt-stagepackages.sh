@@ -181,7 +181,7 @@ SALT_OSDEPS_STRING=$( IFS=$' '; echo "${SALT_OSDEPS[*]}" )
 SALT_EPELDEPS_STRING=$( IFS=$' '; echo "${SALT_EPELDEPS[*]}" )
 SALT_COPRZMQ_DEPS_STRING=$( IFS=$' '; echo "${SALT_COPRZMQ_DEPS[*]}" )
 SALT_COPRSALT_DEPS_STRING=$( IFS=$' '; echo "${SALT_COPRSALT_DEPS[*]}" )
-yumdownloader --resolve --destdir "${STAGING}" --archlist="${ARCH}" ${SALT_OSDEPS_STRING} ${SALT_EPELDEPS_STRING} ${SALT_COPRZMQ_DEPS_STRING} ${SALT_COPRSALT_DEPS_STRING}
+yumdownloader --resolve --destdir "${STAGING}" --archlist="${ARCH}" --tolerant --verbose ${SALT_OSDEPS_STRING} ${SALT_EPELDEPS_STRING} ${SALT_COPRZMQ_DEPS_STRING} ${SALT_COPRSALT_DEPS_STRING}
 
 # Move packages to the epel repo directory
 for package in ${SALT_EPELDEPS_STRING}; do
