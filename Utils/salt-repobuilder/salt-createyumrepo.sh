@@ -51,12 +51,12 @@ REPO_BASEURL_SALT_EPEL7="${BASE_URL}/saltstack/salt/epel-7/\$basearch/"
 REPO_GPGKEY_SALT_EPEL7="${BASE_URL}/saltstack/salt/epel-7/\$basearch/salt-gpgkey.gpg"
 
 REPO_NAME_ZMQ_EPEL6="${BUCKETNAME}-zmq-epel6-packages"
-REPO_BASEURL_ZMQ_EPEL6="${BASE_URL}/saltstack/zmq/epel-6/\$basearch/"
-REPO_GPGKEY_ZMQ_EPEL6="${BASE_URL}/saltstack/zmq/epel-6/\$basearch/zmq-gpgkey.gpg"
+REPO_BASEURL_ZMQ_EPEL6="${BASE_URL}/saltstack/zeromq/epel-6/\$basearch/"
+REPO_GPGKEY_ZMQ_EPEL6="${BASE_URL}/saltstack/zeromq/epel-6/\$basearch/zeromq-gpgkey.gpg"
 
 REPO_NAME_ZMQ_EPEL7="${BUCKETNAME}-zmq-epel7-packages"
-REPO_BASEURL_ZMQ_EPEL7="${BASE_URL}/saltstack/zmq/epel-7/\$basearch/"
-REPO_GPGKEY_ZMQ_EPEL7="${BASE_URL}/saltstack/zmq/epel-7/\$basearch/zmq-gpgkey.gpg"
+REPO_BASEURL_ZMQ_EPEL7="${BASE_URL}/saltstack/zeromq/epel-7/\$basearch/"
+REPO_GPGKEY_ZMQ_EPEL7="${BASE_URL}/saltstack/zeromq/epel-7/\$basearch/zeromq-gpgkey.gpg"
 
 BUILDERDEPS=(
     "epel-release"
