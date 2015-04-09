@@ -165,7 +165,8 @@ def cleanup(workingdir):
     return True
 
 
-def main(saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-bootstrap/develop/bootstrap-salt.sh",
+def main(installmethod='git',
+         saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-bootstrap/develop/bootstrap-salt.sh",
          saltgitrepo="git://github.com/saltstack/salt.git",
          saltversion=None,
          saltcontentsource=None,
@@ -176,24 +177,41 @@ def main(saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-b
          **kwargs):
     """
     Manages the salt installation and configuration.
+    :param installmethod: str, method of installing salt
+                          'git': install salt from git source. requires 
+                                 `saltbootstrapsource` and `saltgitrepo`. 
+                                 optionally specify `saltversion`.
+                          'yum': install salt from a yum repo. the salt 
+                                 packages must be available in a yum repo 
+                                 already configured on the system.
     :param saltbootstrapsource: str, location of the salt bootstrap installer
     :param saltgitrepo: str, git repo containing the salt source files
-    :param saltversion: str, version of salt to install, must be a tag or branch in the salt git repo
-    :param saltcontentsource: str, location of additional salt content, must be a compressed file
-    :param formulastoinclude: list, locations of salt formulas to configure, must be compressed files
-    :param formulaterminationstrings: list, strings that will be removed from the end of a salt formula name
+    :param saltversion: str, optional. version of salt to install. if 
+                        `installmethod` is 'git', then this value must be a 
+                        tag or branch in the git repo.
+    :param saltcontentsource: str, location of additional salt content, must 
+                              be a compressed file
+    :param formulastoinclude: list, locations of salt formulas to configure, 
+                              must be compressed files
+    :param formulaterminationstrings: list, strings that will be removed from 
+                                      the end of a salt formula name
     :param saltstates: str, comma-separated string of saltstates to apply.
-                       'none' is a keyword that will not apply any states
-                       'highstate' is a keyword that will apply states based on the top.sls definition
-    :param kwargs: dict, catch-all for other params that do not apply to this content script
+                       'none' is a keyword that will not apply any states.
+                       'highstate' is a keyword that will apply states based 
+                       on the top.sls definition.
+    :param sourceiss3bucket: str, set to 'true' if saltcontentsource and 
+                             formulastoinclude are hosted in an S3 bucket.
+    :param kwargs: dict, catch-all for other params that do not apply to this 
+                   content script
     :raise SystemError: error raised whenever an issue is encountered
     """
     scriptname = __file__
 
-    # Check special parameter types
+    # Convert from None to list, to support iteration
     formulastoinclude = [] if formulastoinclude is None else formulastoinclude
     formulaterminationstrings = [] if formulaterminationstrings is None else \
         formulaterminationstrings
+    # Convert from string to bool
     sourceiss3bucket = 'true' == sourceiss3bucket.lower()
 
     print('+' * 80)
@@ -217,15 +235,26 @@ def main(saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-b
     saltbaseenv = '/'.join((saltfileroot, 'base'))
     workingdir = create_working_dir('/usr/tmp/', 'saltinstall-')
 
-    #Download the salt bootstrap installer and install salt
-    saltbootstrapfilename = saltbootstrapsource.split('/')[-1]
-    saltbootstrapfile = '/'.join((workingdir, saltbootstrapfilename))
-    download_file(saltbootstrapsource, saltbootstrapfile)
-    if saltversion:
-        os.system('sh {0} -g {1} git {2}'.format(saltbootstrapfile,
-                                                 saltgitrepo, saltversion))
+    #Install salt via yum or git
+    if 'yum' == installmethod.lower():
+        # Install dependencies for selinux python modules
+        os.system('yum -y install policycoreutils-python')
+        # Install salt-minion
+        # TODO: Install salt version specified by `saltversion`
+        os.system('yum -y install salt-minion')
+    elif 'git' == installmethod.lower():
+        #Download the salt bootstrap installer and install salt
+        saltbootstrapfilename = saltbootstrapsource.split('/')[-1]
+        saltbootstrapfile = '/'.join((workingdir, saltbootstrapfilename))
+        download_file(saltbootstrapsource, saltbootstrapfile)
+        if saltversion:
+            os.system('sh {0} -g {1} git {2}'.format(saltbootstrapfile,
+                                                     saltgitrepo, saltversion))
+        else:
+            os.system('sh {0} -g {1}'.format(saltbootstrapfile, saltgitrepo))
     else:
-        os.system('sh {0} -g {1}'.format(saltbootstrapfile, saltgitrepo))
+        raise SystemError('Unrecognized `installmethod`! Must set '
+                          '`installmethod` to either "git" or "yum".')
 
     #Create directories for salt content and formulas
     for saltdir in [saltfileroot, saltbaseenv, saltformularoot]:

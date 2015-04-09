@@ -45,9 +45,59 @@ Use `merge_dicts({yourdict}, scriptparams)` to merge command line parameters wit
 
     if 'Linux' in system:
         scriptstoexecute = (
+            {
+                'ScriptSource': "https://systemprep.s3.amazonaws.com/ContentScripts/systemprep-linuxyumrepoinstall.py",
+                'Parameters': merge_dicts({
+                    'yumrepomap': [
+                        {
+                            'url': 'https://s3.amazonaws.com/saltrepo/yum.repos/saltrepo-amzn-packages.repo',
+                            'dist': 'amazon',
+                        },
+                        {
+                            'url': 'https://s3.amazonaws.com/saltrepo/yum.repos/saltrepo-centos-packages.repo',
+                            'dist': 'centos',
+                        },
+                        {
+                            'url': 'https://s3.amazonaws.com/saltrepo/yum.repos/saltrepo-rhel-packages.repo',
+                            'dist': 'redhat',
+                        },
+                        {
+                            'url': 'https://s3.amazonaws.com/saltrepo/yum.repos/saltrepo-epel6-packages.repo',
+                            'dist': 'all',
+                            'epel_version': '6',
+                        },
+                        {
+                            'url': 'https://s3.amazonaws.com/saltrepo/yum.repos/saltrepo-epel7-packages.repo',
+                            'dist': 'all',
+                            'epel_version': '7',
+                        },
+                        {
+                            'url': 'https://s3.amazonaws.com/saltrepo/yum.repos/saltrepo-salt-epel6-packages.repo',
+                            'dist': 'all',
+                            'epel_version': '6',
+                        },
+                        {
+                            'url': 'https://s3.amazonaws.com/saltrepo/yum.repos/saltrepo-salt-epel7-packages.repo',
+                            'dist': 'all',
+                            'epel_version': '7',
+                        },
+                        {
+                            'url': 'https://s3.amazonaws.com/saltrepo/yum.repos/saltrepo-zmq-epel6-packages.repo',
+                            'dist': 'all',
+                            'epel_version': '6',
+                        },
+                        {
+                            'url': 'https://s3.amazonaws.com/saltrepo/yum.repos/saltrepo-zmq-epel7-packages.repo',
+                            'dist': 'all',
+                            'epel_version': '7',
+                        },
+                    ],
+                }, scriptparams)
+            },
             { 
                 'ScriptSource': "https://systemprep.s3.amazonaws.com/ContentScripts/SystemPrep-LinuxSaltInstall.py",
                 'Parameters': merge_dicts({
+                    'installmethod': 'yum',
                     'saltbootstrapsource': "https://raw.githubusercontent.com/saltstack/salt-bootstrap/stable/bootstrap-salt.sh",
                     'saltgitrepo': "git://github.com/saltstack/salt.git",
                     'saltversion': "v2014.7.4",
