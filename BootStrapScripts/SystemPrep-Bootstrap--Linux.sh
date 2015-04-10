@@ -12,9 +12,6 @@ SYSTEMPREPPARAMS=( "SaltStates=Highstate"
 
 #System variables
 SCRIPTNAME=${0}
-AWS=$(which aws)
-CURL=$(which curl)
-WGET=$(which wget)
 LOGGER=$(which logger)
 TIMESTAMP=$(date -u +"%Y%m%d_%H%M_%S")
 WORKINGDIR=/usr/tmp
@@ -54,24 +51,20 @@ for param in "${SYSTEMPREPPARAMS[@]}"; do echo "   ${param}" ; done
 SCRIPTFILENAME=$(echo ${SYSTEMPREPMASTERSCRIPTSOURCE} | awk -F'/' '{ print ( $(NF) ) }')
 SCRIPTFULLPATH=${WORKINGDIR}/${SCRIPTFILENAME}
 if [[ "true" = ${SOURCEISS3BUCKET,,} ]]; then
-    if [[ (-x ${AWS}) && (! -z ${AWS}) ]]; then
-        echo "Using AWS Tools to download from S3 Bucket -- ${SYSTEMPREPMASTERSCRIPTSOURCE}"
-        KEY=$(echo ${SYSTEMPREPMASTERSCRIPTSOURCE} | awk -F'/' '{$1=$2=$3=""; print substr($0,4)}' OFS="/")
-        ${AWS} s3 cp s3://${KEY} ${SCRIPTFULLPATH} --source-region ${AWSREGION}
-    else
-        echo "Missing 'aws' in path. Could not download file. Quitting..."
-        exit
+    echo "Downloading master script from S3 bucket using AWS Tools -- ${SYSTEMPREPMASTERSCRIPTSOURCE}"
+    KEY=$(echo ${SYSTEMPREPMASTERSCRIPTSOURCE} | awk -F'/' '{$1=$2=$3=""; print substr($0,4)}' OFS="/")
+    aws s3 cp s3://${KEY} ${SCRIPTFULLPATH} --source-region ${AWSREGION} || \
+        echo "Could not download file using AWS Tools. Check the url, the instance role, and whether 'aws' is in path. Quitting..."
+    if [[ ! -e "${SCRIPTFULLPATH}" ]]; then
+        exit 1
     fi
 else
-    if [[ (-x ${CURL}) && (! -z ${CURL}) ]]; then
-        echo "Using 'curl' to download from web host -- ${SYSTEMPREPMASTERSCRIPTSOURCE}"
-        ${CURL} -L -O -s -S ${SYSTEMPREPMASTERSCRIPTSOURCE}
-    elif [[ (-x ${WGET}) && (! -z ${WGET}) ]]; then
-        echo "Using 'wget' to download from web host -- ${SYSTEMPREPMASTERSCRIPTSOURCE}"
-        ${WGET} --quiet ${SYSTEMPREPMASTERSCRIPTSOURCE}
-    else
-        echo "Missing 'curl' or 'wget' in path. Could not download file. Quitting..."
-        exit
+    echo "Downloading master script from web host -- ${SYSTEMPREPMASTERSCRIPTSOURCE}"
+    curl -L -O -s -S ${SYSTEMPREPMASTERSCRIPTSOURCE} || \
+        wget --quiet ${SYSTEMPREPMASTERSCRIPTSOURCE} || \
+            echo "Could not download file via 'curl' or 'wget'. Check the url and whether at least one of them is in the path. Quitting..."
+    if [[ ! -e "${SCRIPTFULLPATH}" ]]; then
+        exit 1
     fi
 fi
 
@@ -94,8 +87,6 @@ if [[ -e /etc/rsyslog.conf ]]; then
 fi
 
 # Execute the master script
-SCRIPTFILENAME=$(echo ${SYSTEMPREPMASTERSCRIPTSOURCE} | awk -F'/' '{ print ( $(NF) ) }')
-SCRIPTFULLPATH=${WORKINGDIR}/${SCRIPTFILENAME}
 echo "Running the SystemPrep master script -- ${SCRIPTFULLPATH}"
 python ${SCRIPTFULLPATH} ${PARAMSTRING}
 
