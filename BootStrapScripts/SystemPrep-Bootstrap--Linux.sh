@@ -23,12 +23,6 @@ LOGTAG=systemprep
 LOGFILE="${LOGDIR}/${LOGTAG}-${TIMESTAMP}.log"
 LOGLINK="${LOGDIR}/${LOGTAG}.log"
 
-# Validate logger exists
-if [[ (! -x ${LOGGER}) || (-z "${LOGGER}") ]]; then
-	echo "Can't find 'logger' in path. Quitting..." > /dev/console 2>&1
-	exit
-fi
-
 # Validate log directory exists
 if [[ ! -d ${LOGDIR} ]]; then
   echo "Creating ${LOGDIR} directory." >(${LOGGER} -t "${LOGTAG}" -s 2> /dev/console) 2>&1
