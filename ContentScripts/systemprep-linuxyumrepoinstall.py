@@ -44,7 +44,8 @@ _amazon_epel_versions = {
 }
 
 
-def main(yumrepomap=None):
+def main(yumrepomap=None,
+         **kwargs):
     """
     Checks the distribution version and installs yum repo definition files
     that are specific to that distribution.
@@ -66,6 +67,12 @@ def main(yumrepomap=None):
                    },
                  ]
     """
+    scriptname = __file__
+    print('+' * 80)
+    print('Entering script -- {0}'.format(scriptname))
+    print('Printing parameters...')
+    print('    yumrepomap = {0}'.format(yumrepomap))
+
     if not yumrepomap:
         print('`yumrepomap` is empty. Nothing to do!')
         return None
@@ -112,6 +119,25 @@ def main(yumrepomap=None):
             repofile = '/etc/yum.repos.d/{0}'.format(url.split('/')[-1])
             download_file(url, repofile)
 
+    print('{0} complete!'.format(scriptname))
+    print('-' * 80)
+
+
+def _convert_string_to_list_of_dicts(fixme):
+    # First, remove any parentheses or brackets
+    fixed = fixme.translate(None, '()[]')
+    # Then, split the string to form groups around {}
+    fixed = re.split('({.*?})', fixed)
+    # Now remove empty/bad strings
+    fixed = [v for v in filter(None, fixed) if not v == ', ']
+    # Remove braces and split on commas. it's now a list of lists
+    fixed = [v.translate(None, '{}').split(',') for v in fixed]
+    # Convert to a list of dicts
+    fixed = [dict(x.split(':', 1) for x in y) for y in fixed]
+    # Finally, strip whitespace around the keys and values
+    fixed = [dict((k.strip(), v.strip()) for k, v in x.items()) for x in fixed]
+    return fixed
+
 
 if __name__ == "__main__":
     # Convert command line parameters of the form `param=value` to a dict
@@ -119,22 +145,7 @@ if __name__ == "__main__":
     # Convert parameter keys to lowercase, parameter values are unmodified
     kwargs = dict((k.lower(), v) for k, v in kwargs.items())
 
-    # Need to convert a string to a list of dicts,
-    # First, remove any parentheses or brackets
-    kwargs['yumrepomap'] = kwargs.get('yumrepomap', '').translate(None, '()[]')
-    # Then, split the string to form groups around {}
-    kwargs['yumrepomap'] = re.split('({.*?})', kwargs['yumrepomap'])
-    # Now remove empty/bad strings
-    kwargs['yumrepomap'] = [v for v in filter(None, kwargs['yumrepomap']) \
-        if not v == ', ']
-    # Remove braces and split on commas. it's now a list of lists
-    kwargs['yumrepomap'] = [v.translate(None, '{}').split(',') for v in \
-        kwargs['yumrepomap']]
-    # Convert to a list of dicts
-    kwargs['yumrepomap'] = [dict(x.split(':', 1) for x in y) for y in \
-        kwargs['yumrepomap']]
-    # Strip whitespace around the keys and values
-    kwargs['yumrepomap'] = [dict((k.strip(), v.strip()) for k, v in \
-        x.items()) for x in kwargs['yumrepomap']]
-
+    # Need to convert a formatted string to a list of dicts,
+    kwargs['yumrepomap'] = _convert_string_to_list_of_dicts(
+                                kwargs.get('yumrepomap', ''))
     main(**kwargs)
