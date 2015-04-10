@@ -165,7 +165,7 @@ def cleanup(workingdir):
     return True
 
 
-def main(installmethod='git',
+def main(saltinstallmethod='git',
          saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-bootstrap/develop/bootstrap-salt.sh",
          saltgitrepo="git://github.com/saltstack/salt.git",
          saltversion=None,
@@ -177,7 +177,7 @@ def main(installmethod='git',
          **kwargs):
     """
     Manages the salt installation and configuration.
-    :param installmethod: str, method of installing salt
+    :param saltinstallmethod: str, method of installing salt
                           'git': install salt from git source. requires 
                                  `saltbootstrapsource` and `saltgitrepo`. 
                                  optionally specify `saltversion`.
@@ -217,13 +217,14 @@ def main(installmethod='git',
     print('+' * 80)
     print('Entering script -- ' + scriptname)
     print('Printing parameters...')
-    print('    saltbootstrapsource = ' + str(saltbootstrapsource))
-    print('    saltgitrepo = ' + str(saltgitrepo))
-    print('    saltversion = ' + str(saltversion))
-    print('    saltcontentsource = ' + str(saltcontentsource))
-    print('    formulastoinclude = ' + str(formulastoinclude))
-    print('    formulaterminationstrings = ' + str(formulaterminationstrings))
-    print('    saltstates = ' + str(saltstates))
+    print('    saltinstallmethod = {0}'.format(saltinstallmethod))
+    print('    saltbootstrapsource = {0}'.format(saltbootstrapsource))
+    print('    saltgitrepo = {0}'.format(saltgitrepo))
+    print('    saltversion = {0}'.format(saltversion))
+    print('    saltcontentsource = {0}'.format(saltcontentsource))
+    print('    formulastoinclude = {0}'.format(formulastoinclude))
+    print('    formulaterminationstrings = {0}'.format(formulaterminationstrings))
+    print('    saltstates = {0}'.format(saltstates))
     for key, value in kwargs.items():
         print('    {0} = {1}'.format(key, value))
 
@@ -236,13 +237,13 @@ def main(installmethod='git',
     workingdir = create_working_dir('/usr/tmp/', 'saltinstall-')
 
     #Install salt via yum or git
-    if 'yum' == installmethod.lower():
+    if 'yum' == saltinstallmethod.lower():
         # Install dependencies for selinux python modules
         os.system('yum -y install policycoreutils-python')
         # Install salt-minion
         # TODO: Install salt version specified by `saltversion`
         os.system('yum -y install salt-minion')
-    elif 'git' == installmethod.lower():
+    elif 'git' == saltinstallmethod.lower():
         #Download the salt bootstrap installer and install salt
         saltbootstrapfilename = saltbootstrapsource.split('/')[-1]
         saltbootstrapfile = '/'.join((workingdir, saltbootstrapfilename))
@@ -253,8 +254,8 @@ def main(installmethod='git',
         else:
             os.system('sh {0} -g {1}'.format(saltbootstrapfile, saltgitrepo))
     else:
-        raise SystemError('Unrecognized `installmethod`! Must set '
-                          '`installmethod` to either "git" or "yum".')
+        raise SystemError('Unrecognized `saltinstallmethod`! Must set '
+                          '`saltinstallmethod` to either "git" or "yum".')
 
     #Create directories for salt content and formulas
     for saltdir in [saltfileroot, saltbaseenv, saltformularoot]:
