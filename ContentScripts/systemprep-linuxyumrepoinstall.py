@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import boto
 import re
 import shutil
 import sys
@@ -8,67 +7,27 @@ import urllib2
 from boto.exception import BotoClientError
 
 
-def download_file(url, filename, sourceiss3bucket=None):
+def download_file(url, filename):
     """
 Download the file from `url` and save it locally under `filename`.
     :rtype : bool
     :param url:
     :param filename:
-    :param sourceiss3bucket:
     """
-    conn = None
-
-    if sourceiss3bucket:
-        bucket_name = url.split('/')[3]
-        key_name = '/'.join(url.split('/')[4:])
-        try:
-            conn = boto.connect_s3()
-            bucket = conn.get_bucket(bucket_name)
-            key = bucket.get_key(key_name)
-            key.get_contents_to_filename(filename=filename)
-        except (NameError, BotoClientError):
-            try:
-                bucket_name = url.split('/')[2].split('.')[0]
-                key_name = '/'.join(url.split('/')[3:])
-                bucket = conn.get_bucket(bucket_name)
-                key = bucket.get_key(key_name)
-                key.get_contents_to_filename(filename=filename)
-            except Exception as exc:
-                raise SystemError('Unable to download file from S3 bucket.\n'
-                                  'url = {0}\n'
-                                  'bucket = {1}\n'
-                                  'key = {2}\n'
-                                  'file = {3}\n'
-                                  'Exception: {4}'
-                                  .format(url, bucket_name, key_name,
-                                          filename, exc))
-        except Exception as exc:
-            raise SystemError('Unable to download file from S3 bucket.\n'
-                              'url = {0}\n'
-                              'bucket = {1}\n'
-                              'key = {2}\n'
-                              'file = {3}\n'
-                              'Exception: {4}'
-                              .format(url, bucket_name, key_name,
-                                      filename, exc))
-        print('Downloaded file from S3 bucket -- \n'
-              '    url      = {0}\n'
-              '    filename = {1}'.format(url, filename))
-    else:
-        try:
-            response = urllib2.urlopen(url)
-            with open(filename, 'wb') as outfile:
-                shutil.copyfileobj(response, outfile)
-        except Exception as exc:
-            # TODO: Update `except` logic
-            raise SystemError('Unable to download file from web server.\n'
-                              'url = {0}\n'
-                              'filename = {1}\n'
-                              'Exception: {2}'
-                              .format(url, filename, exc))
-        print('Downloaded file from web server -- \n'
-              '    url      = {0}\n'
-              '    filename = {1}'.format(url, filename))
+    try:
+        response = urllib2.urlopen(url)
+        with open(filename, 'wb') as outfile:
+            shutil.copyfileobj(response, outfile)
+    except Exception as exc:
+        # TODO: Update `except` logic
+        raise SystemError('Unable to download file from web server.\n'
+                          'url = {0}\n'
+                          'filename = {1}\n'
+                          'Exception: {2}'
+                          .format(url, filename, exc))
+    print('Downloaded file from web server -- \n'
+          '    url      = {0}\n'
+          '    filename = {1}'.format(url, filename))
     return True
 
 
