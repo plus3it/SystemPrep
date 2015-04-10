@@ -140,6 +140,10 @@ def main(yumrepomap=None):
     else:
         epel_version = version.split('.')[0]
 
+    if epel_version is None:
+        raise SystemError('Unsupported OS version! dist = {0}, version = {1}.'
+                          .format(dist, version))
+
     for repo in yumrepomap:
         # Test whether this repo should be installed to this system
         if repo['dist'] in [dist, 'all'] and repo.get('epel_version', 'all') \
