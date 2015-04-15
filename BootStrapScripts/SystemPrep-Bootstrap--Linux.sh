@@ -62,10 +62,9 @@ if [[ "true" = ${SOURCEISS3BUCKET,,} ]]; then
 else
     echo "Downloading master script from web host -- ${SYSTEMPREPMASTERSCRIPTSOURCE}"
     curl -L -O -s -S ${SYSTEMPREPMASTERSCRIPTSOURCE} || \
-        wget --quiet ${SYSTEMPREPMASTERSCRIPTSOURCE}
+        wget --quiet ${SYSTEMPREPMASTERSCRIPTSOURCE} || \
+            echo "Could not download file via 'curl' or 'wget'. Check the url and whether at least one of them is in the path. Quitting..."
     if [[ ! -e "${SCRIPTFULLPATH}" ]]; then
-        echo "Could not download file via 'curl' or 'wget'."
-        echo "Check the url and whether at least one of them is in the path. Quitting..."
         exit 1
     fi
 fi
@@ -104,7 +103,7 @@ fi
 # Execute the master script
 echo "Running the SystemPrep master script -- ${SCRIPTFULLPATH}"
 python ${SCRIPTFULLPATH} ${PARAMSTRING}
-result = $?  # Capture the exit status of the script
+result=$?  # Capture the exit status of the script
 
 # Restore prior rsyslog config
 if [[ -n "${RSYSLOGFLAG}" ]]; then
