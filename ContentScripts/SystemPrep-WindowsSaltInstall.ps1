@@ -254,6 +254,7 @@ if (-not $SaltResultsLog) {
 } else {
     $SaltResultsLogFile = $SaltResultsLog
 }
+$SaltStateArguments = "--out json --out-file ${SaltResultsLogFile} --return local --log-file ${SaltDebugLogFile} --log-file-level debug"
 
 log -LogTag ${ScriptName} "Installing Microsoft Visual C++ 2008 SP1 MFC Security Update redist package -- ${VcRedistInstaller}"
 $VcRedistInstallResult = Start-Process -FilePath $VcRedistInstaller.FullName -ArgumentList "/q" -NoNewWindow -PassThru -Wait
@@ -396,11 +397,11 @@ if ("none" -eq $SaltStates.tolower()) {
     #Run the specified salt state
     if ("highstate" -eq $SaltStates.tolower() ) {
         log -LogTag ${ScriptName} "Detected the States parameter is set to: ${SaltStates}. Applying the salt `"highstate`" to the system."
-        $ApplyStatesResult = Start-Process $MinionExe -ArgumentList "--local state.highstate --out json --out-file ${SaltResultsLogFile} --return local --log-file ${SaltDebugLogFile} --log-file-level debug" -NoNewWindow -PassThru -Wait
+        $ApplyStatesResult = Start-Process $MinionExe -ArgumentList "--local state.highstate ${SaltStateArguments}" -NoNewWindow -PassThru -Wait
         log -LogTag ${ScriptName} "Return code of salt-call: $(${ApplyStatesResult}.ExitCode)"
     } else {
         log -LogTag ${ScriptName} "Detected the States parameter is set to: ${SaltStates}. Applying the user-defined list of states to the system."
-        $ApplyStatesResult = Start-Process $MinionExe -ArgumentList "--local state.sls ${SaltStates} --out json --out-file ${SaltResultsLogFile} --return local --log-file ${SaltDebugLogFile} --log-file-level debug" -NoNewWindow -PassThru -Wait
+        $ApplyStatesResult = Start-Process $MinionExe -ArgumentList "--local state.sls ${SaltStates} ${SaltStateArguments}" -NoNewWindow -PassThru -Wait
         log -LogTag ${ScriptName} "Return code of salt-call: $(${ApplyStatesResult}.ExitCode)"
     }
     #Check for errors in the results file
