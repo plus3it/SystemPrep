@@ -52,6 +52,7 @@ SCRIPTFILENAME=$(echo ${SYSTEMPREPMASTERSCRIPTSOURCE} | awk -F'/' '{ print ( $(N
 SCRIPTFULLPATH=${WORKINGDIR}/${SCRIPTFILENAME}
 if [[ "true" = ${SOURCEISS3BUCKET,,} ]]; then
     echo "Downloading master script from S3 bucket using AWS Tools -- ${SYSTEMPREPMASTERSCRIPTSOURCE}"
+    hash aws 2> /dev/null || PATH="${PATH}:/usr/local/bin"  # Try to get 'aws' in the path
     KEY=$(echo ${SYSTEMPREPMASTERSCRIPTSOURCE} | awk -F'/' '{$1=$2=$3=""; print substr($0,4)}' OFS="/")
     aws s3 cp s3://${KEY} ${SCRIPTFULLPATH} --source-region ${AWSREGION} || \
         echo "Could not download file using AWS Tools. Check the url, the instance role, and whether 'aws' is in path. Quitting..."
@@ -61,9 +62,10 @@ if [[ "true" = ${SOURCEISS3BUCKET,,} ]]; then
 else
     echo "Downloading master script from web host -- ${SYSTEMPREPMASTERSCRIPTSOURCE}"
     curl -L -O -s -S ${SYSTEMPREPMASTERSCRIPTSOURCE} || \
-        wget --quiet ${SYSTEMPREPMASTERSCRIPTSOURCE} || \
-            echo "Could not download file via 'curl' or 'wget'. Check the url and whether at least one of them is in the path. Quitting..."
+        wget --quiet ${SYSTEMPREPMASTERSCRIPTSOURCE}
     if [[ ! -e "${SCRIPTFULLPATH}" ]]; then
+        echo "Could not download file via 'curl' or 'wget'."
+        echo "Check the url and whether at least one of them is in the path. Quitting..."
         exit 1
     fi
 fi
@@ -85,10 +87,24 @@ if [[ -e /etc/rsyslog.conf ]]; then
     echo "Restarting rsyslog..."
     service rsyslog restart
 fi
+# Temporarily suppress journald rate limiting
+if [[ -e /etc/systemd/journald.conf ]]; then
+    echo "Temporarily disabling journald rate limiting"
+    JOURNALDFLAG=1
+    # Replace or append the RateLimitInterval parameter
+    grep -q '^RateLimitInterval' /etc/systemd/journald.conf && \
+        sed -i.bak -e \
+        "s/^RateLimitInterval.*/RateLimitInterval=0/" \
+        /etc/rsyslog.conf || \
+        sed -i.bak "$ a\RateLimitInterval=0" /etc/systemd/journald.conf
+    echo "Restarting systemd-journald..."
+    systemctl restart systemd-journald.service
+fi
 
 # Execute the master script
 echo "Running the SystemPrep master script -- ${SCRIPTFULLPATH}"
 python ${SCRIPTFULLPATH} ${PARAMSTRING}
+result = $?  # Capture the exit status of the script
 
 # Restore prior rsyslog config
 if [[ -n "${RSYSLOGFLAG}" ]]; then
@@ -99,10 +115,27 @@ if [[ -n "${RSYSLOGFLAG}" ]]; then
     echo "Restarting rsyslog..."
     service rsyslog restart
 fi
+# Restore prior journald config
+if [[ -n "${JOURNALDFLAG}" ]]; then
+    # Sleep to let the logger catch up with the output of the python script...
+    sleep 2
+    echo "Re-storing previous journald configuration"
+    mv -f /etc/systemd/journald.conf.bak /etc/systemd/journald.conf
+    echo "Restarting systemd-journald..."
+    systemctl restart systemd-journald.service
+fi
 
 # Cleanup
 echo "Deleting the SystemPrep master script -- ${SCRIPTFULLPATH}"
 rm -f ${SCRIPTFULLPATH}
+
+# Report success or failure
+if [[ $result -eq 0 ]]; then
+    echo "SUCCESS: SystemPrep Master script completed successfully!"
+else
+    echo "ERROR: There was an error executing the SystemPrep Master script!"
+    echo "Check the log file at: ${LOGLINK}"
+fi
 
 # Exit
 echo "Exiting SystemPrep bootstrap script -- ${SCRIPTNAME}"
