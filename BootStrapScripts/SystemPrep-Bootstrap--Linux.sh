@@ -108,7 +108,7 @@ result=$?  # Capture the exit status of the script
 # Restore prior rsyslog config
 if [[ -n "${RSYSLOGFLAG}" ]]; then
     # Sleep to let the logger catch up with the output of the python script...
-    sleep 2
+    sleep 50
     echo "Re-storing previous rsyslog configuration"
     mv -f /etc/rsyslog.conf.bak /etc/rsyslog.conf
     echo "Restarting rsyslog..."
@@ -117,7 +117,7 @@ fi
 # Restore prior journald config
 if [[ -n "${JOURNALDFLAG}" ]]; then
     # Sleep to let the logger catch up with the output of the python script...
-    sleep 2
+    sleep 50
     echo "Re-storing previous journald configuration"
     mv -f /etc/systemd/journald.conf.bak /etc/systemd/journald.conf
     echo "Restarting systemd-journald..."
