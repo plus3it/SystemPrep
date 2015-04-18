@@ -152,7 +152,7 @@ dir_basename="${PWD##*/}"
 datestamp=$(date -u +"%Y%m%d")
 for f in `find . -type f | grep -i -e "${dir_basename}-full-.*\.zip"`; do  # There should only ever be one matching file
     # Create a delta zip with just the changes
-    zip -r "${f}" . -DF --out "${dir_basename}-delta-${datestamp}.zip"
+    zip -r "${f}" . -DF --out "${dir_basename}-delta-${datestamp}.zip" -x \*.zip
     rm -f "${f}"
     break
 done
