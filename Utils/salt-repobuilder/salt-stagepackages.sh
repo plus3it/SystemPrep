@@ -45,7 +45,7 @@ SALT_EPELDEPS=(
 
 SALT_COPRZMQ_DEPS=(
     "python-zmq"
-    "zeromq-4.0.4"
+    "zeromq-4.0.5"
 )
 
 SALT_COPRSALT_DEPS=(
