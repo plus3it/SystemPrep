@@ -242,7 +242,7 @@ $SaltBaseEnv = "${SaltFileRoot}\base"
 $SaltFormulaRoot = "${SaltSrv}\formulas"
 $SaltWinRepo = "${SaltSrv}\winrepo"
 $MinionConf = "${SaltBase}\conf\minion"
-$MinionExe = "${SaltBase}\salt-call.exe"
+$MinionExe = "${SaltBase}\salt-call.bat"
 $MinionService = "salt-minion"
 if (-not $SaltDebugLog) {
     $SaltDebugLogFile = "${SaltWorkingDir}\salt.staterun.debug.log"
