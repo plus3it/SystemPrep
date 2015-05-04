@@ -10,6 +10,7 @@ import re
 import boto
 
 from boto.exception import BotoClientError
+from boto.exception import S3ResponseError
 
 
 def download_file(url, filename, sourceiss3bucket=None):
@@ -30,7 +31,7 @@ Download the file from `url` and save it locally under `filename`.
             bucket = conn.get_bucket(bucket_name)
             key = bucket.get_key(key_name)
             key.get_contents_to_filename(filename=filename)
-        except (NameError, BotoClientError):
+        except (NameError, BotoClientError, S3ResponseError):
             try:
                 bucket_name = url.split('/')[2].split('.')[0]
                 key_name = '/'.join(url.split('/')[3:])
