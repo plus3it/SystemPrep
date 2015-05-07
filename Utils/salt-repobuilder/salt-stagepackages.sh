@@ -143,13 +143,13 @@ OSBUCKET="${BUCKETNAME}/linux/${DIST}/${OSVER}/"
 EPELVER=$(rpm -qa |grep epel-release | cut -d'-' -f3)
 EPELREPO=$(echo ~/repo/epel/${EPELVER}/${ARCH})
 EPELPACKAGES="${EPELREPO}/packages"
-EPELBUCKET="${BUCKETNAME}/epel/${EPELVER}/"
+EPELBUCKET="${BUCKETNAME}/linux/epel/${EPELVER}/"
 COPRZMQREPO=$(echo ~/repo/saltstack/zeromq/epel-${EPELVER}/${ARCH})
 COPRZMQPACKAGES="${COPRZMQREPO}/packages"
-COPRZMQBUCKET="${BUCKETNAME}/saltstack/zeromq/epel-${EPELVER}/"
+COPRZMQBUCKET="${BUCKETNAME}/linux/saltstack/zeromq/epel-${EPELVER}/"
 COPRSALTREPO=$(echo ~/repo/saltstack/salt/epel-${EPELVER}/${ARCH})
 COPRSALTPACKAGES="${COPRSALTREPO}/packages"
-COPRSALTBUCKET="${BUCKETNAME}/saltstack/salt/epel-${EPELVER}/"
+COPRSALTBUCKET="${BUCKETNAME}/linux/saltstack/salt/epel-${EPELVER}/"
 
 #Define COPR repos with the latest salt packages and dependencies that aren't in epel
 COPR_REPOS=(
