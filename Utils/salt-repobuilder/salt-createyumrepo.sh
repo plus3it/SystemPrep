@@ -6,8 +6,9 @@ exec > >(logger -i -t "salt-createyumfiles" -s 2> /dev/console) 2>&1
 BUCKETNAME=${1:-systemprep-repo}  # What bucket contains the packages?
 
 REPO_DIR="/root/${BUCKETNAME}"  # Where do we want to stage the repo?
+PACKAGE_DIR="${REPO_DIR}/linux"  # Where are we staging the packages?
 YUM_FILE_DIR="${REPO_DIR}/yum.repos"  # Where do we want to save the yum repo files?
-BUCKET_URL="s3://${BUCKETNAME}/linux/"  # What bucket contains the packages?
+BUCKET_URL="s3://${BUCKETNAME}"  # What bucket contains the packages?
 BASE_URL="https://s3.amazonaws.com/${BUCKETNAME}/linux"  # Common http path to the hosted packages
 
 REPOS=(
@@ -110,11 +111,11 @@ pip install --upgrade s3cmd
 hash s3cmd 2> /dev/null || PATH="${PATH}:/usr/local/bin"  # Make sure s3cmd is in path
 
 # Download the packages from the bucket
-mkdir -p "${REPO_DIR}" "${YUM_FILE_DIR}"
+mkdir -p "${PACKAGE_DIR}" "${YUM_FILE_DIR}"
 s3cmd sync "${BUCKET_URL}" "${REPO_DIR}"
 
 # Get a list of all directories containing a 'packages' directory
-package_dirs=$(find ${REPO_DIR} -name 'packages' -printf '%h\n' | sort -u)
+package_dirs=$(find ${PACKAGE_DIR} -name 'packages' -printf '%h\n' | sort -u)
 # Create the repo metadata for each package_dir
 for repo in ${package_dirs}; do
     createrepo -v --deltas --update "${repo}"
@@ -152,12 +153,12 @@ dir_basename="${PWD##*/}"
 datestamp=$(date -u +"%Y%m%d")
 for f in `find . -type f | grep -i -e "${dir_basename}-full-.*\.zip"`; do  # There should only ever be one matching file
     # Create a delta zip with just the changes
-    zip -r "${f}" . -DF --out "${dir_basename}-delta-${datestamp}.zip" -x \*.zip
+    zip -r "${f}" . -DF --out "${dir_basename}-delta-${datestamp}.zip" -x \*linux\*.zip
     rm -f "${f}"
     break
 done
 # Now create a zip with all the current files
-zip -r "${dir_basename}-full-${datestamp}.zip" . -x \*.zip
+zip -r "${dir_basename}-full-${datestamp}.zip" . -x \*linux\*.zip
 
 # Sync the repo directory back to the S3 bucket
 s3cmd sync "${REPO_DIR}/" "${BUCKET_URL}" --delete-removed
