@@ -153,12 +153,12 @@ dir_basename="${PWD##*/}"
 datestamp=$(date -u +"%Y%m%d")
 for f in `find . -type f | grep -i -e "${dir_basename}-full-.*\.zip"`; do  # There should only ever be one matching file
     # Create a delta zip with just the changes
-    zip -r "${f}" . -DF --out "${dir_basename}-delta-${datestamp}.zip" -x \*linux\*.zip
+    zip -r "${f}" . -DF --out "${dir_basename}-delta-${datestamp}.zip" -x "${dir_basename}-*.zip"
     rm -f "${f}"
     break
 done
 # Now create a zip with all the current files
-zip -r "${dir_basename}-full-${datestamp}.zip" . -x \*linux\*.zip
+zip -r "${dir_basename}-full-${datestamp}.zip" . -x "${dir_basename}-*.zip"
 
 # Sync the repo directory back to the S3 bucket
 s3cmd sync "${REPO_DIR}/" "${BUCKET_URL}" --delete-removed
