@@ -7,7 +7,7 @@ BUCKETNAME=${1:-systemprep-repo}  # What bucket contains the packages?
 
 REPO_DIR="/root/${BUCKETNAME}"  # Where do we want to stage the repo?
 PACKAGE_DIR="${REPO_DIR}/linux"  # Where are we staging the packages?
-YUM_FILE_DIR="${REPO_DIR}/yum.repos"  # Where do we want to save the yum repo files?
+YUM_FILE_DIR="${PACKAGE_DIR}/yum.repos"  # Where do we want to save the yum repo files?
 BUCKET_URL="s3://${BUCKETNAME}"  # What bucket contains the packages?
 BASE_URL="https://s3.amazonaws.com/${BUCKETNAME}/linux"  # Common http path to the hosted packages
 
