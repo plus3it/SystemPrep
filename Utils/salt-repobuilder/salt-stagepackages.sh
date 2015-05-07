@@ -3,7 +3,7 @@ set -ex
 
 exec > >(logger -i -t "salt-stagepackages" -s 2> /dev/console) 2>&1
 
-BUCKETNAME=${1:-saltrepo}
+BUCKETNAME=${1:-systemprep-repo}
 
 BUILDERDEPS=(
     "epel-release"
@@ -139,7 +139,7 @@ STAGING=$(echo ~/repo/staging)
 ARCH="${HOSTTYPE}"
 OSREPO=$(echo ~/repo/${DIST}/${OSVER}/${ARCH})
 OSPACKAGES="${OSREPO}/packages"
-OSBUCKET="${BUCKETNAME}/${DIST}/${OSVER}/"
+OSBUCKET="${BUCKETNAME}/linux/${DIST}/${OSVER}/"
 EPELVER=$(rpm -qa |grep epel-release | cut -d'-' -f3)
 EPELREPO=$(echo ~/repo/epel/${EPELVER}/${ARCH})
 EPELPACKAGES="${EPELREPO}/packages"

@@ -34,7 +34,7 @@
     },
     "BucketName" : {
       "Type" : "String",
-      "Default" : "saltrepo",
+      "Default" : "systemprep-repo",
       "Description" : "Name of the S3 bucket that will host the salt packages and dependencies"
     },
     "InstanceType" : {
