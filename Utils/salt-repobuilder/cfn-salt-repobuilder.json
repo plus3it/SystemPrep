@@ -14,7 +14,7 @@
     },
     "AmiIdCentos6" : {
       "Type" : "String",
-      "Default" : "ami-b081bad8",
+      "Default" : "ami-cc7366a4",
       "Description" : "CentOS6 AMI to use, must be HVM (cfn script uses the t2.micro instance type)"
     },
     "AmiIdCentos7" : {
