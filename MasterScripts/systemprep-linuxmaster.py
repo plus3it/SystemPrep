@@ -50,44 +50,44 @@ Use `merge_dicts({yourdict}, scriptparams)` to merge command line parameters wit
                 'Parameters': merge_dicts({
                     'yumrepomap': [
                         {
-                            'url': 'https://s3.amazonaws.com/saltrepo/yum.repos/saltrepo-amzn-packages.repo',
+                            'url': 'https://s3.amazonaws.com/systemprep-repo/linux/yum.repos/systemprep-repo-amzn-packages.repo',
                             'dist': 'amazon',
                         },
                         {
-                            'url': 'https://s3.amazonaws.com/saltrepo/yum.repos/saltrepo-centos-packages.repo',
+                            'url': 'https://s3.amazonaws.com/systemprep-repo/linux/yum.repos/systemprep-repo-centos-packages.repo',
                             'dist': 'centos',
                         },
                         {
-                            'url': 'https://s3.amazonaws.com/saltrepo/yum.repos/saltrepo-rhel-packages.repo',
+                            'url': 'https://s3.amazonaws.com/systemprep-repo/linux/yum.repos/systemprep-repo-rhel-packages.repo',
                             'dist': 'redhat',
                         },
                         {
-                            'url': 'https://s3.amazonaws.com/saltrepo/yum.repos/saltrepo-epel6-packages.repo',
+                            'url': 'https://s3.amazonaws.com/systemprep-repo/linux/yum.repos/systemprep-repo-epel6-packages.repo',
                             'dist': 'all',
                             'epel_version': '6',
                         },
                         {
-                            'url': 'https://s3.amazonaws.com/saltrepo/yum.repos/saltrepo-epel7-packages.repo',
+                            'url': 'https://s3.amazonaws.com/systemprep-repo/linux/yum.repos/systemprep-repo-epel7-packages.repo',
                             'dist': 'all',
                             'epel_version': '7',
                         },
                         {
-                            'url': 'https://s3.amazonaws.com/saltrepo/yum.repos/saltrepo-salt-epel6-packages.repo',
+                            'url': 'https://s3.amazonaws.com/systemprep-repo/linux/yum.repos/systemprep-repo-salt-epel6-packages.repo',
                             'dist': 'all',
                             'epel_version': '6',
                         },
                         {
-                            'url': 'https://s3.amazonaws.com/saltrepo/yum.repos/saltrepo-salt-epel7-packages.repo',
+                            'url': 'https://s3.amazonaws.com/systemprep-repo/linux/yum.repos/systemprep-repo-salt-epel7-packages.repo',
                             'dist': 'all',
                             'epel_version': '7',
                         },
                         {
-                            'url': 'https://s3.amazonaws.com/saltrepo/yum.repos/saltrepo-zmq-epel6-packages.repo',
+                            'url': 'https://s3.amazonaws.com/systemprep-repo/linux/yum.repos/systemprep-repo-zmq-epel6-packages.repo',
                             'dist': 'all',
                             'epel_version': '6',
                         },
                         {
-                            'url': 'https://s3.amazonaws.com/saltrepo/yum.repos/saltrepo-zmq-epel7-packages.repo',
+                            'url': 'https://s3.amazonaws.com/systemprep-repo/linux/yum.repos/systemprep-repo-zmq-epel7-packages.repo',
                             'dist': 'all',
                             'epel_version': '7',
                         },
