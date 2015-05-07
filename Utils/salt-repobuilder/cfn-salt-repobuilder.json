@@ -71,7 +71,7 @@
       "CreationPolicy" : {
         "ResourceSignal" : {
           "Count" : "1",
-          "Timeout" : "PT10M"
+          "Timeout" : "PT15M"
         }
       },
       "Properties" : {
@@ -120,7 +120,7 @@
       "CreationPolicy" : {
         "ResourceSignal" : {
           "Count" : "1",
-          "Timeout" : "PT10M"
+          "Timeout" : "PT15M"
         }
       },
       "Properties" : {
@@ -169,7 +169,7 @@
       "CreationPolicy" : {
         "ResourceSignal" : {
           "Count" : "1",
-          "Timeout" : "PT10M"
+          "Timeout" : "PT15M"
         }
       },
       "Properties" : {
@@ -218,7 +218,7 @@
       "CreationPolicy" : {
         "ResourceSignal" : {
           "Count" : "1",
-          "Timeout" : "PT10M"
+          "Timeout" : "PT15M"
         }
       },
       "Properties" : {
@@ -267,7 +267,7 @@
       "CreationPolicy" : {
         "ResourceSignal" : {
           "Count" : "1",
-          "Timeout" : "PT10M"
+          "Timeout" : "PT15M"
         }
       },
       "Properties" : {
@@ -316,7 +316,7 @@
       "CreationPolicy" : {
         "ResourceSignal" : {
           "Count" : "1",
-          "Timeout" : "PT10M"
+          "Timeout" : "PT15M"
         }
       },
       "Properties" : {
@@ -365,7 +365,7 @@
       "CreationPolicy" : {
         "ResourceSignal" : {
           "Count" : "1",
-          "Timeout" : "PT10M"
+          "Timeout" : "PT15M"
         }
       },
       "DependsOn" : [ 
