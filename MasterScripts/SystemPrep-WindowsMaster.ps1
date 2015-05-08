@@ -139,7 +139,6 @@ $ScriptsToExecute = @(
                                                                                   SaltDebugLog = "${SystemPrepLogDir}\salt.staterun.debug.log"
                                                                                   SaltResultsLog = "${SystemPrepLogDir}\salt.staterun.results.log"
                                                                                   SaltInstallerUrl = "https://s3.amazonaws.com/systemprep-repo/windows/salt/Salt-Minion-2015.5.0-AMD64-Setup.exe"
-                                                                                  VcRedistInstallerUrl = "https://s3.amazonaws.com/systemprep-content/windows/salt/vcredist-installer.zip"
                                                                                   SaltContentUrl = "https://s3.amazonaws.com/systemprep-content/windows/salt/salt-content.zip"
                                                                                   FormulasToInclude = @(
                                                                                                         "https://s3.amazonaws.com/salt-formulas/ash-windows-formula-master.zip",

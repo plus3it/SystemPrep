@@ -11,10 +11,6 @@ Param(
     [string] $SaltInstallerUrl="http://docs.saltstack.com/downloads/Salt-Minion-2015.5.0-AMD64-Setup.exe"
     ,
 	[Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
-    [ValidateScript({ $_ -match "^http[s]?://.*\.(exe|zip)$" })]
-    [string] $VcRedistInstallerUrl="http://download.microsoft.com/download/5/D/8/5D8C65CB-C849-4025-8E95-C3966CAFD8AE/vcredist_x64.exe"
-    ,
-	[Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
     [ValidateScript({ $_ -match "^http[s]?://.*\.zip$" })]
     [string] $SaltContentUrl
     ,
@@ -57,8 +53,6 @@ Param(
                        #specified in $SaltContentUrl and any formulas in $FormulasToInclude
 
 #$SaltInstallerUrl     #Url to an exe of the salt installer or a zip file containing the salt installer executable
-
-#$VcRedistInstallerUrl #Url to an exe of the vcredist installer or a zip file containing the vcredist installer executable
 
 #$SaltContentUrl       #Url to a zip file containing the `files_root` salt content
 
@@ -206,16 +200,11 @@ log -LogTag ${ScriptName} "RemainingArgsHash = $(($RemainingArgsHash.GetEnumerat
 
 #Insert script commands
 ###
-#Download / extract the salt installer and the vcredist installer
+#Download / extract the salt installer
 $SaltInstaller = Download-File -Url $SaltInstallerUrl -SavePath $SaltWorkingDir -SourceIsS3Bucket:$SourceIsS3Bucket -AwsRegion $AwsRegion
 if ($SaltInstaller.FullName -match ".*.zip$") {
     $SaltInstallerDir = Expand-ZipFile -FileName ${SaltInstaller} -DestPath ${SaltWorkingDir}
     $SaltInstaller = Get-ChildItem "${SaltWorkingDir}" | where {$_.Name -like "Salt-Minion-*-Setup.exe"}
-}
-$VcRedistInstaller = Download-File -Url $VcRedistInstallerUrl -SavePath $SaltWorkingDir -SourceIsS3Bucket:$SourceIsS3Bucket -AwsRegion $AwsRegion
-if ($VcRedistInstaller.FullName -match ".*.zip$") {
-    $VcRedistInstallerDir = Expand-ZipFile -FileName ${VcRedistInstaller} -DestPath ${SaltWorkingDir}
-    $VcRedistInstaller = Get-ChildItem "${SaltWorkingDir}" | where {$_.Name -like "vcredist_x64.exe"}
 }
 
 #Download and extract the salt content
@@ -255,10 +244,6 @@ if (-not $SaltResultsLog) {
     $SaltResultsLogFile = $SaltResultsLog
 }
 $SaltStateArguments = "--out json --out-file ${SaltResultsLogFile} --return local --log-file ${SaltDebugLogFile} --log-file-level debug"
-
-log -LogTag ${ScriptName} "Installing Microsoft Visual C++ 2008 SP1 MFC Security Update redist package -- ${VcRedistInstaller}"
-$VcRedistInstallResult = Start-Process -FilePath $VcRedistInstaller.FullName -ArgumentList "/q" -NoNewWindow -PassThru -Wait
-log -LogTag ${ScriptName} "Return code of vcredist install: $(${VcRedistInstallResult}.ExitCode)"
 
 log -LogTag ${ScriptName} "Installing salt -- ${SaltInstaller}"
 $SaltInstallResult = Start-Process -FilePath $SaltInstaller.FullName -ArgumentList "/S" -NoNewWindow -PassThru -Wait
