@@ -135,15 +135,15 @@ $ScriptsToExecute = @(
                         @{
                             ScriptUrl  = "https://s3.amazonaws.com/systemprep/ContentScripts/SystemPrep-WindowsSaltInstall.ps1"
                             Parameters = (Join-Hashtables $RemainingArgsHash  @{ 
-                                                                                  SaltWorkingDir = "${SystemPrepWorkingDir}\Salt" 
+                                                                                  SaltWorkingDir = "${SystemPrepWorkingDir}\Salt"
                                                                                   SaltDebugLog = "${SystemPrepLogDir}\salt.staterun.debug.log"
                                                                                   SaltResultsLog = "${SystemPrepLogDir}\salt.staterun.results.log"
-                                                                                  SaltInstallerUrl = "https://s3.amazonaws.com/systemprep-repo/windows/salt/Salt-Minion-2015.5.0-AMD64-Setup.exe" 
-                                                                                  VcRedistInstallerUrl = "https://s3.amazonaws.com/systemprep-content/windows/salt/vcredist-installer.zip" 
-                                                                                  SaltContentUrl = "https://s3.amazonaws.com/systemprep-content/windows/salt/salt-content.zip" 
+                                                                                  SaltInstallerUrl = "https://s3.amazonaws.com/systemprep-repo/windows/salt/Salt-Minion-2015.5.0-AMD64-Setup.exe"
+                                                                                  VcRedistInstallerUrl = "https://s3.amazonaws.com/systemprep-content/windows/salt/vcredist-installer.zip"
+                                                                                  SaltContentUrl = "https://s3.amazonaws.com/systemprep-content/windows/salt/salt-content.zip"
                                                                                   FormulasToInclude = @(
                                                                                                         "https://s3.amazonaws.com/salt-formulas/ash-windows-formula-master.zip",
-                                                                                                        "https://s3.amazonaws.com/salt-formulas/dotnet4-formula-master.zip"
+                                                                                                        "https://s3.amazonaws.com/salt-formulas/dotnet4-formula-master.zip",
                                                                                                         "https://s3.amazonaws.com/salt-formulas/emet-formula-master.zip",
                                                                                                         "https://s3.amazonaws.com/salt-formulas/netbanner-formula-master.zip"
                                                                                                        )
@@ -153,7 +153,7 @@ $ScriptsToExecute = @(
                                                                                   SaltStates = "Highstate"
                                                                                   SourceIsS3Bucket = $SourceIsS3Bucket
 																				  AwsRegion = $AwsRegion
-                                                                                } -Force 
+                                                                                } -Force
                                          )
                          }
                      ) #Array of hashtables (key-value dictionaries). Each hashtable has two keys, ScriptUrl and Parameters. 
