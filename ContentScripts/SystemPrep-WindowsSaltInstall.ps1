@@ -8,7 +8,7 @@ Param(
     ,
 	[Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
     [ValidateScript({ $_ -match "^http[s]?://.*\.(exe|zip)$" })]
-    [string] $SaltInstallerUrl="http://docs.saltstack.com/downloads/Salt-Minion-2014.7.4-AMD64-Setup.exe"
+    [string] $SaltInstallerUrl="http://docs.saltstack.com/downloads/Salt-Minion-2015.5.0-AMD64-Setup.exe"
     ,
 	[Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
     [ValidateScript({ $_ -match "^http[s]?://.*\.(exe|zip)$" })]
