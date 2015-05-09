@@ -300,14 +300,16 @@ Start-Transcript $SystemPrepLogFile
 #Create a "SystemPrep" event log source
 try {
     New-EventLog -LogName Application -Source "${LogSource}"
-} catch [System.InvalidOperationException] {
-    # Event log already exists, log a message but don't force an exit
-    log -LogTag ${ScriptName} "Event log source, ${LogSource}, already exists. Continuing..."
 } catch {
-    # Unhandled exception, log an error and exit!
-    "$(get-date -format "yyyyMMdd.HHmm.ss"): ${ScriptName}: ERROR: Encountered a problem trying to create the event log source." | Out-Default
-    Stop-Transcript
-    throw
+    if ($_.Exception.GetType().FullName -eq "System.InvalidOperationException") {
+        # Event log already exists, log a message but don't force an exit
+        log -LogTag ${ScriptName} "Event log source, ${LogSource}, already exists. Continuing..."
+    } else {
+        # Unhandled exception, log an error and exit!
+        "$(get-date -format "yyyyMMdd.HHmm.ss"): ${ScriptName}: ERROR: Encountered a problem trying to create the event log source." | Out-Default
+        Stop-Transcript
+        throw
+    }
 }
 
 if ($ConfigureEc2EventLogging) {
