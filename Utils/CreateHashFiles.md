@@ -14,7 +14,7 @@ $orig_files = Get-Item -Path "${savepath}\$(${key}.replace('/','\'))" | Get-Chil
 $hashes = $orig_files | Where { $_.Name -notmatch "md5$|sha512$|sha384$|sha256$|sha1$" } | Get-FileHash -Algorithm SHA512
 
 # Write hashes to the same directory as the file
-$hashes | % { "$($_.Hash) $($_.Path.Split('\')[-1])" | Set-Content "$($_.Path).$($_.Algorithm)" }
+$hashes | % { "$($_.Hash.ToLower()) $($_.Path.Split('\')[-1])" | Set-Content "$($_.Path).$($_.Algorithm)" }
 
 # Upload hash files to the s3 bucket
 $hash_files = Get-Item -Path "${savepath}\$(${key}.replace('/','\'))" | Get-ChildItem -Recurse -File | where { $_.Name -match "md5$|sha512$|sha384$|sha256$|sha1$" }
