@@ -4,6 +4,7 @@ set -e
 #User variables
 SOURCEISS3BUCKET="True"
 AWSREGION="us-east-1"
+AWSCLI_URL="https://s3.amazonaws.com/aws-cli/awscli-bundle.zip"
 SYSTEMPREPMASTERSCRIPTSOURCE="https://s3.amazonaws.com/systemprep/MasterScripts/systemprep-linuxmaster.py"
 SYSTEMPREPPARAMS=( "SaltStates=Highstate"
                    "NoReboot=False"
@@ -47,26 +48,40 @@ echo "Entering SystemPrep script -- ${SCRIPTNAME}"
 echo "Writing SystemPrep Parameters to log file..."
 for param in "${SYSTEMPREPPARAMS[@]}"; do echo "   ${param}" ; done
 
+if [[ -n "${AWSCLI_URL}" ]]; then
+    # Install the aws cli, if a url is provided
+    AWSCLI_FILENAME=$(echo ${AWSCLI_URL} | awk -F'/' '{ print ( $(NF) ) }')
+    AWSCLI_FULLPATH=${WORKINGDIR}/${AWSCLI_FILENAME}
+    cd ${WORKINGDIR}
+    echo "Downloading aws cli -- ${AWSCLI_URL}"
+    curl -L -O -s -S ${AWSCLI_URL} || \
+        wget --quiet ${AWSCLI_URL} || \
+            ( echo "Could not download file via 'curl' or 'wget'. Check the url and whether at least one of them is in the path. Quitting..." && exit 1 )
+    echo "Unzipping aws cli -- ${AWSCLI_FULLPATH}"
+    unzip $AWSCLI_FULLPATH || ( echo "Could not unzip file. Quitting..." && exit 1 )
+    echo "Installing aws cli -- ${WORKINGDIR}/awscli-bundle/install"
+    ${WORKINGDIR}/awscli-bundle/install -i /opt/awscli -b /usr/local/bin/aws || \
+        ( echo "Could not install awscli. Quitting..." && exit 1 )
+fi
+
 # Download the master script
 SCRIPTFILENAME=$(echo ${SYSTEMPREPMASTERSCRIPTSOURCE} | awk -F'/' '{ print ( $(NF) ) }')
 SCRIPTFULLPATH=${WORKINGDIR}/${SCRIPTFILENAME}
 if [[ "true" = ${SOURCEISS3BUCKET,,} ]]; then
     echo "Downloading master script from S3 bucket using AWS Tools -- ${SYSTEMPREPMASTERSCRIPTSOURCE}"
     hash aws 2> /dev/null || PATH="${PATH}:/usr/local/bin"  # Try to get 'aws' in the path
+    BUCKET=$(echo ${SYSTEMPREPMASTERSCRIPTSOURCE} | awk -F'.' '{ print substr($1,9)}' OFS="/")
     KEY=$(echo ${SYSTEMPREPMASTERSCRIPTSOURCE} | awk -F'/' '{$1=$2=$3=""; print substr($0,4)}' OFS="/")
-    aws s3 cp s3://${KEY} ${SCRIPTFULLPATH} --source-region ${AWSREGION} || \
-        echo "Could not download file using AWS Tools. Check the url, the instance role, and whether 'aws' is in path. Quitting..."
-    if [[ ! -e "${SCRIPTFULLPATH}" ]]; then
-        exit 1
-    fi
+    aws s3 cp s3://${BUCKET}/${KEY} ${SCRIPTFULLPATH} --source-region ${AWSREGION} || \
+        ( BUCKET=$(echo ${SYSTEMPREPMASTERSCRIPTSOURCE} | awk -F'/' '{ print $4 }' OFS="/") ; \
+          KEY=$(echo ${SYSTEMPREPMASTERSCRIPTSOURCE} | awk -F'/' '{$1=$2=$3=$4=""; print substr($0,5)}' OFS="/") ; \
+          aws s3 cp s3://${BUCKET}/${KEY} ${SCRIPTFULLPATH} --source-region ${AWSREGION} ) || \
+              ( echo "Could not download file using AWS Tools. Check the url, the instance role, and whether 'aws' is in path. Quitting..." && exit 1 )
 else
     echo "Downloading master script from web host -- ${SYSTEMPREPMASTERSCRIPTSOURCE}"
     curl -L -O -s -S ${SYSTEMPREPMASTERSCRIPTSOURCE} || \
         wget --quiet ${SYSTEMPREPMASTERSCRIPTSOURCE} || \
-            echo "Could not download file via 'curl' or 'wget'. Check the url and whether at least one of them is in the path. Quitting..."
-    if [[ ! -e "${SCRIPTFULLPATH}" ]]; then
-        exit 1
-    fi
+            ( echo "Could not download file via 'curl' or 'wget'. Check the url and whether at least one of them is in the path. Quitting..." && exit 1 )
 fi
 
 # Convert the parameter list to a string
