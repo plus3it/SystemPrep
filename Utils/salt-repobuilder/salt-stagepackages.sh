@@ -110,17 +110,17 @@ case "${RELEASE}" in
     ;;
 "CentOS"*7*)
     DIST="centos"
-    OSVER=$(echo ${RELEASE} | grep -o '[0-9]*\.[0-9]*' | cut -d'.' -f1) #e.g. 'OSVER=6'
+    OSVER=$(echo ${RELEASE} | grep -o '[0-9]*\.[0-9]*' | cut -d'.' -f1) #e.g. 'OSVER=7'
     ;;
 "Red Hat"*6*)
     DIST="rhel"
-    OSVER=$(echo ${RELEASE} | grep -o '[0-9]*\.[0-9]*' | cut -d'.' -f1) #e.g. 'OSVER=6'
+    OSVER="$(echo ${RELEASE} | grep -o '[0-9]*\.[0-9]*' | cut -d'.' -f1)Server" #e.g. 'OSVER=6Server'
     curl -O "${EPEL6_RPM}" && \
     yum -y install epel-release-6-8.noarch.rpm
     ;;
 "Red Hat"*7*)
     DIST="rhel"
-    OSVER=$(echo ${RELEASE} | grep -o '[0-9]*\.[0-9]*' | cut -d'.' -f1) #e.g. 'OSVER=7'
+    OSVER="$(echo ${RELEASE} | grep -o '[0-9]*\.[0-9]*' | cut -d'.' -f1)Server" #e.g. 'OSVER=7Server'
     curl -O "${EPEL7_RPM}" && \
     yum -y install epel-release-7-5.noarch.rpm
     ;;
