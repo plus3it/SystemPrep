@@ -48,8 +48,12 @@ echo "Entering SystemPrep script -- ${SCRIPTNAME}"
 echo "Writing SystemPrep Parameters to log file..."
 for param in "${SYSTEMPREPPARAMS[@]}"; do echo "   ${param}" ; done
 
-if [[ -n "${AWSCLI_URL}" ]]; then
-    # Install the aws cli, if a url is provided
+# Update PATH to include common location for aws cli
+hash aws 2> /dev/null || PATH="${PATH}:/usr/local/bin"
+
+# Install the aws cli, if a url is provided and it's not already in the path
+hash aws 2> /dev/null
+if [[ -n "${AWSCLI_URL}" && $? -ne 0 ]]; then
     AWSCLI_FILENAME=$(echo ${AWSCLI_URL} | awk -F'/' '{ print ( $(NF) ) }')
     AWSCLI_FULLPATH=${WORKINGDIR}/${AWSCLI_FILENAME}
     cd ${WORKINGDIR}
@@ -69,7 +73,6 @@ SCRIPTFILENAME=$(echo ${SYSTEMPREPMASTERSCRIPTSOURCE} | awk -F'/' '{ print ( $(N
 SCRIPTFULLPATH=${WORKINGDIR}/${SCRIPTFILENAME}
 if [[ "true" = ${SOURCEISS3BUCKET,,} ]]; then
     echo "Downloading master script from S3 bucket using AWS Tools -- ${SYSTEMPREPMASTERSCRIPTSOURCE}"
-    hash aws 2> /dev/null || PATH="${PATH}:/usr/local/bin"  # Try to get 'aws' in the path
     BUCKET=$(echo ${SYSTEMPREPMASTERSCRIPTSOURCE} | awk -F'.' '{ print substr($1,9)}' OFS="/")
     KEY=$(echo ${SYSTEMPREPMASTERSCRIPTSOURCE} | awk -F'/' '{$1=$2=$3=""; print substr($0,4)}' OFS="/")
     aws s3 cp s3://${BUCKET}/${KEY} ${SCRIPTFULLPATH} --source-region ${AWSREGION} || \
