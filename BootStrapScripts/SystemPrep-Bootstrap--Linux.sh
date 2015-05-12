@@ -52,8 +52,8 @@ for param in "${SYSTEMPREPPARAMS[@]}"; do echo "   ${param}" ; done
 hash aws 2> /dev/null || PATH="${PATH}:/usr/local/bin"
 
 # Install the aws cli, if a url is provided and it's not already in the path
-hash aws 2> /dev/null
-if [[ -n "${AWSCLI_URL}" && $? -ne 0 ]]; then
+hash aws 2> /dev/null || (
+if [[ -n "${AWSCLI_URL}" ]]; then
     AWSCLI_FILENAME=$(echo ${AWSCLI_URL} | awk -F'/' '{ print ( $(NF) ) }')
     AWSCLI_FULLPATH=${WORKINGDIR}/${AWSCLI_FILENAME}
     cd ${WORKINGDIR}
@@ -66,7 +66,7 @@ if [[ -n "${AWSCLI_URL}" && $? -ne 0 ]]; then
     echo "Installing aws cli -- ${WORKINGDIR}/awscli-bundle/install"
     ${WORKINGDIR}/awscli-bundle/install -i /opt/awscli -b /usr/local/bin/aws || \
         ( echo "Could not install awscli. Quitting..." && exit 1 )
-fi
+fi )
 
 # Download the master script
 SCRIPTFILENAME=$(echo ${SYSTEMPREPMASTERSCRIPTSOURCE} | awk -F'/' '{ print ( $(NF) ) }')
