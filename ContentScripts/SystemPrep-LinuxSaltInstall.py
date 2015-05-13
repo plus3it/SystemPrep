@@ -99,8 +99,7 @@ Returns the path to the working directory.
 
 def extract_contents(filepath,
                      to_directory='.',
-                     createdirfromfilename=None,
-                     pathseparator='/'):
+                     createdirfromfilename=None):
     """
     Extracts a compressed file to the specified directory.
     Supports files that end in .zip, .tar.gz, .tgz, tar.bz2, or tbz.
@@ -119,8 +118,8 @@ def extract_contents(filepath,
                          'extractor is found'.format(filepath))
 
     if createdirfromfilename:
-        to_directory = pathseparator.join((to_directory,
-                                           '.'.join(filepath.split(pathseparator)[-1].split('.')[:-1])))
+        to_directory = os.sep.join((to_directory,
+                                           '.'.join(filepath.split(os.sep)[-1].split('.')[:-1])))
     try:
         os.makedirs(to_directory)
     except OSError:
@@ -295,7 +294,7 @@ def main(saltinstallmethod='git',
         download_file(formulasource, formulafile)
         extract_contents(filepath=formulafile,
                          to_directory=saltformularoot)
-        formulafilebase = os.sep.join(formulafilename.split('.')[:-1])
+        formulafilebase = '.'.join(formulafilename.split('.')[:-1])
         formuladir = os.sep.join((saltformularoot, formulafilebase))
         for string in formulaterminationstrings:
             if formulafilebase.endswith(string):
