@@ -372,19 +372,21 @@ def main(saltinstallmethod='git',
             with open(salt_results_logfile, 'rb') as f:
                 salt_results = f.read()
         except Exception as exc:
-            raise SystemError('Could open the salt results log file: {0}\n'
-                              'Exception: {1}'
-                              .format(salt_results_logfile, exc))
+            error_message = 'Could open the salt results log file: {0}\n' \
+                            'Exception: {1}' \
+                            .format(salt_results_logfile, exc)
+            raise SystemError(error_message)
         if (not re.search('"result": false', salt_results)) and \
            (re.search('"result": true', salt_results)):
             #At least one state succeeded, and no states failed, so log success
             print('Salt states applied successfully! Details are in the log, '
                   '{0}'.format(salt_results_logfile))
         else:
-            raise SystemError('ERROR: There was a problem running the salt '
-                              'states! Check for errors and failed states in '
-                              'the log file, {0}'
-                              .format(salt_results_logfile))
+            error_message = 'ERROR: There was a problem running the salt ' \
+                            'states! Check for errors and failed states in ' \
+                            'the log file: {0}' \
+                            .format(salt_results_logfile)
+            raise SystemError(error_message)
 
     #Remove working files
     cleanup(workingdir)
