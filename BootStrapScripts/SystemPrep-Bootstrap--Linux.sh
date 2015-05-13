@@ -120,8 +120,8 @@ fi
 
 # Execute the master script
 echo "Running the SystemPrep master script -- ${SCRIPTFULLPATH}"
-python ${SCRIPTFULLPATH} ${PARAMSTRING}
-result=$?  # Capture the exit status of the script
+python ${SCRIPTFULLPATH} ${PARAMSTRING} || \
+    error_result=$?  # Error, capture the exit code
 
 # Restore prior rsyslog config
 if [[ -n "${RSYSLOGFLAG}" ]]; then
@@ -142,17 +142,17 @@ if [[ -n "${JOURNALDFLAG}" ]]; then
     systemctl restart systemd-journald.service
 fi
 
-# Cleanup
-echo "Deleting the SystemPrep master script -- ${SCRIPTFULLPATH}"
-rm -f ${SCRIPTFULLPATH}
-
 # Report success or failure
-if [[ $result -eq 0 ]]; then
-    echo "SUCCESS: SystemPrep Master script completed successfully!"
-else
+if [[ -n $error_result ]]; then
     echo "ERROR: There was an error executing the SystemPrep Master script!"
     echo "Check the log file at: ${LOGLINK}"
+    echo "Exiting SystemPrep bootstrap script -- ${SCRIPTNAME}"
+    exit $error_result
+else
+    echo "SUCCESS: SystemPrep Master script completed successfully!"
+    # Cleanup
+    echo "Deleting the SystemPrep master script -- ${SCRIPTFULLPATH}"
+    rm -f ${SCRIPTFULLPATH}
+    echo "Exiting SystemPrep bootstrap script -- ${SCRIPTNAME}"
+    exit 0
 fi
-
-# Exit
-echo "Exiting SystemPrep bootstrap script -- ${SCRIPTNAME}"
