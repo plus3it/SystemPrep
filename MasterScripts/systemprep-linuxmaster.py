@@ -110,6 +110,8 @@ Use `merge_dicts({yourdict}, scriptparams)` to merge command line parameters wit
                         "-latest",
                     ],
                     'saltstates': 'Highstate',
+                    'salt_results_log': '/var/log/saltcall.results.log',
+                    'salt_debug_log': '/var/log/saltcall.debug.log',
                     'sourceiss3bucket': 'True',
                 }, scriptparams)
             },
@@ -313,13 +315,13 @@ def main(noreboot='false', **kwargs):
             print('    {0} = {1}'.format(key, value))
         paramstring = ' '.join("%s='%s'" % (key, val) for (key, val) in script['Parameters'].iteritems())
         fullcommand = 'python {0} {1}'.format(fullfilepath, paramstring)
-        try:
-            os.system(fullcommand)
-        except Exception as exc:
-            raise SystemError('Encountered an unrecoverable error executing a '
-                              'content script. Exiting with failure.\n'
-                              'Command executed: {0}\n'
-                              'Exception: {1}'.format(fullcommand, exc))
+        result = os.system(fullcommand)
+        if result is not 0:
+            message = 'Encountered an unrecoverable error executing a ' \
+                      'content script. Exiting with failure.\n' \
+                      'Command executed: {0}' \
+                      .format(fullcommand)
+            raise SystemError(message)
 
     cleanup(systemparams['workingdir'])
 
