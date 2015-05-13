@@ -174,6 +174,8 @@ def main(saltinstallmethod='git',
          formulastoinclude=None,
          formulaterminationstrings=None,
          saltstates='none',
+         salt_results_log=None,
+         salt_debug_log=None,
          sourceiss3bucket='false',
          **kwargs):
     """
@@ -200,6 +202,10 @@ def main(saltinstallmethod='git',
                        'none' is a keyword that will not apply any states.
                        'highstate' is a keyword that will apply states based 
                        on the top.sls definition.
+    :param salt_results_log: str, path to the file to save the output of the
+                             salt-call state run
+    :param salt_debug_log: str, path to the file to save the debug log of the
+                           salt-call state run
     :param sourceiss3bucket: str, set to 'true' if saltcontentsource and 
                              formulastoinclude are hosted in an S3 bucket.
     :param kwargs: dict, catch-all for other params that do not apply to this 
@@ -232,10 +238,17 @@ def main(saltinstallmethod='git',
     minionconf = '/etc/salt/minion'
     saltcall = '/usr/bin/salt-call'
     saltsrv = '/srv/salt'
-    saltfileroot = '/'.join((saltsrv, 'states'))
-    saltformularoot = '/'.join((saltsrv, 'formulas'))
-    saltbaseenv = '/'.join((saltfileroot, 'base'))
+    saltfileroot = os.sep.join((saltsrv, 'states'))
+    saltformularoot = os.sep.join((saltsrv, 'formulas'))
+    saltbaseenv = os.sep.join((saltfileroot, 'base'))
     workingdir = create_working_dir('/usr/tmp/', 'saltinstall-')
+    salt_results_logfile = salt_results_log or os.sep.join((workingdir, 
+                                'saltcall.results.log'))
+    salt_debug_logfile = salt_debug_log or os.sep.join.join((workingdir, 
+                                'saltcall.debug.log'))
+    saltcall_arguments = '--out json --out-file {0} --return local --log-file ' \
+                         '{1} --log-file-level debug' \
+                         .format(salt_results_logfile, salt_debug_logfile)
 
     #Install salt via yum or git
     if 'yum' == saltinstallmethod.lower():
@@ -269,7 +282,7 @@ def main(saltinstallmethod='git',
     #Download and extract the salt content specified by saltcontentsource
     if saltcontentsource:
         saltcontentfilename = saltcontentsource.split('/')[-1]
-        saltcontentfile = '/'.join((workingdir, saltcontentfilename))
+        saltcontentfile = os.sep.join((workingdir, saltcontentfilename))
         download_file(saltcontentsource, saltcontentfile, sourceiss3bucket)
         extract_contents(filepath=saltcontentfile,
                          to_directory=saltsrv)
@@ -278,12 +291,12 @@ def main(saltinstallmethod='git',
     saltformulaconf = []
     for formulasource in formulastoinclude:
         formulafilename = formulasource.split('/')[-1]
-        formulafile = '/'.join((workingdir, formulafilename))
+        formulafile = os.sep.join((workingdir, formulafilename))
         download_file(formulasource, formulafile)
         extract_contents(filepath=formulafile,
                          to_directory=saltformularoot)
-        formulafilebase = '.'.join(formulafilename.split('.')[:-1])
-        formuladir = '/'.join((saltformularoot, formulafilebase))
+        formulafilebase = os.sep.join(formulafilename.split('.')[:-1])
+        formuladir = os.sep.join((saltformularoot, formulafilebase))
         for string in formulaterminationstrings:
             if formulafilebase.endswith(string):
                 newformuladir = formuladir[:-len(string)]
@@ -333,18 +346,44 @@ def main(saltinstallmethod='git',
     else:
         print('Saved the new minion configuration successfully.')
 
-    #Apply the specified salt state(s)
+    #Check whether we need to run salt-call
     if 'none' == saltstates.lower():
         print('No States were specified. Will not apply any salt states.')
-    elif 'highstate' == saltstates.lower():
-        print('Detected the States parameter is set to `highstate`. '
-              'Applying the salt `"highstate`" to the system.')
-        os.system('{0} --local state.highstate'.format(saltcall))
     else:
-        print('Detected the States parameter is set to: {0}. '
-              'Applying the user-defined list of states to the system.'
-              .format(saltstates))
-        os.system('{0} --local state.sls {1}'.format(saltcall, saltstates))
+        # Apply the requested salt state(s)
+        result = None
+        if 'highstate' == saltstates.lower():
+            print('Detected the States parameter is set to `highstate`. '
+                  'Applying the salt `"highstate`" to the system.')
+            result = os.system('{0} --local state.highstate {1}'
+                        .format(saltcall, saltcall_arguments))
+        else:
+            print('Detected the States parameter is set to: {0}. '
+                  'Applying the user-defined list of states to the system.'
+                  .format(saltstates))
+            result = os.system('{0} --local state.sls {1} {2}'
+                        .format(saltcall, saltstates, saltcall_arguments))
+
+        print('Return code of salt-call: {0}'.format(result))
+
+        # Check for errors in the salt state execution
+        try:
+            with open(salt_results_logfile, 'rb') as f:
+                salt_results = f.read()
+        except Exception as exc:
+            raise SystemError('Could open the salt results log file: {0}\n'
+                              'Exception: {1}'
+                              .format(salt_results_logfile, exc))
+        if (not re.search('"result": false', salt_results)) and \
+           (re.search('"result": true', salt_results)):
+            #At least one state succeeded, and no states failed, so log success
+            print('Salt states applied successfully! Details are in the log, '
+                  '{0}'.format(salt_results_logfile))
+        else:
+            raise SystemError('ERROR: There was a problem running the salt '
+                              'states! Check for errors and failed states in '
+                              'the log file, {0}'
+                              .format(salt_results_logfile))
 
     #Remove working files
     cleanup(workingdir)
