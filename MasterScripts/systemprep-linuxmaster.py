@@ -297,7 +297,7 @@ def main(noreboot='false', **kwargs):
     system = platform.system()
     systemparams = get_system_params(system)
     scriptstoexecute = get_scripts_to_execute(system, systemparams['workingdir'], **kwargs)
-    
+
     #Loop through each 'script' in scriptstoexecute
     for script in scriptstoexecute:
         url = script['ScriptSource']
@@ -313,11 +313,16 @@ def main(noreboot='false', **kwargs):
             print('    {0} = {1}'.format(key, value))
         paramstring = ' '.join("%s='%s'" % (key, val) for (key, val) in script['Parameters'].iteritems())
         fullcommand = 'python {0} {1}'.format(fullfilepath, paramstring)
-        os.system(fullcommand)  # likely a dirty hack, probably want to code the
-                                # python sub-script with an importable module instead
-    
+        try:
+            os.system(fullcommand)
+        except Exception as exc:
+            raise SystemError('Encountered an unrecoverable error executing a '
+                              'content script. Exiting with failure.\n'
+                              'Command executed: {0}\n'
+                              'Exception: {1}'.format(fullcommand, exc))
+
     cleanup(systemparams['workingdir'])
-    
+
     if noreboot:
         print('Detected `noreboot` switch. System will not be rebooted.')
     else:
