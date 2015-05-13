@@ -63,7 +63,7 @@ def main(yumrepomap=None,
         Example: [ { 
                      'url' : 'url/to/the/yum/repo/definition.repo',
                      'dist' : 'amazon' or 'redhat' or 'centos' or 'all',
-                     'version' : '6' or '7',
+                     'epel_version' : '6' or '7',
                    },
                  ]
     """
