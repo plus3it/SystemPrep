@@ -299,6 +299,8 @@ def main(saltinstallmethod='git',
         for string in formulaterminationstrings:
             if formulafilebase.endswith(string):
                 newformuladir = formuladir[:-len(string)]
+                if os.path.exists(newformuladir):
+                    shutil.rmtree(newformuladir)
                 shutil.move(formuladir, newformuladir)
                 formuladir = newformuladir
         saltformulaconf += '    - {0}\n'.format(formuladir),
