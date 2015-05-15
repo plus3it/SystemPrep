@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -ex
 
-exec > >(logger -i -t "systemprep-stagepippackages" -s 2> /dev/console) 2>&1
+exec > >(logger -i -t "stage_pip_packages" -s 2> /dev/console) 2>&1
 
 BUCKETNAME=${1:-systemprep-repo}
 

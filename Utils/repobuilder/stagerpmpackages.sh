@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -ex
 
-exec > >(logger -i -t "salt-stagepackages" -s 2> /dev/console) 2>&1
+exec > >(logger -i -t "stage_rpm_packages" -s 2> /dev/console) 2>&1
 
 BUCKETNAME=${1:-systemprep-repo}
 

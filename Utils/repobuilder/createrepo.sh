@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -ex
 
-exec > >(logger -i -t "salt-createyumfiles" -s 2> /dev/console) 2>&1
+exec > >(logger -i -t "create_repo" -s 2> /dev/console) 2>&1
 
 BUCKETNAME=${1:-systemprep-repo}  # What bucket contains the packages?
 

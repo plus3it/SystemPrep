@@ -35,7 +35,7 @@
     "BucketName" : {
       "Type" : "String",
       "Default" : "systemprep-repo",
-      "Description" : "Name of the S3 bucket that will host the salt packages and dependencies"
+      "Description" : "Name of the S3 bucket that will host the systemprep packages and dependencies"
     },
     "InstanceType" : {
       "Type" : "String",
@@ -47,7 +47,7 @@
     "IamProfileName" : {
       "Type" : "String",
       "Description" : "Name of the IAM profile/role to assign to the instances.",
-      "Default" : "salt-repobuilder"
+      "Default" : "systemprep-repobuilder"
     },
     "SecurityGroupId" : {
       "Type" : "AWS::EC2::SecurityGroup::Id",
@@ -79,11 +79,11 @@
         "Tags" : [
           { 
             "Key" : "Name",
-            "Value" : "salt-stagepackages-amzn-2014.09"
+            "Value" : "stagerpmpackages-amzn-2014.09"
           },
           {
             "Key" : "Application",
-            "Value" : "salt-repobuilder"
+            "Value" : "systemprep-repobuilder"
           }
         ],
         "InstanceType" : { "Ref" : "InstanceType" },
@@ -99,7 +99,7 @@
         ],
         "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
           "#!/bin/bash -v\n",
-          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/salt-repobuilder/salt-stagepackages.sh -o /tmp/bootstrap.sh\n",
+          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/repobuilder/stagerpmpackages.sh -o /tmp/bootstrap.sh\n",
           "bash /tmp/bootstrap.sh ", { "Ref" : "BucketName" }, "\n",
           "result=$?  # Store the exit code of the bootstrap script\n",
           "echo result = $result\n",
@@ -128,11 +128,11 @@
         "Tags" : [
           { 
             "Key" : "Name",
-            "Value" : "salt-stagepackages-amzn-2015.03"
+            "Value" : "stagerpmpackages-amzn-2015.03"
           },
           {
             "Key" : "Application",
-            "Value" : "salt-repobuilder"
+            "Value" : "systemprep-repobuilder"
           }
         ],
         "InstanceType" : { "Ref" : "InstanceType" },
@@ -148,7 +148,7 @@
         ],
         "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
           "#!/bin/bash -v\n",
-          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/salt-repobuilder/salt-stagepackages.sh -o /tmp/bootstrap.sh\n",
+          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/repobuilder/stagerpmpackages.sh -o /tmp/bootstrap.sh\n",
           "bash /tmp/bootstrap.sh ", { "Ref" : "BucketName" }, "\n",
           "result=$?  # Store the exit code of the bootstrap script\n",
           "echo result = $result\n",
@@ -177,11 +177,11 @@
         "Tags" : [
           { 
             "Key" : "Name",
-            "Value" : "salt-stagepackages-centos6"
+            "Value" : "stagerpmpackages-centos6"
           },
           {
             "Key" : "Application",
-            "Value" : "salt-repobuilder"
+            "Value" : "systemprep-repobuilder"
           }
         ],
         "InstanceType" : { "Ref" : "InstanceType" },
@@ -197,7 +197,7 @@
         ],
         "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
           "#!/bin/bash -v\n",
-          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/salt-repobuilder/salt-stagepackages.sh -o /tmp/bootstrap.sh\n",
+          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/repobuilder/stagerpmpackages.sh -o /tmp/bootstrap.sh\n",
           "bash /tmp/bootstrap.sh ", { "Ref" : "BucketName" }, "\n",
           "result=$?  # Store the exit code of the bootstrap script\n",
           "echo result = $result\n",
@@ -226,11 +226,11 @@
         "Tags" : [
           { 
             "Key" : "Name",
-            "Value" : "salt-stagepackages-centos7"
+            "Value" : "stagerpmpackages-centos7"
           },
           {
             "Key" : "Application",
-            "Value" : "salt-repobuilder"
+            "Value" : "systemprep-repobuilder"
           }
         ],
         "InstanceType" : { "Ref" : "InstanceType" },
@@ -246,7 +246,7 @@
         ],
         "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
           "#!/bin/bash -v\n",
-          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/salt-repobuilder/salt-stagepackages.sh -o /tmp/bootstrap.sh\n",
+          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/repobuilder/stagerpmpackages.sh -o /tmp/bootstrap.sh\n",
           "bash /tmp/bootstrap.sh ", { "Ref" : "BucketName" }, "\n",
           "result=$?  # Store the exit code of the bootstrap script\n",
           "echo result = $result\n",
@@ -275,11 +275,11 @@
         "Tags" : [
           { 
             "Key" : "Name",
-            "Value" : "salt-stagepackages-rhel6"
+            "Value" : "stagerpmpackages-rhel6"
           },
           {
             "Key" : "Application",
-            "Value" : "salt-repobuilder"
+            "Value" : "systemprep-repobuilder"
           }
         ],
         "InstanceType" : { "Ref" : "InstanceType" },
@@ -295,7 +295,7 @@
         ],
         "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
           "#!/bin/bash -v\n",
-          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/salt-repobuilder/salt-stagepackages.sh -o /tmp/bootstrap.sh\n",
+          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/repobuilder/stagerpmpackages.sh -o /tmp/bootstrap.sh\n",
           "bash /tmp/bootstrap.sh ", { "Ref" : "BucketName" }, "\n",
           "result=$?  # Store the exit code of the bootstrap script\n",
           "echo result = $result\n",
@@ -324,11 +324,11 @@
         "Tags" : [
           { 
             "Key" : "Name",
-            "Value" : "salt-stagepackages-rhel7"
+            "Value" : "stagerpmpackages-rhel7"
           },
           {
             "Key" : "Application",
-            "Value" : "salt-repobuilder"
+            "Value" : "systemprep-repobuilder"
           }
         ],
         "InstanceType" : { "Ref" : "InstanceType" },
@@ -344,7 +344,7 @@
         ],
         "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
           "#!/bin/bash -v\n",
-          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/salt-repobuilder/salt-stagepackages.sh -o /tmp/bootstrap.sh\n",
+          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/repobuilder/stagerpmpackages.sh -o /tmp/bootstrap.sh\n",
           "bash /tmp/bootstrap.sh ", { "Ref" : "BucketName" }, "\n",
           "result=$?  # Store the exit code of the bootstrap script\n",
           "echo result = $result\n",
@@ -360,7 +360,7 @@
         ]]}}
       }
     },
-    "Ec2InstanceCreateYumRepo" : {
+    "Ec2InstanceStagePipPackages" : {
       "Type" : "AWS::EC2::Instance",
       "CreationPolicy" : {
         "ResourceSignal" : {
@@ -368,24 +368,16 @@
           "Timeout" : "PT15M"
         }
       },
-      "DependsOn" : [ 
-        "Ec2InstanceAmzn201409",
-        "Ec2InstanceAmzn201503",
-        "Ec2InstanceCentos6",
-        "Ec2InstanceCentos7",
-        "Ec2InstanceRhel6",
-        "Ec2InstanceRhel7"
-      ],
       "Properties" : {
         "ImageId" : { "Ref" : "AmiIdAmzn201503" },
         "Tags" : [
           { 
             "Key" : "Name",
-            "Value" : "salt-createyumrepo"
+            "Value" : "stagepippackages"
           },
           {
             "Key" : "Application",
-            "Value" : "salt-repobuilder"
+            "Value" : "systemprep-repobuilder"
           }
         ],
         "InstanceType" : { "Ref" : "InstanceType" },
@@ -401,7 +393,7 @@
         ],
         "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
           "#!/bin/bash -v\n",
-          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/salt-repobuilder/salt-createyumrepo.sh -o /tmp/bootstrap.sh\n",
+          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/repobuilder/stagepippackages.sh -o /tmp/bootstrap.sh\n",
           "bash /tmp/bootstrap.sh ", { "Ref" : "BucketName" }, "\n",
           "result=$?  # Store the exit code of the bootstrap script\n",
           "echo result = $result\n",
@@ -411,8 +403,66 @@
           "pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n",
           "hash cfn-signal 2> /dev/null || PATH=\"${PATH}:/usr/local/bin:/opt/aws/bin\"\n",
           "# Send cfn-signal with the result of the bootstrap script\n",
-          "cfn-signal -e $result -r 'Created yum repos!' --stack ", { "Ref" : "AWS::StackName" },
-               "         --resource Ec2InstanceCreateYumRepo\n",
+          "cfn-signal -e $result -r 'Staged pip packages' --stack ", { "Ref" : "AWS::StackName" },
+               "         --resource Ec2InstanceStagePipPackages\n",
+          "shutdown -h +1 &\n"
+        ]]}}
+      }
+    },
+    "Ec2InstanceCreateRepo" : {
+      "Type" : "AWS::EC2::Instance",
+      "CreationPolicy" : {
+        "ResourceSignal" : {
+          "Count" : "1",
+          "Timeout" : "PT15M"
+        }
+      },
+      "DependsOn" : [ 
+        "Ec2InstanceAmzn201409",
+        "Ec2InstanceAmzn201503",
+        "Ec2InstanceCentos6",
+        "Ec2InstanceCentos7",
+        "Ec2InstanceRhel6",
+        "Ec2InstanceRhel7",
+        "Ec2InstanceStagePipPackages"
+      ],
+      "Properties" : {
+        "ImageId" : { "Ref" : "AmiIdAmzn201503" },
+        "Tags" : [
+          { 
+            "Key" : "Name",
+            "Value" : "createrepo"
+          },
+          {
+            "Key" : "Application",
+            "Value" : "systemprep-repobuilder"
+          }
+        ],
+        "InstanceType" : { "Ref" : "InstanceType" },
+        "IamInstanceProfile" : { "Ref" : "IamProfileName" },
+        "SecurityGroupIds" : [{ "Ref" : "SecurityGroupId" }],
+        "SubnetId" : { "Ref" : "SubnetId" },
+        "KeyName" : { "Ref" : "KeyName" },
+        "BlockDeviceMappings" : [
+          {
+            "DeviceName" : "/dev/xvda",
+            "Ebs" : { "DeleteOnTermination" : "true" } 
+          }
+        ],
+        "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+          "#!/bin/bash -v\n",
+          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/repobuilder/createrepo.sh -o /tmp/bootstrap.sh\n",
+          "bash /tmp/bootstrap.sh ", { "Ref" : "BucketName" }, "\n",
+          "result=$?  # Store the exit code of the bootstrap script\n",
+          "echo result = $result\n",
+          "curl https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py\n",
+          "python /tmp/get-pip.py\n",
+          "hash pip 2> /dev/null || PATH=\"${PATH}:/usr/local/bin\"\n",
+          "pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n",
+          "hash cfn-signal 2> /dev/null || PATH=\"${PATH}:/usr/local/bin:/opt/aws/bin\"\n",
+          "# Send cfn-signal with the result of the bootstrap script\n",
+          "cfn-signal -e $result -r 'Created repos!' --stack ", { "Ref" : "AWS::StackName" },
+               "         --resource Ec2InstanceCreateRepo\n",
           "shutdown -h +1 &\n"
         ]]}}
       }
@@ -443,9 +493,13 @@
       "Value" : { "Ref" : "Ec2InstanceRhel7" },
       "Description" : "Instance Id of rhel7 instance"
     },
+    "InstanceIdStagePipPackages" : {
+      "Value" : { "Ref" : "Ec2InstanceStagePipPackages" },
+      "Description" : "Instance Id of stagepippackages instance"
+    },
     "InstanceIdCreateYumRepos" : {
-      "Value" : { "Ref" : "Ec2InstanceCreateYumRepo" },
-      "Description" : "Instance Id of the yum repo builder"
+      "Value" : { "Ref" : "Ec2InstanceCreateRepo" },
+      "Description" : "Instance Id of the repo builder"
     }
   }
 }
