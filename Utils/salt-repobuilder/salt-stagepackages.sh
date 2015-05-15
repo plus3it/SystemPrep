@@ -33,6 +33,7 @@ SALT_OSDEPS=(
     "python-requests"
     "python-six"
     "python-urllib3"
+    "selinux-policy-targeted"
     "setools-libs"
     "setools-libs-python"
     "systemd-python"
