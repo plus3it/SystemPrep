@@ -11,6 +11,7 @@ PYPI_DEPS=(
     "awscli"
     "boto"
     "pip2pi"
+    "s3cmd"
 )
 
 # Temporarily suppress rsyslog rate limiting
