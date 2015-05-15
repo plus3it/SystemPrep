@@ -36,6 +36,7 @@ SALT_OSDEPS=(
     "setools-libs"
     "setools-libs-python"
     "systemd-python"
+    "unzip"
     "yum-utils"
 )
 
