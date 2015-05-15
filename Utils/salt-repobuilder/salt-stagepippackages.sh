@@ -10,6 +10,7 @@ GET_PIP="https://bootstrap.pypa.io/get-pip.py"
 PYPI_DEPS=( 
     "awscli"
     "boto"
+    "pip2pi"
 )
 
 # Temporarily suppress rsyslog rate limiting
