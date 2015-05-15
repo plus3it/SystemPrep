@@ -61,6 +61,9 @@ if [[ -n "${AWSCLI_URL}" ]]; then
     curl -L -O -s -S ${AWSCLI_URL} || \
         wget --quiet ${AWSCLI_URL} || \
             ( echo "Could not download file via 'curl' or 'wget'. Check the url and whether at least one of them is in the path. Quitting..." && exit 1 )
+    hash unzip 2> /dev/null || \
+        yum -y install unzip || \
+            ( echo "Could not install unzip, which is required to install the awscli. Quitting..." && exit 1 )
     echo "Unzipping aws cli -- ${AWSCLI_FULLPATH}"
     unzip $AWSCLI_FULLPATH || ( echo "Could not unzip file. Quitting..." && exit 1 )
     echo "Installing aws cli -- ${WORKINGDIR}/awscli-bundle/install"
