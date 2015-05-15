@@ -234,6 +234,11 @@ def main(saltinstallmethod='git',
     for key, value in kwargs.items():
         print('    {0} = {1}'.format(key, value))
 
+    yum_pkgs = [
+        'policycoreutils-python', 
+        'selinux-policy-targeted',
+        'salt-minion', 
+    ]
     minionconf = '/etc/salt/minion'
     saltcall = '/usr/bin/salt-call'
     saltsrv = '/srv/salt'
@@ -251,11 +256,10 @@ def main(saltinstallmethod='git',
 
     #Install salt via yum or git
     if 'yum' == saltinstallmethod.lower():
-        # Install dependencies for selinux python modules
-        os.system('yum -y install policycoreutils-python')
-        # Install salt-minion
+        # Install salt-minion and dependencies for selinux python modules
         # TODO: Install salt version specified by `saltversion`
-        os.system('yum -y install salt-minion')
+        install_result = os.system('yum -y install {0}'.format(' '.join(yum_pkgs)))
+        print('Return code of yum install: {0}'.format(install_result))
     elif 'git' == saltinstallmethod.lower():
         #Download the salt bootstrap installer and install salt
         saltbootstrapfilename = saltbootstrapsource.split('/')[-1]
