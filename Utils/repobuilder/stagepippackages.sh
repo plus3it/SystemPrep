@@ -7,7 +7,7 @@ BUCKETNAME=${1:-systemprep-repo}
 
 GET_PIP="https://bootstrap.pypa.io/get-pip.py"
 
-PYPI_DEPS=( 
+PIP_DEPS=( 
     "awscli"
     "boto"
     "pip2pi"
@@ -62,9 +62,25 @@ hash pip 2> /dev/null || PATH="${PATH}:/usr/local/bin"  # Make sure pip is in pa
 pip install pip2pi
 
 # Use pip2pi to download pip packages and create the index
-for pkg in "${PYPI_DEPS[@]}"; do
-    pip2pi $PYPI_PACKAGES $pkg
+PIP_DEPS_STRING=$( IFS=$' '; echo "${PIP_DEPS[*]}" )
+pip2pi $PYPI_PACKAGES $PIP_DEPS_STRING --no-use-wheel --no-cache-dir
+
+# Modify index.html to be compatible with HTTPS backed by S3
+PYPI_INDEX="${PYPI_PACKAGES}/simple/index.html"
+for pkgdir in `find ${PYPI_PACKAGES}/simple -type d | grep -v "${PYPI_PACKAGES}/simple$"`; do
+    rm -f ${pkgdir}/index.html 2> /dev/null
+    pkgname=`echo ${pkgdir} | xargs -i basename {}`
+    pkgfile=`find ${pkgdir} -type l | xargs -i basename {}`
+    hash=`sha512sum ${pkgdir}/${pkgfile} | cut -d' ' -f1`
+    search="${pkgname}\/'"
+    replace="${pkgname}\/${pkgfile}#sha512=${hash}'"
+    sed -i -e "s/$search/$replace/" "${PYPI_INDEX}"
 done
+
+# Create 'simple' file
+# Using the repo will look something like this:
+#   pip install --allow-all-external --index-url https://[bucket].s3.amazonaws.com/pypi/simple? [pkg]
+cp "${PYPI_INDEX}" "${PYPI_PACKAGES}/simple/simple"
 
 # Install s3cmd
 pip install --upgrade s3cmd
@@ -73,7 +89,7 @@ hash s3cmd 2> /dev/null || PATH="${PATH}:/usr/local/bin"  # Make sure s3cmd is i
 # Sync the pip installer to S3
 s3cmd sync "${PYPI_INSTALLER}" s3://${PYPI_BUCKET}/
 # Sync the packages and index to S3
-s3cmd sync "${PYPI_PACKAGES}/simple/" "s3://${PYPI_BUCKET}/packages/" --follow-symlinks
+s3cmd sync "${PYPI_PACKAGES}/simple/" "s3://${PYPI_BUCKET}/" --follow-symlinks
 
 # Restore prior rsyslog config
 if [[ -n "${RSYSLOGFLAG}" ]]; then
