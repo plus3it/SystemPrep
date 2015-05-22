@@ -63,7 +63,7 @@ pip install pip2pi
 
 # Use pip2pi to download pip packages and create the index
 PIP_DEPS_STRING=$( IFS=$' '; echo "${PIP_DEPS[*]}" )
-pip2pi $PYPI_PACKAGES $PIP_DEPS_STRING --no-use-wheel --no-cache-dir
+pip2pi $PYPI_PACKAGES $PIP_DEPS_STRING --no-binary=:all: --no-cache-dir
 
 # Create 'simple' file
 # Using the repo will look something like this:
