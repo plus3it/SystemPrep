@@ -7,7 +7,7 @@ associated with maintaining them.
 
 **SystemPrep** consists of a framework of highly-customizable scripts. For 
 Linux systems, the scripts are written primarily in python (the one exception 
-is that [*Bootstrap* scripts](#bootstrap-scripts) are written in bash); for 
+is that *[Bootstrap scripts](#bootstrap-scripts)* are written in bash); for 
 Windows systems, the scripts are written in PowerShell. As it leverages 
 OS-native capabilities to bootstrap a system, **SystemPrep** has very few 
 inherent dependencies. More complex configuration management (CM) environments 
@@ -36,9 +36,9 @@ executing the *Bootstrap* script
 **SystemPrep** abstracts the provisioning and configuration process into three 
 components:
 
-- [*Bootstrap* scripts](#bootstrap-scripts)
-- [*Master* scripts](#master-scripts)
-- [*Content* scripts](#content-scripts)
+- *[Bootstrap scripts](#bootstrap-scripts)*
+- *[Master scripts](#master-scripts)*
+- *[Content scripts](#content-scripts)*
 
 
 ### Bootstrap Scripts
@@ -58,8 +58,8 @@ embedding into an image, if required by the environment. We make a handful of
 for creating others.
 
 **Bootstrap Script Templates:**
-- [Linux *Bootstrap* script Template](TemplateScripts/SystemPrep-Bootstrap-Template-Linux.sh)
-- [Windows *Bootstrap* script Template](TemplateScripts/SystemPrep-Bootstrap-Template-Windows.ps1)
+- [Linux Bootstrap script Template](TemplateScripts/SystemPrep-Bootstrap-Template-Linux.sh)
+- [Windows Bootstrap script Template](TemplateScripts/SystemPrep-Bootstrap-Template-Windows.ps1)
 
 
 ### Master Scripts
@@ -74,7 +74,7 @@ providing new OS versions or updating OS images with patches, as there is no
 impact to any embedded components of the provisioning and configuration 
 framework.
 
-The [included *Master* scripts](MasterScripts) may be used as templates for 
+The [included Master scripts](MasterScripts) may be used as templates for 
 creating alternative *Master* scripts. Dedicated *Master* script templates
 will be added a later time.
 
@@ -90,7 +90,7 @@ configuration state. **SystemPrep** provides *Content* script templates that
 can be modified as necessary.
 
 **Content Script Templates:**
-- [Windows *Content* script Template](TemplateScripts/SystemPrep-Content-WindowsTemplate.ps1)
+- [Windows Content script Template](TemplateScripts/SystemPrep-Content-WindowsTemplate.ps1)
 - A Linux *Content* script Template will be added later
 
 In addition, to demonstrate the capability, **SystemPrep** includes a single 
@@ -107,8 +107,8 @@ but they perform the same function for their respective OS.)
 
 **Included Content Scripts:**
 
-- [Linux Salt Install *Content* script](SystemContent/Linux/Salt/SystemPrep-LinuxSaltInstall.py)
-- [Windows Salt Install *Content* script](SystemContent/Windows/Salt/SystemPrep-WindowsSaltInstall.ps1)
+- [Linux Salt Install Content script](SystemContent/Linux/Salt/SystemPrep-LinuxSaltInstall.py)
+- [Windows Salt Install Content script](SystemContent/Windows/Salt/SystemPrep-WindowsSaltInstall.ps1)
 
 
 ## Included Use Cases
@@ -150,9 +150,9 @@ purpose-built to implement a specific bit of functionality.
 - [Microsoft Netbanner Formula][7]
 
 
-####Implementation Details
+#### Implementation Details
 
-The [provided *Master* scripts](MasterScripts) include the set of parameters 
+The [provided Master scripts](MasterScripts) include the set of parameters 
 and values to pass to the Salt *Content* scripts. (There is one of each script 
 type for Windows and one for Linux.) These parameters include the URL to the 
 Salt *Content* script, the URL source of the salt-installer.zip file (containing 
@@ -182,7 +182,7 @@ NetBannerLabel = "Unclass"
 SaltStates = "Highstate"
 ```
 
-There are several [provided *Bootstrap* scripts](BootStrapScripts), the 
+There are several [provided Bootstrap scripts](BootStrapScripts), the 
 differences among them being the target infrastructure environment and the 
 system role. The system roles (Windows-only) are based on the `role` parameter 
 of the [ash-windows formula][4]. *Bootstrap* scripts also contain parameters 
