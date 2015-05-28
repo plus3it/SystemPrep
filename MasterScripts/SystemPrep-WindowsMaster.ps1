@@ -202,7 +202,9 @@ log -LogTag ${ScriptName} "RemainingArgsHash = $(($RemainingArgsHash.GetEnumerat
 
 #Create an atlogon scheduled task to notify users that system customization is in progress
 log -LogTag ${ScriptName} "Registering a scheduled task to notify users at logon that system customization is in progress"
-$msg = "Please wait... System customization is in progress. The system will reboot automatically when customization is complete."
+$msg = "Please wait... System customization is in progress."
+if (-not $noreboot) { $msg += " The system will reboot automatically when customization is complete." }
+
 $taskname = "System Prep Logon Message"
 if ($PSVersionTable.psversion.major -ge 4) {
     $A = New-ScheduledTaskAction -Execute "msg.exe" -Argument "* /SERVER:%computername% ${msg}"
