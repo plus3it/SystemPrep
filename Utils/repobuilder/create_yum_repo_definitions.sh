@@ -112,6 +112,9 @@ __print_repo_file() {
     printf "enabled=1\n"
 }
 
+# Create directories
+mkdir -p "${YUM_FILE_DIR}"
+
 # Create the yum repo files
 for repo in "${REPOS[@]}"; do
     repo_name="REPO_NAME_${repo}"
@@ -121,6 +124,6 @@ for repo in "${REPOS[@]}"; do
 done
 
 # Sync the repo directory back to the S3 bucket
-s3cmd sync "${REPO_DIR}/" "${BUCKET_URL}" --delete-removed
+s3cmd sync "${REPO_DIR}/" "${BUCKET_URL}"
 
 echo "Finished creating the yum repo definitions!"
