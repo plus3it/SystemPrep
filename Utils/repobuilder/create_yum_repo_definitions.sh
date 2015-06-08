@@ -110,6 +110,7 @@ __print_repo_file() {
     printf "gpgcheck=1\n"
     printf "gpgkey=${gpgkey}\n"
     printf "enabled=1\n"
+	printf "skip_if_unavailable=1\n"
 }
 
 # Create directories
