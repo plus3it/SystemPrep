@@ -375,3 +375,61 @@ try {
 log -LogTag ${ScriptName} "SystemPrep completed successfully! Exiting..."
 Stop-Transcript
 </powershell>
+<script>
+@echo off
+
+REM Wait until web server is reachable or timer expires
+set sdkhost=sdk-for-net.amazonwebservices.com
+set sdkurl=http://%sdkhost%/latest/AWSToolsAndSDKForNet.msi
+set timer=120
+set delay=10
+set cleanup=true
+
+echo Checking reachability of "%sdkhost%"...
+:waitfornetwork
+if %timer% LEQ 0 (
+    echo Timer expired before network was ready.
+    echo Could not download/install AWS SDK for .NET.
+    exit /b 1
+)
+ping -n 1 %sdkhost% > nul && goto networkready
+echo Trying again in %delay% seconds. Will timeout if not reachable within %timer% seconds.
+timeout /nobreak /t %delay% > nul
+set /a timer=%timer%-%delay%
+goto waitfornetwork
+
+:networkready
+echo Host "%sdkhost%" is reachable.
+echo Downloading and unzipping the AWS SDK for .NET...
+powershell.exe -noprofile -command "" ^
+    $AwsToolsUrl = \"%sdkurl%\"; ^
+    $FileName = \"${env:temp}\$((${AwsToolsUrl}.split('/'))[-1])\"; ^
+    (new-object net.webclient).DownloadFile($AwsToolsUrl,${FileName}); ^
+    $File = Get-Item $FileName; ^
+    $DestPath = \"${env:temp}\$($File.BaseName)\"; ^
+    $DestDir = New-Item -Path $DestPath -ItemType Directory -Force -WarningAction SilentlyContinue; ^
+    if ($File.Extension -eq \".zip\") { ; ^
+    $Shell = new-object -ComObject shell.application; ^
+    $Shell.namespace(\"$DestPath\").copyhere($Shell.namespace(\"$File\").items(), 0x14); ^
+    } ; ^
+    $rc = Move-Item $File $DestDir -Force -Confirm:$false; ^
+    return $DestPath ^
+    "" > %temp%\aws-sdk-dir.txt
+set /p aws-sdk-dir= < %temp%\aws-sdk-dir.txt
+
+echo Installing the SDK...
+msiexec /i "%aws-sdk-dir%\AWSToolsAndSDKForNet.msi" /quiet /qn /norestart /lv "%temp%\aws-sdk-install.log"
+
+set endpoint=%aws-sdk-dir%\customization\sdk\AWSSDK.endpoints.xml
+if exist "%endpoint%" (
+    echo Copying the XML endpoint file to the correct location...
+    copy /y "%endpoint%" "%programfiles(x86)%\AWS Tools\PowerShell\AWSPowerShell" > nul
+)
+echo Installation complete!
+
+:cleanup
+if "true"=="%cleanup%" (
+    del /q "%temp%\aws-sdk-dir.txt" > nul
+    rmdir /s /q "%aws-sdk-dir%" > nul
+)
+</script>
