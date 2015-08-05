@@ -85,12 +85,13 @@ if [[ -n "${ROOT_CERT_URL}" ]]; then
         URL="${1}"
         FETCH_CERT_DIR="${2}"
         WGET="/usr/bin/wget"
+        local TIMESTAMP=$(date -u +"%Y%m%d_%H%M_%S")
 
         # Create a working directory
         if [ -d "${FETCH_CERT_DIR}" ]
         then
             echo "'${FETCH_CERT_DIR}' already exists. Recreating for safety."
-            mv "${FETCH_CERT_DIR}" "${FETCH_CERT_DIR}".bak || \
+            mv "${FETCH_CERT_DIR}" "${FETCH_CERT_DIR}"-"${TIMESTAMP}".bak || \
             ( echo "Couldn't move '${FETCH_CERT_DIR}'. Aborting..." && exit 1 )
         fi
 
