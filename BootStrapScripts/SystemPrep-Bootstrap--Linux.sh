@@ -94,7 +94,7 @@ if [[ -n "${ROOT_CERT_URL}" ]]; then
             ( echo "Couldn't move '${FETCH_CERT_DIR}'. Aborting..." && exit 1 )
         fi
 
-        install -d -m 0700 -o -g root "${FETCH_CERT_DIR}" || \
+        install -d -m 0700 -o root -g root "${FETCH_CERT_DIR}" || \
         ( echo "Could not create '${FETCH_CERT_DIR}'. Aborting..." && exit 1 )
 
         # Make sure wget is available
