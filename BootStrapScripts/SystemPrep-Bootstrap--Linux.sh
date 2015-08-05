@@ -249,7 +249,7 @@ python ${SCRIPTFULLPATH} ${PARAMSTRING} || \
 
 # Restore prior rsyslog config
 if [[ -n "${RSYSLOGFLAG}" ]]; then
-    # Sleep to let the logger catch up with the output of the python script...
+    echo "Sleeping 50 seconds to let rsyslog catch up with the output of the python script..."
     sleep 50
     echo "Re-storing previous rsyslog configuration"
     mv -f /etc/rsyslog.conf.bak /etc/rsyslog.conf
@@ -258,7 +258,7 @@ if [[ -n "${RSYSLOGFLAG}" ]]; then
 fi
 # Restore prior journald config
 if [[ -n "${JOURNALDFLAG}" ]]; then
-    # Sleep to let the logger catch up with the output of the python script...
+    echo "Sleeping 50 seconds to let journald catch up with the output of the python script..."
     sleep 50
     echo "Re-storing previous journald configuration"
     mv -f /etc/systemd/journald.conf.bak /etc/systemd/journald.conf
