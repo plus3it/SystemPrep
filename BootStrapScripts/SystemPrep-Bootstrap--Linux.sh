@@ -116,7 +116,7 @@ if [[ -n "${ROOT_CERT_URL}" ]]; then
     ######################################
     UpdateTrust() {
 
-        if [ $# -ne 2]; then
+        if [ $# -ne 2 ]; then
             echo "UpdateTrust requires two parameters."
             echo "  \$1, 'mode', is either '6.0' or '6.5', as determined by the 'GetMode' function."
             echo "  \$2, 'cert_dir', is a directory that contains the root certificates."
