@@ -16,11 +16,12 @@ SYSTEMPREPPARAMS=( "SaltStates=Highstate"
 SCRIPTNAME=${0}
 LOGGER=$(which logger)
 TIMESTAMP=$(date -u +"%Y%m%d_%H%M_%S")
-WORKINGDIR=/usr/tmp
 LOGDIR=/var/log
 LOGTAG=systemprep
 LOGFILE="${LOGDIR}/${LOGTAG}-${TIMESTAMP}.log"
 LOGLINK="${LOGDIR}/${LOGTAG}.log"
+WORKINGDIR=/usr/tmp/"${WORKINGDIR}"
+CLEANUP=true
 
 # Validate log directory exists
 if [[ ! -d ${LOGDIR} ]]; then
@@ -31,7 +32,7 @@ fi
 # Validate working directory exists
 if [[ ! -d ${WORKINGDIR} ]]; then
   echo "Creating ${WORKINGDIR} directory" >(${LOGGER} -t "${LOGTAG}" -s 2> /dev/console) 2>&1
-  mkdir ${WORKINGDIR} >(${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console) 2>&1
+  mkdir -p ${WORKINGDIR} >(${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console) 2>&1
 fi
 
 # Establish logging to write to the logfile, syslog, and the console
@@ -273,9 +274,11 @@ if [[ -n $error_result ]]; then
     exit $error_result
 else
     echo "SUCCESS: SystemPrep Master script completed successfully!"
-    # Cleanup
-    echo "Deleting the SystemPrep master script -- ${SCRIPTFULLPATH}"
-    rm -f ${SCRIPTFULLPATH}
+    if [[ "true" == "${CLEANUP}" ]]; then
+        # Cleanup
+        echo "Deleting the working directory -- ${WORKINGDIR}"
+        rm -rf ${WORKINGDIR}
+    fi
     echo "Exiting SystemPrep bootstrap script -- ${SCRIPTNAME}"
     exit 0
 fi
