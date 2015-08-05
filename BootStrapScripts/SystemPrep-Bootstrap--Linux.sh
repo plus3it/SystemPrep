@@ -247,23 +247,24 @@ echo "Running the SystemPrep master script -- ${SCRIPTFULLPATH}"
 python ${SCRIPTFULLPATH} ${PARAMSTRING} || \
     error_result=$?  # Error, capture the exit code
 
-# Restore prior rsyslog config
-if [[ -n "${RSYSLOGFLAG}" ]]; then
-    echo "Sleeping 50 seconds to let rsyslog catch up with the output of the python script..."
+# Restore prior logging config
+if [[ -n "${RSYSLOGFLAG}" || -n "${JOURNALDFLAG}" ]]; then
+    echo "Sleeping 50 seconds to let logger catch up with the output of the python script..."
     sleep 50
-    echo "Re-storing previous rsyslog configuration"
-    mv -f /etc/rsyslog.conf.bak /etc/rsyslog.conf
-    echo "Restarting rsyslog..."
-    service rsyslog restart
-fi
-# Restore prior journald config
-if [[ -n "${JOURNALDFLAG}" ]]; then
-    echo "Sleeping 50 seconds to let journald catch up with the output of the python script..."
-    sleep 50
-    echo "Re-storing previous journald configuration"
-    mv -f /etc/systemd/journald.conf.bak /etc/systemd/journald.conf
-    echo "Restarting systemd-journald..."
-    systemctl restart systemd-journald.service
+    # Restore prior rsyslog config
+    if [[ -n "${RSYSLOGFLAG}" ]]; then
+        echo "Re-storing previous rsyslog configuration"
+        mv -f /etc/rsyslog.conf.bak /etc/rsyslog.conf
+        echo "Restarting rsyslog..."
+        service rsyslog restart
+    fi
+    # Restore prior journald config
+    if [[ -n "${JOURNALDFLAG}" ]]; then
+        echo "Re-storing previous journald configuration"
+        mv -f /etc/systemd/journald.conf.bak /etc/systemd/journald.conf
+        echo "Restarting systemd-journald..."
+        systemctl restart systemd-journald.service
+    fi
 fi
 
 # Report success or failure
