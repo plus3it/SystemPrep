@@ -25,14 +25,14 @@ CLEANUP=true
 
 # Validate log directory exists
 if [[ ! -d ${LOGDIR} ]]; then
-  echo "Creating ${LOGDIR} directory." >(${LOGGER} -t "${LOGTAG}" -s 2> /dev/console) 2>&1
-  mkdir ${LOGDIR} >(${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console) 2>&1
+  echo "Creating ${LOGDIR} directory." 2>&1 | ${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console
+  mkdir ${LOGDIR} 2>&1 | ${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console
 fi
 
 # Validate working directory exists
 if [[ ! -d ${WORKINGDIR} ]]; then
-  echo "Creating ${WORKINGDIR} directory" >(${LOGGER} -t "${LOGTAG}" -s 2> /dev/console) 2>&1
-  mkdir -p ${WORKINGDIR} >(${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console) 2>&1
+  echo "Creating ${WORKINGDIR} directory" 2>&1 | ${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console
+  mkdir -p 2>&1 | ${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console
 fi
 
 # Establish logging to write to the logfile, syslog, and the console
