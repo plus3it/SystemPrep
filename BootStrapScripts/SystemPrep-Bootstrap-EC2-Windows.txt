@@ -8,7 +8,7 @@ $SystemPrepParams = @{
     NetBannerLabel = "Unclass"
     SaltStates = "Highstate"
     NoReboot = $false
-    SourceIsS3Bucket = $true
+    SourceIsS3Bucket = $false
     AwsRegion = "us-east-1"
 }
 $AwsToolsUrl = $null

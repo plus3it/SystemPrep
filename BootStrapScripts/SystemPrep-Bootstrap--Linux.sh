@@ -2,7 +2,7 @@
 set -e
 
 #User variables
-SOURCEISS3BUCKET="True"
+SOURCEISS3BUCKET="False"
 AWSREGION="us-east-1"
 AWSCLI_URL="https://s3.amazonaws.com/aws-cli/awscli-bundle.zip"
 ROOT_CERT_URL=""
