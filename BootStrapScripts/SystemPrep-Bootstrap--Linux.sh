@@ -20,19 +20,19 @@ LOGDIR=/var/log
 LOGTAG=systemprep
 LOGFILE="${LOGDIR}/${LOGTAG}-${TIMESTAMP}.log"
 LOGLINK="${LOGDIR}/${LOGTAG}.log"
-WORKINGDIR=/usr/tmp/"${WORKINGDIR}"
+WORKINGDIR=/usr/tmp/"${LOGTAG}"
 CLEANUP=true
 
 # Validate log directory exists
 if [[ ! -d ${LOGDIR} ]]; then
   echo "Creating ${LOGDIR} directory." 2>&1 | ${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console
-  mkdir ${LOGDIR} 2>&1 | ${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console
+  mkdir -p ${LOGDIR} 2>&1 | ${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console
 fi
 
 # Validate working directory exists
 if [[ ! -d ${WORKINGDIR} ]]; then
   echo "Creating ${WORKINGDIR} directory" 2>&1 | ${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console
-  mkdir -p 2>&1 | ${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console
+  mkdir -p ${WORKINGDIR} 2>&1 | ${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console
 fi
 
 # Establish logging to write to the logfile, syslog, and the console
