@@ -134,7 +134,7 @@ if [[ -n "${ROOT_CERT_URL}" ]]; then
             install -d -m 0755 -o root -g root "${cert_dir}"
 
             echo "Copying certs to $cert_dir..."
-            (cd "${UPDATE_CERT_DIR}" ; find . -print | cpio -vpd "${cert_dir}" )
+            (cd "${UPDATE_CERT_DIR}" ; find . -print | cpio -vpud "${cert_dir}" )
 
             echo "Enabling 'update-ca-trust'..."
             update-ca-trust force-enable
@@ -150,7 +150,7 @@ if [[ -n "${ROOT_CERT_URL}" ]]; then
             fi
 
             echo "Copying certs to ${CADIR}..."
-            ( cd "${UPDATE_CERT_DIR}" ; find . -print | cpio -vpd "${CADIR}" )
+            ( cd "${UPDATE_CERT_DIR}" ; find . -print | cpio -vpud "${CADIR}" )
 
             for ADDCER in $(find ${CADIR} -type f -name "*.cer" -o -name "*.CER")
             do
