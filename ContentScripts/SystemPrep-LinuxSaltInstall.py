@@ -166,8 +166,8 @@ def cleanup(workingdir):
 
 
 def main(saltinstallmethod='git',
-         saltbootstrapsource="https://raw.githubusercontent.com/saltstack/salt-bootstrap/develop/bootstrap-salt.sh",
-         saltgitrepo="git://github.com/saltstack/salt.git",
+         saltbootstrapsource=None,
+         saltgitrepo=None,
          saltversion=None,
          saltcontentsource=None,
          formulastoinclude=None,
@@ -186,8 +186,12 @@ def main(saltinstallmethod='git',
                           'yum': install salt from a yum repo. the salt 
                                  packages must be available in a yum repo 
                                  already configured on the system.
-    :param saltbootstrapsource: str, location of the salt bootstrap installer
-    :param saltgitrepo: str, git repo containing the salt source files
+    :param saltbootstrapsource: str, location of the salt bootstrap installer.
+                                required if `saltinstallmethod` is `git`.
+                                Example: "https://raw.githubusercontent.com/saltstack/salt-bootstrap/develop/bootstrap-salt.sh"
+    :param saltgitrepo: str, git repo containing the salt source files.
+                        required if `saltinstallmethod` is `git`.
+                        Example: "git://github.com/saltstack/salt.git"
     :param saltversion: str, optional. version of salt to install. if 
                         `installmethod` is 'git', then this value must be a 
                         tag or branch in the git repo.
@@ -261,6 +265,17 @@ def main(saltinstallmethod='git',
         install_result = os.system('yum -y install {0}'.format(' '.join(yum_pkgs)))
         print('Return code of yum install: {0}'.format(install_result))
     elif 'git' == saltinstallmethod.lower():
+        # Check required params for the `git` install method
+        if not saltbootstrapsource:
+            error_message = 'Detected `git` as the install method, but the ' \
+                            'required parameter `saltbootstrapsource` was not ' \
+                            'provided.'
+            raise SystemError(error_message)
+        if not saltgitrepo:
+            error_message = 'Detected `git` as the install method, but the ' \
+                            'required parameter `saltgitrepo` was not ' \
+                            'provided.'
+            raise SystemError(error_message)
         #Download the salt bootstrap installer and install salt
         saltbootstrapfilename = saltbootstrapsource.split('/')[-1]
         saltbootstrapfile = '/'.join((workingdir, saltbootstrapfilename))

@@ -98,9 +98,6 @@ Use `merge_dicts({yourdict}, scriptparams)` to merge command line parameters wit
                 'ScriptSource': "https://systemprep.s3.amazonaws.com/ContentScripts/SystemPrep-LinuxSaltInstall.py",
                 'Parameters': merge_dicts({
                     'saltinstallmethod': 'yum',
-                    'saltbootstrapsource': "https://raw.githubusercontent.com/saltstack/salt-bootstrap/stable/bootstrap-salt.sh",
-                    'saltgitrepo': "git://github.com/saltstack/salt.git",
-                    'saltversion': "v2014.7.5",
                     'saltcontentsource': "https://systemprep-content.s3.amazonaws.com/linux/salt/salt-content.zip",
                     'formulastoinclude': [
                         "https://salt-formulas.s3.amazonaws.com/ash-linux-formula-master.zip",
