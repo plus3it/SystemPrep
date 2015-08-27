@@ -192,6 +192,21 @@ baseline, and reboot, but that is all there is to it! Login to the instance
 and look around.
 
 
+### Cloudformation Templates
+
+We also provide some AWS Cloudformation templates that are integrated with the
+SystemPrep framework. Feel free to use them as quick start examples to get a
+feel for the framework, or as reference examples for building your own
+templates.
+
+- [Deploy a single RHEL6 instance]
+(https://github.com/lorengordon/SystemPrep/blob/master/Utils/cfn/systemprep-lx-instance.template)
+- [Deploy an Autoscaling Group of one or more RHEL6 instances]
+(https://github.com/lorengordon/SystemPrep/blob/master/Utils/cfn/systemprep-lx-autoscale.template)
+
+
+# Messy Details
+
 ## Dependencies
 
 - A web-accessible service to host the *Master* script(s) and *Content*
