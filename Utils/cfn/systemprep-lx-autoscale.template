@@ -1,0 +1,208 @@
+{
+    "AWSTemplateFormatVersion" : "2010-09-09",
+    "Description"              : "This templates creates an Autoscaling Group and Launch Configuration that deploy RHEL6 instances with the SystemPrep bootstrapper, which applies the DISA STIG.",
+    "Parameters"               : {
+        "BootstrapURL" : {
+            "Description" : "URL to the SystemPrep Bootstrapper",
+            "Type"        : "String",
+            "Default"     : "https://s3.amazonaws.com/systemprep/BootStrapScripts/SystemPrep-Bootstrap--Linux.sh"
+        },
+        "KeyPairName" : {
+            "Description" : "Public/private key pairs allow you to securely connect to your instance after it launches",
+            "Type"        : "AWS::EC2::KeyPair::KeyName"
+        },
+        "InstanceType" : {
+            "Description" : "Amazon EC2 instance type",
+            "Type"        : "String",
+            "Default"     : "t2.micro",
+            "AllowedValues" : [
+                "t2.micro",
+                "t2.small",
+                "t2.medium",
+                "c4.large",
+                "c4.xlarge",
+                "m4.large",
+                "m4.xlarge"
+            ]
+        },
+        "MinSize" : { 
+            "Description" : "Minimum number of instances in the Autoscaling Group",
+            "Type"        : "Number",
+            "Default" : "1"
+        },
+        "MaxSize" : { 
+            "Description" : "Maximum number of instances in the Autoscaling Group",
+            "Type"        : "Number",
+            "Default" : "1"
+        },
+        "DesiredCapacity" : { 
+            "Description" : "Desired number of instances in the Autoscaling Group",
+            "Type"        : "Number",
+            "Default" : "1"
+        },
+        "SecurityGroupIds" : {
+            "Description" : "List of security groups to apply to the instance",
+            "Type"        : "List<AWS::EC2::SecurityGroup::Id>"
+        },
+        "SubnetIds" : {
+            "Type" : "List<AWS::EC2::Subnet::Id>",
+            "Description" : "List of subnets to associate to the Autoscaling Group"
+        }
+    },
+    "Mappings" : {
+        "AWSInstanceType2Arch" : {
+            "t2.micro" : {
+                "Arch" : "64"
+            },
+            "t2.small" : {
+                "Arch" : "64"
+            },
+            "t2.medium" : {
+                "Arch" : "64"
+            },
+            "c4.large" : {
+                "Arch" : "64"
+            },
+            "c4.xlarge" : {
+                "Arch" : "64"
+            },
+            "m4.large" : {
+                "Arch" : "64"
+            },
+            "m4.xlarge" : {
+                "Arch" : "64"
+            }
+        },
+        "AWSRegionArch2AMI" : {
+            "us-east-1" : {
+                "64" : "ami-0d28fe66"
+            },
+            "us-west-2" : {
+                "64" : "ami-75f3f145"
+            },
+            "us-west-1" : {
+                "64" : "ami-5b8a781f"
+            },
+            "eu-west-1" : {
+                "64" : "ami-78d29c0f"
+            },
+            "eu-central-1" : {
+                "64" : "ami-8e96ac93"
+            },
+            "ap-southeast-1" : {
+                "64" : "ami-faedeea8"
+            },
+            "ap-northeast-1" : {
+                "64" : "ami-78379d78"
+            },
+            "ap-southeast-2" : {
+                "64" : "ami-7f0d4b45"
+            },
+            "sa-east-1" : {
+                "64" : "ami-d1d35ccc"
+            }
+        }
+    },
+    "Resources" : {
+        "SystemPrepAutoScalingGroup" : {
+            "Type" : "AWS::AutoScaling::AutoScalingGroup",
+            "CreationPolicy" : {
+                "ResourceSignal" : {
+                    "Count" : "1",
+                    "Timeout" : "PT20M"
+                }
+            },
+            "Properties" : {
+                "VPCZoneIdentifier" : { "Ref" : "SubnetIds" },
+                "LaunchConfigurationName" : { "Ref" : "SystemPrepLaunchConfig" },
+                "MinSize" : { "Ref" : "MinSize" },
+                "MaxSize" : { "Ref" : "MaxSize" },
+                "DesiredCapacity" : { "Ref" : "DesiredCapacity" },
+                "Tags" : [
+                    {
+                        "Key" : "Name",
+                        "Value" : { "Fn::Join" : [ "", [
+                            "SystemPrep-Linux-",
+                            { "Ref" : "AWS::StackName" }
+                        ] ] },
+                        "PropagateAtLaunch" : "true"
+                    }
+                ]
+            }
+        },
+        "SystemPrepLaunchConfig" : {
+            "Type" : "AWS::AutoScaling::LaunchConfiguration",
+            "Properties" : {
+                "ImageId" : {
+                    "Fn::FindInMap" : [
+                        "AWSRegionArch2AMI",
+                        {
+                            "Ref" : "AWS::Region"
+                        },
+                        {
+                            "Fn::FindInMap" : [
+                                "AWSInstanceType2Arch",
+                                {
+                                    "Ref" : "InstanceType"
+                                },
+                                "Arch"
+                            ]
+                        }
+                    ]
+                },
+                "InstanceType" : {
+                    "Ref" : "InstanceType"
+                },
+                "AssociatePublicIpAddress" : "true",
+                "BlockDeviceMappings" : [
+                    {
+                        "DeviceName" : "/dev/sda1",
+                        "Ebs"        : {
+							"VolumeType" : "gp2",
+                            "DeleteOnTermination" : "true"
+                        }
+                    }
+                ],
+                "KeyName" : {
+                    "Ref" : "KeyPairName"
+                },
+                "SecurityGroups" : { 
+                    "Ref" : "SecurityGroupIds" 
+                },
+                "UserData" : {
+                    "Fn::Base64" : { "Fn::Join" : [ "", [
+                        "#!/bin/bash -x\n",
+
+                        "curl --silent --show-error --retry 5 -L ",
+                        "https://bootstrap.pypa.io/get-pip.py",
+                        " | python", "\n",
+
+                        "hash pip 2> /dev/null || ",
+                        "PATH=\"${PATH}:/usr/local/bin\"", "\n",
+
+                        "pip install ",
+                        "https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz",
+                        "\n",
+
+                        "hash cfn-signal 2> /dev/null || ",
+                        "PATH=\"${PATH}:/usr/local/bin:/opt/aws/bin\"",
+                        "\n",
+
+                        "curl --silent --show-error --retry 5 -L ",
+                        {
+                            "Ref" : "BootstrapURL"
+                        },
+                        " | bash", "\n",
+
+                        "result=$?", "\n",
+
+                        "cfn-signal -e $result ",
+                        " --stack ", { "Ref" : "AWS::StackName" },
+                        " --resource SystemPrepAutoScalingGroup ",
+                        " --region ", { "Ref" : "AWS::Region"}, "\n"
+                    ] ] }
+                }
+            }
+        }
+    }
+}
