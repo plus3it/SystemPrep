@@ -1,21 +1,36 @@
-###
-#Define User variables
-###
-$SystemPrepMasterScriptUrl = 'https://s3.amazonaws.com/systemprep/MasterScripts/SystemPrep-WindowsMaster.ps1'
-$SystemPrepParams = @{
-    AshRole = "Workstation"
-    NetBannerLabel = "Unclass"
-    SaltStates = "Highstate"
-    NoReboot = $false
-    SourceIsS3Bucket = $false
-    AwsRegion = "us-east-1"
-}
-$RootCertUrl = $null
-$ConfigureEc2EventLogging = $true
+[CmdLetBinding()]
+Param(
+    [String]$SystemPrepMasterScriptUrl = 'https://s3.amazonaws.com/systemprep/MasterScripts/SystemPrep-WindowsMaster.ps1'
+    ,    
+    [Bool]$NoReboot = $false
+    ,
+    [String]$SaltStates = 'Highstate'
+    ,
+    [ValidateSet('Workstation','MemberServer','DomainController')]
+    [String]$AshRole = 'MemberServer'
+    ,
+    [String]$NetBannerLabel = 'Unclass'
+    ,
+    [Bool]$SourceIsS3Bucket = $false
+    ,
+    [String]$AwsRegion = 'us-east-1'
+    ,
+    [String]$RootCertUrl
+    ,
+    [Bool]$ConfigureEc2EventLogging = $true
+)
 
 ###
 #Define System variables
 ###
+$SystemPrepParams = @{
+    AshRole = $AshRole
+    NetBannerLabel = $NetBannerLabel
+    SaltStates = $SaltStates
+    NoReboot = $NoReboot
+    SourceIsS3Bucket = $SourceIsS3Bucket
+    AwsRegion = $AwsRegion
+}
 $CertDir = "${env:temp}\certs"
 $SystemPrepDir = "${env:SystemDrive}\SystemPrep"
 $SystemPrepLogDir = "${env:SystemDrive}\SystemPrep\Logs"
