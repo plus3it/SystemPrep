@@ -180,11 +180,11 @@ def main(saltinstallmethod='git',
     """
     Manages the salt installation and configuration.
     :param saltinstallmethod: str, method of installing salt
-                          'git': install salt from git source. requires 
-                                 `saltbootstrapsource` and `saltgitrepo`. 
+                          'git': install salt from git source. requires
+                                 `saltbootstrapsource` and `saltgitrepo`.
                                  optionally specify `saltversion`.
-                          'yum': install salt from a yum repo. the salt 
-                                 packages must be available in a yum repo 
+                          'yum': install salt from a yum repo. the salt
+                                 packages must be available in a yum repo
                                  already configured on the system.
     :param saltbootstrapsource: str, location of the salt bootstrap installer.
                                 required if `saltinstallmethod` is `git`.
@@ -192,26 +192,26 @@ def main(saltinstallmethod='git',
     :param saltgitrepo: str, git repo containing the salt source files.
                         required if `saltinstallmethod` is `git`.
                         Example: "git://github.com/saltstack/salt.git"
-    :param saltversion: str, optional. version of salt to install. if 
-                        `installmethod` is 'git', then this value must be a 
+    :param saltversion: str, optional. version of salt to install. if
+                        `installmethod` is 'git', then this value must be a
                         tag or branch in the git repo.
-    :param saltcontentsource: str, location of additional salt content, must 
+    :param saltcontentsource: str, location of additional salt content, must
                               be a compressed file
-    :param formulastoinclude: list, locations of salt formulas to configure, 
+    :param formulastoinclude: list, locations of salt formulas to configure,
                               must be compressed files
-    :param formulaterminationstrings: list, strings that will be removed from 
+    :param formulaterminationstrings: list, strings that will be removed from
                                       the end of a salt formula name
     :param saltstates: str, comma-separated string of saltstates to apply.
                        'none' is a keyword that will not apply any states.
-                       'highstate' is a keyword that will apply states based 
+                       'highstate' is a keyword that will apply states based
                        on the top.sls definition.
     :param salt_results_log: str, path to the file to save the output of the
                              salt-call state run
     :param salt_debug_log: str, path to the file to save the debug log of the
                            salt-call state run
-    :param sourceiss3bucket: str, set to 'true' if saltcontentsource and 
+    :param sourceiss3bucket: str, set to 'true' if saltcontentsource and
                              formulastoinclude are hosted in an S3 bucket.
-    :param kwargs: dict, catch-all for other params that do not apply to this 
+    :param kwargs: dict, catch-all for other params that do not apply to this
                    content script
     :raise SystemError: error raised whenever an issue is encountered
     """
@@ -239,20 +239,21 @@ def main(saltinstallmethod='git',
         print('    {0} = {1}'.format(key, value))
 
     yum_pkgs = [
-        'policycoreutils-python', 
+        'policycoreutils-python',
         'selinux-policy-targeted',
-        'salt-minion', 
+        'salt-minion',
     ]
     minionconf = '/etc/salt/minion'
     saltcall = '/usr/bin/salt-call'
     saltsrv = '/srv/salt'
     saltfileroot = os.sep.join((saltsrv, 'states'))
     saltformularoot = os.sep.join((saltsrv, 'formulas'))
+    saltpillarroot = os.sep.join((saltsrv, 'pillar'))
     saltbaseenv = os.sep.join((saltfileroot, 'base'))
     workingdir = create_working_dir('/usr/tmp/', 'saltinstall-')
-    salt_results_logfile = salt_results_log or os.sep.join((workingdir, 
+    salt_results_logfile = salt_results_log or os.sep.join((workingdir,
                                 'saltcall.results.log'))
-    salt_debug_logfile = salt_debug_log or os.sep.join.join((workingdir, 
+    salt_debug_logfile = salt_debug_log or os.sep.join.join((workingdir,
                                 'saltcall.debug.log'))
     saltcall_arguments = '--out json --out-file {0} --return local --log-file ' \
                          '{1} --log-file-level debug' \
@@ -332,6 +333,12 @@ def main(saltinstallmethod='git',
     saltfilerootconf += saltformulaconf
     saltfilerootconf += '\n',
 
+    #Create a list that contains the new pillar_roots configuration
+    saltpillarrootconf = []
+    saltpillarrootconf += 'pillar_roots:\n',
+    saltpillarrootconf += '  base:\n',
+    saltpillarrootconf += '    - {0}\n'.format(saltpillarroot),
+
     #Backup the minionconf file
     shutil.copyfile(minionconf, '{0}.bak'.format(minionconf))
 
@@ -355,6 +362,23 @@ def main(saltinstallmethod='git',
     #Update the file_roots section with the new configuration
     minionconflines = minionconflines[0:beginindex] + \
                       saltfilerootconf + minionconflines[endindex + 1:]
+
+    #Find the pillar_roots section in the minion conf file
+    pillarrootsbegin = '^#pillar_roots:|^pillar_roots:'
+    pillarrootsend = '^#$'
+    beginindex = None
+    endindex = None
+    n = 0
+    for line in minionconflines:
+        if re.match(pillarrootsbegin, line):
+            beginindex = n
+        if beginindex and not endindex and re.match(pillarrootsend, line):
+            endindex = n
+        n += 1
+
+    #Update the pillar_roots section with the new configuration
+    minionconflines = minionconflines[0:beginindex] + \
+                      saltpillarrootconf + minionconflines[endindex + 1:]
 
     #Write the new configuration to minionconf
     try:
