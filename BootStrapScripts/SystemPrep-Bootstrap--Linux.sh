@@ -8,6 +8,7 @@ AWSCLI_URL="https://s3.amazonaws.com/aws-cli/awscli-bundle.zip"
 ROOT_CERT_URL=""
 SYSTEMPREPMASTERSCRIPTSOURCE="https://s3.amazonaws.com/systemprep/MasterScripts/systemprep-linuxmaster.py"
 SYSTEMPREPPARAMS=( "SaltStates=Highstate"
+                   "SaltContentSource=https://systemprep-content.s3.amazonaws.com/linux/salt/salt-content.zip"
                    "NoReboot=False"
                    "SourceIsS3Bucket=${SOURCEISS3BUCKET}"
                    "AwsRegion=${AWSREGION}" )

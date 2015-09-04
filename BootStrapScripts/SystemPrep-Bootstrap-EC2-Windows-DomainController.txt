@@ -7,6 +7,7 @@ $SystemPrepParams = @{
     AshRole = "DomainController"
     NetBannerLabel = "Unclass"
     SaltStates = "Highstate"
+    SaltContentUrl = "https://s3.amazonaws.com/systemprep-content/windows/salt/salt-content.zip"
     NoReboot = $false
     SourceIsS3Bucket = $false
     AwsRegion = "us-east-1"

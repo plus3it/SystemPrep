@@ -6,6 +6,8 @@ Param(
     ,
     [String]$SaltStates = 'Highstate'
     ,
+    [String]$SaltContentUrl = 'https://s3.amazonaws.com/systemprep-content/windows/salt/salt-content.zip'
+    ,
     [ValidateSet('Workstation','MemberServer','DomainController')]
     [String]$AshRole = 'MemberServer'
     ,
@@ -27,6 +29,7 @@ $SystemPrepParams = @{
     AshRole = $AshRole
     NetBannerLabel = $NetBannerLabel
     SaltStates = $SaltStates
+    SaltContentUrl = $SaltContentUrl
     NoReboot = $NoReboot
     SourceIsS3Bucket = $SourceIsS3Bucket
     AwsRegion = $AwsRegion
