@@ -100,6 +100,7 @@ Use `merge_dicts({yourdict}, scriptparams)` to merge command line parameters wit
                     'saltinstallmethod': 'yum',
                     'saltcontentsource': "https://systemprep-content.s3.amazonaws.com/linux/salt/salt-content.zip",
                     'formulastoinclude': [
+                        "https://salt-formulas.s3.amazonaws.com/systemprep-formula-master.zip",
                         "https://salt-formulas.s3.amazonaws.com/ash-linux-formula-master.zip",
                     ],
                     'formulaterminationstrings': [
@@ -121,7 +122,8 @@ Use `merge_dicts({yourdict}, scriptparams)` to merge command line parameters wit
                     'saltworkingdir': '{0}\\SystemContent\\Windows\\Salt'.format(workingdir),
                     'saltcontentsource': "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/salt-content.zip",
                     'formulastoinclude': [
-                        "https://salt-formulas.s3.amazonaws.com/ash-windows-formula-latest.zip",
+                        "https://salt-formulas.s3.amazonaws.com/systemprep-formula-master.zip",
+                        "https://salt-formulas.s3.amazonaws.com/ash-windows-formula-master.zip",
                     ],
                     'formulaterminationstrings': [
                         "-latest",

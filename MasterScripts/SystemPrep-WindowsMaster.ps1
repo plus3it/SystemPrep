@@ -144,6 +144,7 @@ $ScriptsToExecute = @(
                                                                                   SaltInstallerUrl = "https://s3.amazonaws.com/systemprep-repo/windows/salt/Salt-Minion-2015.5.0-AMD64-Setup.exe"
                                                                                   SaltContentUrl = "https://s3.amazonaws.com/systemprep-content/windows/salt/salt-content.zip"
                                                                                   FormulasToInclude = @(
+                                                                                                        "https://s3.amazonaws.com/salt-formulas/systemprep-formula-master.zip",
                                                                                                         "https://s3.amazonaws.com/salt-formulas/ash-windows-formula-master.zip",
                                                                                                         "https://s3.amazonaws.com/salt-formulas/dotnet4-formula-master.zip",
                                                                                                         "https://s3.amazonaws.com/salt-formulas/emet-formula-master.zip",
