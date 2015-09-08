@@ -42,6 +42,9 @@ SALT_OSDEPS=(
 )
 
 SALT_EPELDEPS=(
+    "salt"
+    "salt-master"
+    "salt-minion"
     "python-msgpack"
 )
 
@@ -51,9 +54,7 @@ SALT_COPRZMQ_DEPS=(
 )
 
 SALT_COPRSALT_DEPS=(
-    "salt"
-    "salt-master"
-    "salt-minion"
+    "python-tornado-4.1"
 )
 
 GPGKEY_EPEL="RPM-GPG-KEY-EPEL-[0-9]"
