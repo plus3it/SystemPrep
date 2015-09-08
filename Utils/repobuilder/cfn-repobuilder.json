@@ -9,12 +9,12 @@
     },
     "AmiIdAmzn201503" : {
       "Type" : "String",
-      "Default" : "ami-1ecae776",
+      "Default" : "ami-0d4cfd66",
       "Description" : "Amazon Linux 2015.03 AMI to use, must be HVM (cfn script uses the t2.micro instance type)"
     },
     "AmiIdCentos6" : {
       "Type" : "String",
-      "Default" : "ami-cc7366a4",
+      "Default" : "ami-b9aa06d2",
       "Description" : "CentOS6 AMI to use, must be HVM (cfn script uses the t2.micro instance type)"
     },
     "AmiIdCentos7" : {
@@ -24,7 +24,7 @@
     },
     "AmiIdRhel6" : {
       "Type" : "String",
-      "Default" : "ami-b0fed2d8",
+      "Default" : "ami-0d28fe66",
       "Description" : "RHEL6 AMI to use, must be HVM (cfn script uses the t2.micro instance type)"
     },
     "AmiIdRhel7" : {
