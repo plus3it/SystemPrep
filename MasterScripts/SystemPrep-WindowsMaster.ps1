@@ -1,20 +1,20 @@
 [CmdLetBinding()]
 Param(
-    [Parameter(Mandatory=$false,Position=0,ValueFromRemainingArguments=$true)] 
+    [Parameter(Mandatory=$false,Position=0,ValueFromRemainingArguments=$true)]
     $RemainingArgs
     ,
-    [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] 
+    [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
     [switch] $SourceIsS3Bucket
     ,
-    [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] 
+    [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
     [string] $AwsRegion
     ,
-    [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] 
+    [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
     [switch] $NoReboot
 )
 #Parameter Descriptions
 #$RemainingArgs       #Parameter that catches any undefined parameters passed to the script.
-                      #Used by the bootstrapping framework to pass those parameters through to other scripts. 
+                      #Used by the bootstrapping framework to pass those parameters through to other scripts.
                       #This way, we don't need to know in advance all the parameter names for downstream scripts.
 
 #$SourceIsS3Bucket    #Set to $true if all content to be downloaded is hosted in an S3 bucket and should be retrieved using AWS tools.
@@ -43,8 +43,8 @@ Function Join-Hashtables {
 #credit http://powershell.org/wp/2013/01/23/join-powershell-hash-tables/
     [CmdLetBinding()]
     Param (
-    [hashtable]$First, 
-    [hashtable]$Second, 
+    [hashtable]$First,
+    [hashtable]$Second,
     [switch]$Force
     )
 
@@ -73,7 +73,7 @@ Function Join-Hashtables {
                 }
                 Else {
                     Write-Warning "Aborting operation"
-                    Return 
+                    Return
                 }
             } #else prompt
        }
@@ -88,9 +88,9 @@ Function Join-Hashtables {
 function log {
     [CmdLetBinding()]
     Param(
-        [Parameter(Mandatory=$false,Position=0,ValueFromPipeLine=$true,ValueFromPipeLineByPropertyName=$true)] [string[]] 
+        [Parameter(Mandatory=$false,Position=0,ValueFromPipeLine=$true,ValueFromPipeLineByPropertyName=$true)] [string[]]
         $LogMessage,
-        [Parameter(Mandatory=$false,Position=1,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$true)] [string] 
+        [Parameter(Mandatory=$false,Position=1,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$true)] [string]
         $LogTag
     )
     PROCESS {
@@ -137,7 +137,7 @@ function Download-File {
 $ScriptsToExecute = @(
                         @{
                             ScriptUrl  = "https://s3.amazonaws.com/systemprep/ContentScripts/SystemPrep-WindowsSaltInstall.ps1"
-                            Parameters = (Join-Hashtables $RemainingArgsHash  @{ 
+                            Parameters = (Join-Hashtables $RemainingArgsHash  @{
                                                                                   SaltWorkingDir = "${SystemPrepWorkingDir}\Salt"
                                                                                   SaltDebugLog = "${SystemPrepLogDir}\salt.staterun.debug.log"
                                                                                   SaltResultsLog = "${SystemPrepLogDir}\salt.staterun.results.log"
@@ -149,49 +149,53 @@ $ScriptsToExecute = @(
                                                                                                         "https://s3.amazonaws.com/salt-formulas/dotnet4-formula-master.zip",
                                                                                                         "https://s3.amazonaws.com/salt-formulas/emet-formula-master.zip",
                                                                                                         "https://s3.amazonaws.com/salt-formulas/netbanner-formula-master.zip"
+                                                                                                        "https://s3.amazonaws.com/salt-formulas/mcafee-agent-windows-formula-master.zip"
+                                                                                                        "https://s3.amazonaws.com/salt-formulas/ntp-client-windows-formula-master.zip"
+                                                                                                        "https://s3.amazonaws.com/salt-formulas/splunkforwarder-windows-formula-master.zip"
+                                                                                                        "https://s3.amazonaws.com/salt-formulas/windows-update-agent-formula-master.zip"
                                                                                                        )
                                                                                   FormulaTerminationStrings = @( "-latest", "-master" )
                                                                                   AshRole = "MemberServer"
                                                                                   NetBannerLabel = "Unclass"
                                                                                   SaltStates = "Highstate"
                                                                                   SourceIsS3Bucket = $SourceIsS3Bucket
-																				  AwsRegion = $AwsRegion
+                                                                                  AwsRegion = $AwsRegion
                                                                                 } -Force
                                          )
                          }
-                     ) #Array of hashtables (key-value dictionaries). Each hashtable has two keys, ScriptUrl and Parameters. 
+                     ) #Array of hashtables (key-value dictionaries). Each hashtable has two keys, ScriptUrl and Parameters.
                        # -- ScriptUrl  -- The full path to the PowerShell script to download and execute.
-                       # -- Parameters -- Must be a hashtable of parameters to pass to the script. 
+                       # -- Parameters -- Must be a hashtable of parameters to pass to the script.
                        #                  Use $RemainingArgsHash to inherit any unassigned parameters that are passed to the Master script.
                        #                  Use `Join-Hashtables $firsthash $secondhash -Force` to merge two hash tables (first overrides duplicate keys in second)
                        #To download and execute additional scripts, create a new hashtable for each script and place it on a new line
                        #in the array.
                        #Hastables are of the form @{ ScriptUrl = "https://your.host/your.script"; Parameters = @{yourParam = "yourValue"} }
                        #Scripts must be written in PowerShell.
-                       #Scripts will be downloaded and executed in the order listed. 
+                       #Scripts will be downloaded and executed in the order listed.
 
 
 ###
 #Begin Script
 ###
 #Make sure the systemprep, log, and working directories exist
-if (-Not (Test-Path $SystemPrepDir)) { 
+if (-Not (Test-Path $SystemPrepDir)) {
     New-Item -Path $SystemPrepDir -ItemType "directory" -Force > $null
-    log -LogTag ${ScriptName} "Created SystemPrep directory -- ${SystemPrepDir}" 
-} else { 
-    log -LogTag ${ScriptName} "SystemPrep directory already exists -- $SystemPrepDir" 
+    log -LogTag ${ScriptName} "Created SystemPrep directory -- ${SystemPrepDir}"
+} else {
+    log -LogTag ${ScriptName} "SystemPrep directory already exists -- $SystemPrepDir"
 }
-if (-Not (Test-Path $SystemPrepLogDir)) { 
+if (-Not (Test-Path $SystemPrepLogDir)) {
     New-Item -Path $SystemPrepLogDir -ItemType "directory" -Force > $null
-    log -LogTag ${ScriptName} "Created log directory -- ${SystemPrepLogDir}" 
-} else { 
-    log -LogTag ${ScriptName} "Log directory already exists -- ${SystemPrepLogDir}" 
+    log -LogTag ${ScriptName} "Created log directory -- ${SystemPrepLogDir}"
+} else {
+    log -LogTag ${ScriptName} "Log directory already exists -- ${SystemPrepLogDir}"
 }
-if (-Not (Test-Path $SystemPrepWorkingDir)) { 
+if (-Not (Test-Path $SystemPrepWorkingDir)) {
     New-Item -Path $SystemPrepWorkingDir -ItemType "directory" -Force > $null
-    log -LogTag ${ScriptName} "Created working directory -- ${SystemPrepWorkingDir}" 
-} else { 
-    log -LogTag ${ScriptName} "Working directory already exists -- ${SystemPrepWorkingDir}" 
+    log -LogTag ${ScriptName} "Created working directory -- ${SystemPrepWorkingDir}"
+} else {
+    log -LogTag ${ScriptName} "Working directory already exists -- ${SystemPrepWorkingDir}"
 }
 
 #Create log entry to note the script name
