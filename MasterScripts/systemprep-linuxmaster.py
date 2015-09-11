@@ -81,16 +81,6 @@ Use `merge_dicts({yourdict}, scriptparams)` to merge command line parameters wit
                             'dist': 'all',
                             'epel_version': '7',
                         },
-                        {
-                            'url': 'https://s3.amazonaws.com/systemprep-repo/linux/yum.repos/systemprep-repo-zmq-epel6-packages.repo',
-                            'dist': 'all',
-                            'epel_version': '6',
-                        },
-                        {
-                            'url': 'https://s3.amazonaws.com/systemprep-repo/linux/yum.repos/systemprep-repo-zmq-epel7-packages.repo',
-                            'dist': 'all',
-                            'epel_version': '7',
-                        },
                     ],
                 }, scriptparams)
             },
