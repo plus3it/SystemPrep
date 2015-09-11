@@ -23,8 +23,6 @@ REPOS=(
     "EPEL7"
     "SALT_EPEL6"
     "SALT_EPEL7"
-    "ZMQ_EPEL6"
-    "ZMQ_EPEL7"
 )
 
 REPO_NAME_AMZN="${BUCKETNAME}-amzn-packages"
@@ -49,19 +47,12 @@ REPO_GPGKEY_EPEL7="${BASE_URL}/epel/7/\$basearch/RPM-GPG-KEY-EPEL-7"
 
 REPO_NAME_SALT_EPEL6="${BUCKETNAME}-salt-epel6-packages"
 REPO_BASEURL_SALT_EPEL6="${BASE_URL}/saltstack/salt/epel-6/\$basearch/"
-REPO_GPGKEY_SALT_EPEL6="${BASE_URL}/saltstack/salt/epel-6/\$basearch/salt-gpgkey.gpg"
+REPO_GPGKEY_SALT_EPEL6="${BASE_URL}/saltstack/salt/epel-6/\$basearch/SALTSTACK-GPG-KEY.pub"
 
 REPO_NAME_SALT_EPEL7="${BUCKETNAME}-salt-epel7-packages"
 REPO_BASEURL_SALT_EPEL7="${BASE_URL}/saltstack/salt/epel-7/\$basearch/"
-REPO_GPGKEY_SALT_EPEL7="${BASE_URL}/saltstack/salt/epel-7/\$basearch/salt-gpgkey.gpg"
+REPO_GPGKEY_SALT_EPEL7="${BASE_URL}/saltstack/salt/epel-7/\$basearch/SALTSTACK-GPG-KEY.pub"
 
-REPO_NAME_ZMQ_EPEL6="${BUCKETNAME}-zmq-epel6-packages"
-REPO_BASEURL_ZMQ_EPEL6="${BASE_URL}/saltstack/zeromq/epel-6/\$basearch/"
-REPO_GPGKEY_ZMQ_EPEL6="${BASE_URL}/saltstack/zeromq/epel-6/\$basearch/zeromq-gpgkey.gpg"
-
-REPO_NAME_ZMQ_EPEL7="${BUCKETNAME}-zmq-epel7-packages"
-REPO_BASEURL_ZMQ_EPEL7="${BASE_URL}/saltstack/zeromq/epel-7/\$basearch/"
-REPO_GPGKEY_ZMQ_EPEL7="${BASE_URL}/saltstack/zeromq/epel-7/\$basearch/zeromq-gpgkey.gpg"
 
 
 # Manage distribution-specific dependencies
@@ -69,15 +60,15 @@ RELEASE=$(grep "release" /etc/system-release)
 case "${RELEASE}" in
 "Amazon"*)
     ;;
-"CentOS"*6*)
+"CentOS"*"6."*)
     service ntpd start 2>&1 > /dev/null && echo "Started ntpd..." || echo "Failed to start ntpd..."
        ### ^^^Workaround for issue where localtime is misconfigured on CentOS6
     ;;
-"CentOS"*7*)
+"CentOS"*"7."*)
     ;;
-"Red Hat"*6*)
+"Red Hat"*"6."*)
     ;;
-"Red Hat"*7*)
+"Red Hat"*"7."*)
     ;;
 *)
     echo "Unsupported OS. Exiting"
@@ -89,6 +80,9 @@ esac
 curl ${PIP_INSTALLER} -o /tmp/get-pip.py
 python /tmp/get-pip.py
 hash pip 2> /dev/null || PATH="${PATH}:/usr/local/bin"  # Make sure pip is in path
+
+# Upgrade setuptools
+pip install --upgrade setuptools
 
 # Install s3cmd
 pip install s3cmd --upgrade --allow-all-external --index-url ${PIP_INDEX_URL}
