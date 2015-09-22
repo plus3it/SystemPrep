@@ -146,8 +146,12 @@ cd ${REPO_DIR}
 dir_basename="${PWD##*/}"
 datestamp=$(date -u +"%Y%m%d")
 
+# Create a delta zip archive, comparing new files to the last full zip archive
+lastfull=$(find ./archives -type f | grep -i -e "${dir_basename}-full-.*\.zip" | sort -r | head -1)
+zip -r "${lastfull}" . -DF --out "./archives/${dir_basename}-delta-${datestamp}.zip" -x "archives/${dir_basename}-*.zip"
+
 # Now create a zip with all the current files
-zip -r "${dir_basename}-full-${datestamp}.zip" . -x "${dir_basename}-*.zip"
+zip -r "./archives/${dir_basename}-full-${datestamp}.zip" . -x "archives/${dir_basename}-*.zip"
 
 # Sync the repo directory back to the S3 bucket
 s3cmd sync "${REPO_DIR}/" "${BUCKET_URL}" --delete-removed
