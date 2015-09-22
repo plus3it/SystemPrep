@@ -378,8 +378,11 @@ powershell.exe -noprofile -command "" ^
     "" > %temp%\aws-sdk-dir.txt
 set /p aws-sdk-dir= < %temp%\aws-sdk-dir.txt
 
+echo Removing any previous SDK installation...
+start /wait msiexec /X{F614C929-1D26-4066-9980-B639029FA66B} /quiet /qn /norestart /lv "%temp%\aws-sdk-uninstall.log"
+
 echo Installing the SDK...
-msiexec /i "%aws-sdk-dir%\AWSToolsAndSDKForNet.msi" /quiet /qn /norestart /lv "%temp%\aws-sdk-install.log"
+start /wait msiexec /i "%aws-sdk-dir%\AWSToolsAndSDKForNet.msi" /quiet /qn /norestart /lv "%temp%\aws-sdk-install.log"
 
 set endpoint=%aws-sdk-dir%\customization\sdk\AWSSDK.endpoints.xml
 if exist "%endpoint%" (
