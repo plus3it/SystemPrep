@@ -12,6 +12,7 @@ PIP_DEPS=(
     "boto"
     "pip2pi"
     "s3cmd"
+    "saws"
 )
 
 # Temporarily suppress rsyslog rate limiting
