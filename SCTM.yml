@@ -1,0 +1,153 @@
+sctm:
+
+  # template of the data structure
+  # <project name>:
+    # <control ref>:
+      # name: <control name>
+      # type: <control type>
+      # implementation: <implementation details>
+    # <control ref>:
+      # name: <control name>
+      # type: <control type>
+      # implementation: <implementation details>
+
+  AMIgen:
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+
+  ash-linux-formula:
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+
+  EnterpriseLayer-HBSS-formula:
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+
+  EnterpriseLayer-Splunk-formula:
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+
+  join-domain-formula:
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+
+  systemprep-formula:
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+
+  ash-windows-formula:
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+
+  mcafee-agent-windows-formula:
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+
+  splunkforwarder-windows-formula:
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+
+  windows-update-agent-formula:
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+
+  netbanner-formula:
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+
+  emet-formula:
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+
+  dotnet4-formula:
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+
+  ntp-client-windows-formula:
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: <implementation details>
+
