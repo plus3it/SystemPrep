@@ -22,10 +22,30 @@ sctm:
       implementation: <implementation details>
 
   ash-linux-formula:
+    'AC-7':
+      name: 'UNSUCCESSFUL LOGON ATTEMPTS'
+      type: 'Common'
+      implementation: '
+        Modify "/etc/pam.d/system-auth-ac" and "/etc/pam.d/password-auth-ac" to enforce:
+          "auth required pam_faillock.so preauth silent audit deny=3 unlock_time=900";
+          "auth [default=die] pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900";
+          "auth required pam_faillock.so authsucc deny=3 unlock_time=900 fail_interval=900";
+        Specified values are proscribed by CNSSI 1253.'
     <control ref>:
       name: <control name>
       type: <control type>
       implementation: <implementation details>
+
+  ash-windows-formula:
+    'AC-7':
+      name: 'UNSUCCESSFUL LOGON ATTEMPTS'
+      type: 'Common'
+      implementation: '
+        Use local security policy to enforce: 
+          "LockoutBadCount = 3";
+          "ResetLockoutCount = 15";
+          "LockoutDuration = 15";
+        Specified values are proscribed by CNSSI 1253.'
     <control ref>:
       name: <control name>
       type: <control type>
@@ -62,16 +82,6 @@ sctm:
       implementation: <implementation details>
 
   systemprep-formula:
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      implementation: <implementation details>
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      implementation: <implementation details>
-
-  ash-windows-formula:
     <control ref>:
       name: <control name>
       type: <control type>
