@@ -95,6 +95,164 @@ sctm:
           - '/apps/gnome-screensaver/mode blank-only'
       source_ref:
         - 'Setting is proscribed by DISA STIG.'
+    'AC-17(1)':
+      name: 'REMOTE ACCESS | AUTOMATED MONITORING / CONTROL'
+      type: 'Common'
+      implementation: 
+        'Ensure the "auditd" service is enabled and running':
+          - 'chkconfig auditd on'
+          - 'service auditd start'
+      source_ref:
+        - 'Setting is proscribed by DISA STIG.'
+    'AC-17(2)':
+      name: 'REMOTE ACCESS | PROTECTION OF CONFIDENTIALITY / INTEGRITY USING ENCRYPTION'
+      type: 'Common'
+      implementation: 
+        'Ensure the service "rsh" is disabled':
+          - 'chkconfig rsh off'
+        'Ensure the service "rexec" is disabled':
+          - 'chkconfig rexec off'
+        'If the package "pam_ldap" is installed, ensure "/etc/pam_ldap.conf" contains':
+          - 'ssl start_tls'
+      source_ref:
+        - 'Setting is proscribed by DISA STIG.'
+    'AU-3':
+      name: 'CONTENT OF AUDIT RECORDS'
+      type: 'Common'
+        'Ensure the "auditd" service is enabled and running':
+          - 'chkconfig auditd on'
+          - 'service auditd start'
+        'If package "vsftpd" is installed, ensure "/etc/vsftpd/vsftpd.conf" contains':
+          - 'xferlog_enable=YES'
+          - 'xferlog_std_format=NO'
+          - 'log_ftp_protocol=YES'
+      source_ref:
+        - 'Setting is proscribed by DISA STIG.'
+    'AU-5':
+      name: 'RESPONSE TO AUDIT PROCESSING FAILURES'
+      type: 'Common'
+      implementation: 
+        'Ensure "/etc/audit/auditd.conf" contains':
+          - 'action_mail_acct = root'
+          - 'disk_full_action = HALT'
+          - 'disk_error_action = HALT'
+      source_ref:
+        - 'Setting is proscribed by DISA STIG.'
+    'AU-9':
+      name: 'PROTECTION OF AUDIT INFORMATION'
+      type: 'Common'
+      implementation: 
+        'Execute the commands':
+          - 'rpm --setperms audit'
+          - 'rpm --setugids audit'
+          - 'chmod 0640 /var/log/audit/*'
+          - 'chown root /var/log/audit/*'
+          - 'chmod 0700 /var/log/audit'
+      source_ref:
+        - 'Setting is proscribed by DISA STIG.'
+    'AU-9(3)':
+      name: 'PROTECTION OF AUDIT INFORMATION | CRYPTOGRAPHIC PROTECTION'
+      type: 'Common'
+      implementation: 
+        'Execute the command':
+          - 'rpm -V audit | awk \'$1 ~ /..5/ && $2 != "c"\''
+      source_ref:
+        - 'Setting is proscribed by DISA STIG.'
+    'AU-12':
+      name: 'AUDIT GENERATION'
+      type: 'Common'
+      implementation: 
+        'Ensure "/etc/audit/audit.rules" contains':
+          - 'audit_time_rules-a always,exit -F arch=b64 -S adjtimex -k audit_time_rules'
+          - 'audit_time_rules-a always,exit -F arch=b64 -S settimeofday -k audit_time_rules'
+          - 'audit_time_rules-a always,exit -F arch=b64 -S clock_settime -k audit_time_rules'
+          - '-w /etc/localtime -p wa -k audit_time_rules'
+          - '-w /etc/sudoers -p wa -k actions'
+          - '-w /sbin/insmod -p x -k modules'
+          - '-w /sbin/rmmod -p x -k modules'
+          - '-w /sbin/modprobe -p x -k modules
+          - '-a always,exit -F arch=b64 -S init_module -S delete_module -k modules'
+          - '-a always,exit -F arch=b32 -S chmod -F auid>=500 -F auid!=4294967295 -k perm_mod'
+          - '-a always,exit -F arch=b32 -S chmod -F auid=0 -k perm_mod'
+          - '-a always,exit -F arch=b64 -S chmod -F auid>=500 -F auid!=4294967295 -k perm_mod'
+          - '-a always,exit -F arch=b64 -S chmod -F auid=0 -k perm_mod'
+          - '-a always,exit -F arch=b32 -S fchmod -F auid>=500 -F auid!=4294967295 -k perm_mod'
+          - '-a always,exit -F arch=b32 -S fchmod -F auid=0 -k perm_mod'
+          - '-a always,exit -F arch=b64 -S fchmod -F auid>=500 -F auid!=4294967295 -k perm_mod'
+          - '-a always,exit -F arch=b64 -S fchmod -F auid=0 -k perm_mod'
+          - '-a always,exit -F arch=b32 -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod'
+          - '-a always,exit -F arch=b32 -S fchmodat -F auid=0 -k perm_mod'
+          - '-a always,exit -F arch=b64 -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod'
+          - '-a always,exit -F arch=b64 -S fchmodat -F auid=0 -k perm_mod'
+          - '-a always,exit -F arch=b32 -S fchown -F auid>=500 -F auid!=4294967295 -k perm_mod'
+          - '-a always,exit -F arch=b32 -S fchown -F auid=0 -k perm_mod'
+          - '-a always,exit -F arch=b64 -S fchown -F auid>=500 -F auid!=4294967295 -k perm_mod'
+          - '-a always,exit -F arch=b64 -S fchown -F auid=0 -k perm_mod'
+          - '-a always,exit -F arch=b32 -S fchownat -F auid>=500 -F auid!=4294967295 -k perm_mod'
+          - '-a always,exit -F arch=b32 -S fchownat -F auid=0 -k perm_mod'
+          - '-a always,exit -F arch=b64 -S fchownat -F auid>=500 -F auid!=4294967295 -k perm_mod'
+          - '-a always,exit -F arch=b64 -S fchownat -F auid=0 -k perm_mod'
+          - '-a always,exit -F arch=b32 -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod'
+          - '-a always,exit -F arch=b32 -S fremovexattr -F auid=0 -k perm_mod'
+          - '-a always,exit -F arch=b32 -S fsetxattr -F auid>=500 -F auid!=4294967295 -k perm_mod'
+          - '-a always,exit -F arch=b32 -S fsetxattr -F auid=0 -k perm_mod'
+          - '-a always,exit -F arch=b32 -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod'
+          - '-a always,exit -F arch=b32 -S lchown -F auid=0 -k perm_mod'
+          - '-a always,exit -F arch=b32 -S lremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod'
+          - '-a always,exit -F arch=b32 -S lremovexattr -F auid=0 -k perm_mod'
+          - '-a always,exit -F arch=b64 -S lremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod'
+          - '-a always,exit -F arch=b64 -S lremovexattr -F auid=0 -k perm_mod'
+          - '-a always,exit -F arch=b32 -S lsetxattr -F auid>=500 -F auid!=4294967295 -k perm_mod'
+          - '-a always,exit -F arch=b32 -S lsetxattr -F auid=0 -k perm_mod'
+          - '-a always,exit -F arch=b32 -S removexattr -F auid>=500 -F auid!=4294967295 -k perm_mod'
+          - '-a always,exit -F arch=b32 -S removexattr -F auid=0 -k perm_mod'
+          - '-a always,exit -F arch=b32 -S setxattr -F auid>=500 -F auid!=4294967295 -k perm_mod'
+          - '-a always,exit -F arch=b32 -S setxattr -F auid=0 -k perm_mod'
+          - '-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access'
+          - '-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access'
+          - '-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid=0 -k access'
+          - '-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid=0 -k access'
+          - '-a always,exit -F arch=b64 -S mount -F auid>=500 -F auid!=4294967295 -k export'
+          - '-a always,exit -F arch=b64 -S mount -F auid=0 -k export'
+          - '-a always,exit -F arch=b64 -S rmdir -S unlink -S unlinkat -S rename -S renameat -F auid>=500 -F auid!=4294967295 -k delete'
+          - '-a always,exit -F arch=b64 -S rmdir -S unlink -S unlinkat -S rename -S renameat -F auid=0 -k delete'
+        'Ensure the "kernel" entry in "/etc/grub.conf" contains':
+          - 'audit=1'
+      source_ref:
+        - 'Settings are proscribed by DISA STIG.'
+    'CM-5(6)':
+      name: 'ACCESS RESTRICTIONS FOR CHANGE | LIMIT PRODUCTION / OPERATIONAL PRIVILEGES'
+      type: 'Hybrid'
+      implementation: 
+        'Execute the commands':
+          - 'chmod go-w /lib/*'
+          - 'chmod go-w /lib64/*'
+          - 'chmod go-w /usr/lib/*'
+          - 'chmod go-w /usr/lib64/*'
+          - 'chmod go-w /bin/*'
+          - 'chmod go-w /usr/bin/*'
+          - 'chmod go-w /usr/local/bin/*'
+          - 'chmod go-w /sbin/*'
+          - 'chmod go-w /usr/sbin/*'
+          - 'chmod go-w /usr/local/sbin/*'
+          - 'chown root /lib/*'
+          - 'chown root /lib64/*'
+          - 'chown root /usr/lib/*'
+          - 'chown root /usr/lib64/*'
+          - 'chown root /bin/*'
+          - 'chown root /usr/bin/*'
+          - 'chown root /usr/local/bin/*'
+          - 'chown root /sbin/*'
+          - 'chown root /usr/sbin/*'
+          - 'chown root /usr/local/sbin/*'
+      source_ref:
+        - 'Settings are proscribed by DISA STIG.'
+    <control ref>:
+      name: <control name>
+      type: <control type>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
@@ -172,9 +330,15 @@ sctm:
       source_ref: <list of source references>
 
   EnterpriseLayer-Splunk-formula:
-    <control ref>:
-      name: <control name>
-      type: <control type>
+    'AU-9(2)':
+      name: 'PROTECTION OF AUDIT INFORMATION | AUDIT BACKUP ON SEPARATE PHYSICAL SYSTEMS / COMPONENTS'
+      type: 'Common'
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
+    'AU-12':
+      name: 'AUDIT GENERATION'
+      type: 'Common'
       implementation: 
         <dictionary containing implementation details>
       source_ref: <list of source references>
@@ -228,9 +392,15 @@ sctm:
       source_ref: <list of source references>
 
   splunkforwarder-windows-formula:
-    <control ref>:
-      name: <control name>
-      type: <control type>
+    'AU-9(2)':
+      name: 'PROTECTION OF AUDIT INFORMATION | AUDIT BACKUP ON SEPARATE PHYSICAL SYSTEMS / COMPONENTS'
+      type: 'Common'
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
+    'AU-12':
+      name: 'AUDIT GENERATION'
+      type: 'Common'
       implementation: 
         <dictionary containing implementation details>
       source_ref: <list of source references>
