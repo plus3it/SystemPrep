@@ -5,232 +5,309 @@ sctm:
     # <control ref>:
       # name: <control name>
       # type: <control type>
-      # implementation: <implementation details>
+      # implementation: 
+        # <dictionary containing implementation details>
+      # source_ref: <list of source references>
     # <control ref>:
       # name: <control name>
       # type: <control type>
-      # implementation: <implementation details>
+      # implementation: 
+        # <dictionary containing implementation details>
+      # source_ref: <list of source references>
 
   AMIgen:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
 
   ash-linux-formula:
     'AC-7':
       name: 'UNSUCCESSFUL LOGON ATTEMPTS'
       type: 'Common'
-      implementation: '
-        Modify "/etc/pam.d/system-auth-ac" and "/etc/pam.d/password-auth-ac" to enforce:
-          "auth required pam_faillock.so preauth silent audit deny=3 unlock_time=900";
-          "auth [default=die] pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900";
-          "auth required pam_faillock.so authsucc deny=3 unlock_time=900 fail_interval=900";
-        Specified values are proscribed by CNSSI 1253.'
+      implementation:
+        'Modify "/etc/pam.d/system-auth-ac" and "/etc/pam.d/password-auth-ac" to enforce':
+          - 'auth required pam_faillock.so preauth silent audit deny=3 unlock_time=900'
+          - 'auth [default=die] pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900'
+          - 'auth required pam_faillock.so authsucc deny=3 unlock_time=900 fail_interval=900'
+      source_ref:
+        - 'Specified values are proscribed by CNSSI 1253.'
     'AC-8':
       name: 'SYSTEM USE NOTIFICATION'
       type: 'Common'
-      implementation: '
-        Modify "/etc/issue" to contain:
-          "<Required consent banner and user agreement>";
-        Modify "/etc/ssh/sshd_config" to ensure it contains:
-          "Banner /etc/issue";
-        If ftp services are installed, ensure:
-          "<banner config reflects the contents of /etc/issue>";
-          "<ash-linux has banner config settings for proftpd, pure-ftpd, and vsftpd packages>";
-        If package "gdm" is installed, ensure:
-          "banner_message_enable true";
-          "banner_message_text contains the contents of /etc/issue";
-        Content of the banner text is proscribed by DISA STIG and JTF-GNO CTO 08-008A and DoD CIO 
-        Memo, "Policy on Use of Department of Defense (DoD) Information Systems Standard Consent 
-        Banner and User Agreement," dated 9 May 2008.'
+      implementation:
+        'Ensure "/etc/issue" contains':
+          - '<Required consent banner and user agreement>'
+        'Ensure "/etc/ssh/sshd_config" contains':
+          - 'Banner /etc/issue'
+        'If ftp services are installed, ensure they are configured with':
+          - '<banner config reflects the contents of /etc/issue>'
+          - '<ash-linux has banner config settings for proftpd, pure-ftpd, and vsftpd packages>'
+        'If package "gdm" is installed, ensure it is configured with':
+          - 'banner_message_enable true'
+          - 'banner_message_text contains the contents of /etc/issue'
+      source_ref:
+        - 'Content of the banner text is proscribed by DISA STIG and JTF-GNO CTO 08-008A and DoD CIO
+          Memo, "Policy on Use of Department of Defense (DoD) Information Systems Standard Consent
+          Banner and User Agreement," dated 9 May 2008.'
+    'AC-9':
+      name: 'PREVIOUS LOGON (ACCESS) NOTIFICATION'
+      type: 'Common'
+      implementation:
+        'Ensure "/etc/ssh/sshd_config" contains':
+          - 'PrintLastLog yes'
+      source_ref:
+        - 'Value is proscribed by DISA STIG.'
     'AC-10':
       name: 'CONCURRENT SESSION CONTROL'
       type: 'Common'
-      implementation: '
-        Ensure "/etc/security/limits.conf" contains the setting:
-          "*	hard	maxlogins	10"
-        Value is proscribed by DISA STIG.'
+      implementation:
+        'Ensure "/etc/security/limits.conf" contains':
+          - '*	hard	maxlogins	10'
+      source_ref:
+        - 'Value is proscribed by DISA STIG.'
     'AC-11':
       name: 'SESSION LOCK'
       type: 'Common'
-      implementation: '
-        If the package "gdm" is installed, enforce the setting:
-          "/apps/gnome-screensaver/idle_delay 15";
-          "/apps/gnome-screensaver/idle_activation_enabled true";
-          "/apps/gnome-screensaver/lock_enabled true";
-        Setting is proscribed by DISA STIG.'
+      implementation:
+        'Ensure the package "screen" is installed':
+          - 'yum install screen'
+        'If the package "gdm" is installed, enforce the settings':
+          - '/apps/gnome-screensaver/idle_delay 15'
+          - '/apps/gnome-screensaver/idle_activation_enabled true'
+          - '/apps/gnome-screensaver/lock_enabled true'
+          - '/apps/gnome_settings_daemon/keybindings/screensaver "l"'
+      source_ref:
+        - 'Settings are proscribed by DISA STIG.'
     'AC-11(1)':
       name: 'SESSION LOCK | PATTERN-HIDING DISPLAYS'
       type: 'Common'
-      implementation: '
-        If the package "gdm" is installed, enforce the setting:
-          "/apps/gnome-screensaver/mode blank-only";
-        Setting is proscribed by DISA STIG.'
+      implementation:
+        'If the package "gdm" is installed, enforce the setting':
+          - '/apps/gnome-screensaver/mode blank-only'
+      source_ref:
+        - 'Setting is proscribed by DISA STIG.'
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
 
   ash-windows-formula:
     'AC-7':
       name: 'UNSUCCESSFUL LOGON ATTEMPTS'
       type: 'Common'
-      implementation: '
-        Use local security policy to enforce: 
-          "LockoutBadCount = 3";
-          "ResetLockoutCount = 15";
-          "LockoutDuration = 15";
-        Values are proscribed by CNSSI 1253.'
+      implementation:
+        'Use local security policy to enforce':
+          - 'LockoutBadCount = 3'
+          - 'ResetLockoutCount = 15'
+          - 'LockoutDuration = 15'
+      source_ref:
+        - 'Values are proscribed by CNSSI 1253.'
     'AC-8':
       name: 'SYSTEM USE NOTIFICATION'
       type: 'Common'
-      implementation: '
-        Use local security policy to enforce:
-          "LegalNoticeText = <Required consent banner and user agreement>"
-        Banner text is proscribed by DISA STIG and JTF-GNO CTO 08-008A and DoD CIO Memo, "Policy on
-        Use of Department of Defense (DoD) Information Systems Standard Consent Banner and User 
-        Agreement," dated 9 May 2008.'
+      implementation:
+        'Use local security policy to enforce':
+          - 'LegalNoticeText = <Required consent banner and user agreement>'
+      source_ref:
+        - 'Banner text is proscribed by DISA STIG and JTF-GNO CTO 08-008A and DoD CIO Memo, "Policy
+          on Use of Department of Defense (DoD) Information Systems Standard Consent Banner and User
+          Agreement," dated 9 May 2008.'
     'AC-10':
       name: 'CONCURRENT SESSION CONTROL'
       type: 'Common'
-      implementation: '
-        Use local security policy to enforce:
-          "HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\fSingleSessionPerUser = 1";
-        Value is proscribed by DISA STIG.'
+      implementation:
+        'Use local security policy to enforce':
+          - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\fSingleSessionPerUser = 1'
+      source_ref:
+        - 'Value is proscribed by DISA STIG.'
     'AC-11':
       name: 'SESSION LOCK'
       type: 'Common'
-      implementation: '
-        Use local security policy to enforce:
-          "HKLM\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\ScreenSaverGracePeriod = 5";
-          "HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\InactivityTimeoutSecs = 900";
-          "HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop\ScreenSaveActive = 1";
-          "HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop\ScreenSaverIsSecure = 1";
-        Values are proscribed by DISA STIG.'
+      implementation:
+        'Use local security policy to enforce':
+          - 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\ScreenSaverGracePeriod = 5'
+          - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\InactivityTimeoutSecs = 900'
+          - 'HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop\ScreenSaveActive = 1'
+          - 'HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop\ScreenSaverIsSecure = 1'
+      source_ref:
+        - 'Values are proscribed by DISA STIG.'
     'AC-11(1)':
       name: 'SESSION LOCK | PATTERN-HIDING DISPLAYS'
       type: 'Common'
-      implementation: '
-        Use local security policy to enforce:
-          "HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop\SCRNSAVE.EXE = scrnsave.scr";
-        Setting is proscribed by DISA STIG.'
+      implementation:
+        'Use local security policy to enforce':
+          - 'HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop\SCRNSAVE.EXE = scrnsave.scr'
+      source_ref:
+        - 'Setting is proscribed by DISA STIG.'
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
 
   EnterpriseLayer-HBSS-formula:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
 
   EnterpriseLayer-Splunk-formula:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
 
   join-domain-formula:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
 
   systemprep-formula:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
 
   mcafee-agent-windows-formula:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
 
   splunkforwarder-windows-formula:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
 
   windows-update-agent-formula:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
 
   netbanner-formula:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
 
   emet-formula:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
 
   dotnet4-formula:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
 
   ntp-client-windows-formula:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
 

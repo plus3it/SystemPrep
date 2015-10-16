@@ -43,6 +43,8 @@ The data elements of the SCTM are defined as follows:
     security control.
 - **Implementation**
     - Describes how the security control is implemented.
+- **Source Ref**
+    - Describes the source proscribing the requirement configuration or value.
 
 The SCTM is formatted using a markup language, *Yet Another Markup Language*
 (YAML). YAML is structured, which means it is machine readable, but it is
@@ -60,21 +62,29 @@ sctm:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
 
   <project name>:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: <implementation details>
+      implementation: 
+        <dictionary containing implementation details>
+      source_ref: <list of source references>
 ```
 
 The SCTM data may be found in the [SCTM.yml](SCTM.yml) file.
