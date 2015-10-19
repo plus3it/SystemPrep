@@ -286,8 +286,172 @@ sctm:
       target:
         - 'Enterprise Linux 6'
       implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
+        'Check that "/tmp" is mounted on a dedicated partition':
+          - 'grep -e "[\s]/tmp[\s]" "/etc/fstab"'
+        'Check that "/var" is mounted on a dedicated partition':
+          - 'grep -e "[\s]/var[\s]" "/etc/fstab"'
+        'Check that "/var/log" is mounted on a dedicated partition':
+          - 'grep -e "[\s]/var/log[\s]" "/etc/fstab"'
+        'Check that "/home" is mounted on a dedicated partition':
+          - 'grep -e "[\s]/home[\s]" "/etc/fstab"'
+        'Ensure selinux is not disabled when loading the kernel':
+          - 'sed -i -e ''s/selinux=0/selinux=1/g'' /boot/grub/grub.conf'
+        'Ensure selinux is set to enabled at boot time':
+          - 'sed -i -e ''s/^SELINUX=.*/SELINUX=enforcing/'' /etc/selinux/config'
+        'Ensure selinux is using the "targeted" policy':
+          - 'sed -i -e ''s/^SELINUXTYPE=.*/SELINUX=targeted/'' /etc/selinux/config'
+        'Check for device files with the SELinux type "unlabeled_t"':
+          - 'find /dev -print | xargs ls -dZ /dev 2> /dev/null | grep unlabeled_t | awk ''{print $5}'''
+        'For system accounts, ensure a password is set or disable logon by locking the account':
+          - 'passwd -l [SYSACCT]'
+        'Ensure accounts may not logon with null passwords':
+          - 'sed -i -e ''s/[\s]*nullok[\s]/ /g'' /etc/pam.d/system-auth-ac'
+        'Ensure account passwords are not stored in /etc/passwd':
+          - '/usr/sbin/pwconv'
+        'Ensure only "root" has a uid of 0':
+          - '[Delete and recreate any non-root account with a uid of 0]'
+        'Ensure secure file permissions and ownership on critical files':
+          - 'chown root /etc/shadow'
+          - 'chgrp root /etc/shadow'
+          - 'chmod 0000 /etc/shadow'
+          - 'chown root /etc/gshadow'
+          - 'chgrp root /etc/gshadow'
+          - 'chmod 0000 /etc/gshadow'
+          - 'chown root /etc/passwd'
+          - 'chgrp root /etc/passwd'
+          - 'chmod 0644 /etc/passwd'
+          - 'chown root /etc/group'
+          - 'chgrp root /etc/group'
+          - 'chmod 644 /etc/group'
+          - 'chown root /etc/grub.conf'
+          - 'chgrp root /etc/grub.conf'
+          - 'chmod 600 /boot/grub/grub.conf'
+        'Ensure "/etc/login.defs" contains the setting':
+          - 'PASS_WARN_AGE 7'
+        'Ensure "/etc/sysctl.conf" contains the settings':
+          - 'kernel.randomize_va_space = 2'
+          - 'kernel.exec-shield = 1'
+          - 'net.ipv4.conf.default.send_redirects = 0'
+          - 'net.ipv4.conf.all.send_redirects = 0'
+          - 'net.ipv4.ip_forward = 0'
+          - 'net.ipv4.conf.all.accept_source_route = 0'
+          - 'net.ipv4.conf.all.accept_redirects = 0'
+          - 'net.ipv4.conf.all.secure_redirects = 0'
+          - 'net.ipv4.conf.all.log_martians = 1'
+          - 'net.ipv4.conf.default.accept_source_route = 0'
+          - 'net.ipv4.conf.default.secure_redirects = 0'
+          - 'net.ipv4.conf.default.accept_redirects = 0'
+          - 'net.ipv4.icmp_echo_ignore_broadcasts = 1'
+          - 'net.ipv4.icmp_ignore_bogus_error_responses = 1'
+          - 'net.ipv4.conf.all.rp_filter = 1'
+          - 'net.ipv4.conf.default.rp_filter = 1'
+          - 'net.ipv6.conf.default.accept_redirects = 0'
+        'Execute the commands':
+          - 'sysctl -w kernel.randomize_va_space=2'
+          - 'sysctl -w kernel.exec-shield = 1'
+          - 'sysctl -w net.ipv4.conf.default.send_redirects = 0'
+          - 'sysctl -w net.ipv4.conf.all.send_redirects = 0'
+          - 'sysctl -w net.ipv4.ip_forward = 0'
+          - 'sysctl -w net.ipv4.conf.all.accept_source_route = 0'
+          - 'sysctl -w net.ipv4.conf.all.accept_redirects = 0'
+          - 'sysctl -w net.ipv4.conf.all.secure_redirects = 0'
+          - 'sysctl -w net.ipv4.conf.all.log_martians = 1'
+          - 'sysctl -w net.ipv4.conf.default.accept_source_route = 0'
+          - 'sysctl -w net.ipv4.conf.default.secure_redirects = 0'
+          - 'sysctl -w net.ipv4.conf.default.accept_redirects = 0'
+          - 'sysctl -w net.ipv4.icmp_echo_ignore_broadcasts = 1'
+          - 'sysctl -w net.ipv4.icmp_ignore_bogus_error_responses = 1'
+          - 'sysctl -w net.ipv4.conf.all.rp_filter = 1'
+          - 'sysctl -w net.ipv4.conf.default.rp_filter = 1'
+          - 'sysctl -w net.ipv6.conf.default.accept_redirects = 0'
+        'Ensure "/etc/modprobe.d/disabled.conf" contains the setting':
+          - 'options ipv6 disable=1'
+        'Ensure the package "logrotate" is installed properly':
+          - 'yum -y reinstall logrotate'
+        'Ensure "/etc/audit/auditd.conf" contains the settings':
+          - 'num_logs = 5'
+          - 'max_log_file = 6'
+          - 'max_log_file_action = rotate'
+          - 'admin_space_left_action = suspend'
+        'Ensure "/etc/audit/audit.rules" contains the settings':
+          - '-a always,exit -F arch=b64 -S sethostname -S setdomainname -k audit_network_modifications'
+          - '-w /etc/issue -p wa -k audit_network_modifications'
+          - '-w /etc/issue.net -p wa -k audit_network_modifications'
+          - '-w /etc/hosts -p wa -k audit_network_modifications'
+          - '-w /etc/sysconfig/network -p wa -k audit_network_modifications'
+          - '-w /etc/selinux/ -p wa -k MAC-policy'
+        'Ensure the service "crond" is enabled and running':
+          - 'chkconfig crond on'
+          - 'service crond start'
+        'Ensure the service "avahi-daemon" is disabled and stopped':
+          - 'chkconfig crond off'
+          - 'service crond stop'
+        'Remove the package "openldap-servers"':
+          - 'yum -y remove openldap-servers'
+        'Ensure NFS mounts are using the "nodev" mount option':
+          - '[Re-mount NFS devices that are not currently mounted with the "nodev" option]'
+          - '[Add the "nodev" option to NFS devices listed in "/etc/fstab"]'
+        'Ensure NFS mounts are using the "nosuid" mount option':
+          - '[Re-mount NFS devices that are not currently mounted with the "nosuid" option]'
+          - '[Add the "nosuid" option to NFS devices listed in "/etc/fstab"]'
+        'Ensure "/etc/samba/smb.conf" contains the settings':
+          - 'client signing = mandatory'
+        'Check whether CIFS mounts are using the "sec=krb5i" or "sec=ntlmv2i" mount options':
+          - '[Warn if CIFS mounts are not using mount options "sec=krb5i" or "sec=ntlmv2i"]'
+        'Ensure there are no world writeable files on the system':
+          - '[Execute "chmod o-w <filename>" on all world writeable files]'
+        'Ensure "/etc/init/control-alt-delete.override" contains the setting':
+          - 'exec /usr/bin/logger -p security.info "Ctrl-Alt-Delete pressed"'
+        'Ensure the package "postfix" is installed, enabled, and running':
+          - 'yum -y install postfix'
+          - 'chkconfig postfix on'
+          - 'service postfix start'
+        'Ensure the package "sendmail" is removed':
+          - 'yum -y remove sendmail'
+        'Check for network interfaces using DHCP':
+          - '[Warn if any network interfaces are configured to use DHCP]'
+        'Check that all groups referenced in "/etc/passwd" are defined in "/etc/group"':
+          - '[Warn if any groups referenced in "/etc/passwd" are missing from "/etc/group"]'
+        'Ensure "pam_cracklib" in "/etc/pam.d/system-auth-ac" is requiring the settings':
+          - 'maxrepeat=3'
+        'Ensure "/etc/security/limits.conf" contains the settings':
+          - '* hard core 0'
+        'Set the sticky bit on public, world-writeable directories':
+          - 'chmod 1777 /tmp'
+          - 'chmod 1777 /var/tmp'
+        'Check for world-writeable directories that are not owned by root':
+          - '[Warn if there are world-writeable directories that are not owned by root]'
+        'If "tftpd" is installed, ensure "/etc/xinetd.d/tftp" contains the setting':
+          - 'server_args = -s /var/lib/tftpboot'
+        'If "snmpd" is installed, ensure it is not configured to use "v1","v2c", or "com2sec"':
+          - '[Comment out from "/etc/snmp/snmpd.conf" lines containing "v1","v2c", or "com2sec"'
+        'If "snmpd" is installed, ensure it is not configured to use default community string "public"':
+          - '[Comment out from "/etc/snmp/snmpd.conf" lines containing "public"'
+        'Ensure "/etc/bashrc" contains the settings':
+          - 'umask 0777'
+        'Ensure "/etc/csh.cshrc" contains the settings':
+          - 'umask 0777'
+        'Ensure "/etc/profile" contains the settings':
+          - 'umask 0777'
+        'Ensure "/etc/login.defs" contains the settings':
+          - 'UMASK 0777'
+        'Ensure "/etc/init.d/functions" contains the settings':
+          - 'UMASK 0777'
+        'Ensure "/etc/pam.d/system-auth-ac" contains the settings':
+          - 'session     required      pam_lastlog.so showfailed'
+        'Ensure ownership of files and directories managed by the RPM database is correct':
+          - '[Use "rpm --setugids" to update files and directories with incorrect ownership]'
+        'Ensure persmissions of files and directories managed by the RPM database are correct':
+          - '[Use "rpm --setperms" to update files and directories with incorrect permissions]'
+        'Check for files with a hash different from that expected by the RPM database':
+          - '[Warn if any files have a hash different from that expected by the RPM database]'
+        'If installed, ensure "autofs" is disabled and stopped':
+          - 'chkconfig autofs off'
+          - 'service autofs stop'
+        'If installed, configure "gdm" to disable the display of known users':
+          - '/usr/bin/gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.mandatory --type bool --set /apps/gdm/simple-greeter/disable_user_list true'
+      source_ref:
+        - 'Settings are proscribed by DISA STIG.'
     <control ref>:
       name: <control name>
       type: <control type>
