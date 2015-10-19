@@ -11,10 +11,10 @@ The matrix is arranged to display the system security requirements from the
 applicable regulation documents, which are listed below:
 
 - [NIST 800-53, Revision 4](
-http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r4.pdf), 
+http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r4.pdf),
 Security and Privacy Controls for Federal Information Systems and Organizations
 - [CNSSI 1253, 27 March 2014](
-https://www.cnss.gov/CNSS/openDoc.cfm?Mks5eBBtYkCVcXNhRPhlIA==), 
+https://www.cnss.gov/CNSS/openDoc.cfm?Mks5eBBtYkCVcXNhRPhlIA==),
 Security Categorization and Control Selection for National Security Systems
 
 The data elements of the SCTM are defined as follows:
@@ -62,13 +62,15 @@ sctm:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target: <list of target OS or application versions>
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target: <list of target OS or application versions>
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
 
@@ -76,13 +78,15 @@ sctm:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target: <list of target OS or application versions>
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target: <list of target OS or application versions>
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
 ```
