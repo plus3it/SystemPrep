@@ -5,13 +5,15 @@ sctm:
     # <control ref>:
       # name: <control name>
       # type: <control type>
-      # implementation: 
+      # target: <list of target OS or application versions>
+      # implementation:
         # <dictionary containing implementation details>
       # source_ref: <list of source references>
     # <control ref>:
       # name: <control name>
       # type: <control type>
-      # implementation: 
+      # target: <list of target OS or application versions>
+      # implementation:
         # <dictionary containing implementation details>
       # source_ref: <list of source references>
 
@@ -19,13 +21,15 @@ sctm:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target: <list of target OS or application versions>
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target: <list of target OS or application versions>
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
 
@@ -33,6 +37,8 @@ sctm:
     'AC-7':
       name: 'UNSUCCESSFUL LOGON ATTEMPTS'
       type: 'Common'
+      target:
+        - 'Enterprise Linux 6'
       implementation:
         'Modify "/etc/pam.d/system-auth-ac" and "/etc/pam.d/password-auth-ac" to enforce':
           - 'auth required pam_faillock.so preauth silent audit deny=3 unlock_time=900'
@@ -43,6 +49,8 @@ sctm:
     'AC-8':
       name: 'SYSTEM USE NOTIFICATION'
       type: 'Common'
+      target:
+        - 'Enterprise Linux 6'
       implementation:
         'Ensure "/etc/issue" contains':
           - '<Required consent banner and user agreement>'
@@ -61,6 +69,8 @@ sctm:
     'AC-9':
       name: 'PREVIOUS LOGON (ACCESS) NOTIFICATION'
       type: 'Common'
+      target:
+        - 'Enterprise Linux 6'
       implementation:
         'Ensure "/etc/ssh/sshd_config" contains':
           - 'PrintLastLog yes'
@@ -69,6 +79,8 @@ sctm:
     'AC-10':
       name: 'CONCURRENT SESSION CONTROL'
       type: 'Common'
+      target:
+        - 'Enterprise Linux 6'
       implementation:
         'Ensure "/etc/security/limits.conf" contains':
           - '*	hard	maxlogins	10'
@@ -77,6 +89,8 @@ sctm:
     'AC-11':
       name: 'SESSION LOCK'
       type: 'Common'
+      target:
+        - 'Enterprise Linux 6'
       implementation:
         'Ensure the package "screen" is installed':
           - 'yum install screen'
@@ -90,6 +104,8 @@ sctm:
     'AC-11(1)':
       name: 'SESSION LOCK | PATTERN-HIDING DISPLAYS'
       type: 'Common'
+      target:
+        - 'Enterprise Linux 6'
       implementation:
         'If the package "gdm" is installed, enforce the setting':
           - '/apps/gnome-screensaver/mode blank-only'
@@ -98,7 +114,9 @@ sctm:
     'AC-17(1)':
       name: 'REMOTE ACCESS | AUTOMATED MONITORING / CONTROL'
       type: 'Common'
-      implementation: 
+      target:
+        - 'Enterprise Linux 6'
+      implementation:
         'Ensure the "auditd" service is enabled and running':
           - 'chkconfig auditd on'
           - 'service auditd start'
@@ -107,7 +125,9 @@ sctm:
     'AC-17(2)':
       name: 'REMOTE ACCESS | PROTECTION OF CONFIDENTIALITY / INTEGRITY USING ENCRYPTION'
       type: 'Common'
-      implementation: 
+      target:
+        - 'Enterprise Linux 6'
+      implementation:
         'Ensure the service "rsh" is disabled':
           - 'chkconfig rsh off'
         'Ensure the service "rexec" is disabled':
@@ -119,6 +139,9 @@ sctm:
     'AU-3':
       name: 'CONTENT OF AUDIT RECORDS'
       type: 'Common'
+      target:
+        - 'Enterprise Linux 6'
+      implementation:
         'Ensure the "auditd" service is enabled and running':
           - 'chkconfig auditd on'
           - 'service auditd start'
@@ -131,7 +154,9 @@ sctm:
     'AU-5':
       name: 'RESPONSE TO AUDIT PROCESSING FAILURES'
       type: 'Common'
-      implementation: 
+      target:
+        - 'Enterprise Linux 6'
+      implementation:
         'Ensure "/etc/audit/auditd.conf" contains':
           - 'action_mail_acct = root'
           - 'disk_full_action = HALT'
@@ -141,7 +166,9 @@ sctm:
     'AU-9':
       name: 'PROTECTION OF AUDIT INFORMATION'
       type: 'Common'
-      implementation: 
+      target:
+        - 'Enterprise Linux 6'
+      implementation:
         'Execute the commands':
           - 'rpm --setperms audit'
           - 'rpm --setugids audit'
@@ -153,15 +180,19 @@ sctm:
     'AU-9(3)':
       name: 'PROTECTION OF AUDIT INFORMATION | CRYPTOGRAPHIC PROTECTION'
       type: 'Common'
-      implementation: 
+      target:
+        - 'Enterprise Linux 6'
+      implementation:
         'Execute the command':
-          - 'rpm -V audit | awk \'$1 ~ /..5/ && $2 != "c"\''
+          - 'rpm -V audit | awk ''$1 ~ /..5/ && $2 != "c"'''
       source_ref:
         - 'Setting is proscribed by DISA STIG.'
     'AU-12':
       name: 'AUDIT GENERATION'
       type: 'Common'
-      implementation: 
+      target:
+        - 'Enterprise Linux 6'
+      implementation:
         'Ensure "/etc/audit/audit.rules" contains':
           - 'audit_time_rules-a always,exit -F arch=b64 -S adjtimex -k audit_time_rules'
           - 'audit_time_rules-a always,exit -F arch=b64 -S settimeofday -k audit_time_rules'
@@ -170,7 +201,7 @@ sctm:
           - '-w /etc/sudoers -p wa -k actions'
           - '-w /sbin/insmod -p x -k modules'
           - '-w /sbin/rmmod -p x -k modules'
-          - '-w /sbin/modprobe -p x -k modules
+          - '-w /sbin/modprobe -p x -k modules'
           - '-a always,exit -F arch=b64 -S init_module -S delete_module -k modules'
           - '-a always,exit -F arch=b32 -S chmod -F auid>=500 -F auid!=4294967295 -k perm_mod'
           - '-a always,exit -F arch=b32 -S chmod -F auid=0 -k perm_mod'
@@ -223,7 +254,9 @@ sctm:
     'CM-5(6)':
       name: 'ACCESS RESTRICTIONS FOR CHANGE | LIMIT PRODUCTION / OPERATIONAL PRIVILEGES'
       type: 'Hybrid'
-      implementation: 
+      target:
+        - 'Enterprise Linux 6'
+      implementation:
         'Execute the commands':
           - 'chmod go-w /lib/*'
           - 'chmod go-w /lib64/*'
@@ -247,16 +280,18 @@ sctm:
           - 'chown root /usr/local/sbin/*'
       source_ref:
         - 'Settings are proscribed by DISA STIG.'
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      implementation: 
+    'CM-6':
+      name: 'CONFIGURATION SETTINGS'
+      type: 'Common'
+      target:
+        - 'Enterprise Linux 6'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
 
@@ -264,6 +299,9 @@ sctm:
     'AC-7':
       name: 'UNSUCCESSFUL LOGON ATTEMPTS'
       type: 'Common'
+      target:
+        - 'Microsoft Windows Server 2012 R2'
+        - 'Microsoft Windows Server 2008 R2'
       implementation:
         'Use local security policy to enforce':
           - 'LockoutBadCount = 3'
@@ -274,6 +312,9 @@ sctm:
     'AC-8':
       name: 'SYSTEM USE NOTIFICATION'
       type: 'Common'
+      target:
+        - 'Microsoft Windows Server 2012 R2'
+        - 'Microsoft Windows Server 2008 R2'
       implementation:
         'Use local security policy to enforce':
           - 'LegalNoticeText = <Required consent banner and user agreement>'
@@ -284,6 +325,9 @@ sctm:
     'AC-10':
       name: 'CONCURRENT SESSION CONTROL'
       type: 'Common'
+      target:
+        - 'Microsoft Windows Server 2012 R2'
+        - 'Microsoft Windows Server 2008 R2'
       implementation:
         'Use local security policy to enforce':
           - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\fSingleSessionPerUser = 1'
@@ -292,6 +336,9 @@ sctm:
     'AC-11':
       name: 'SESSION LOCK'
       type: 'Common'
+      target:
+        - 'Microsoft Windows Server 2012 R2'
+        - 'Microsoft Windows Server 2008 R2'
       implementation:
         'Use local security policy to enforce':
           - 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\ScreenSaverGracePeriod = 5'
@@ -303,6 +350,9 @@ sctm:
     'AC-11(1)':
       name: 'SESSION LOCK | PATTERN-HIDING DISPLAYS'
       type: 'Common'
+      target:
+        - 'Microsoft Windows Server 2012 R2'
+        - 'Microsoft Windows Server 2008 R2'
       implementation:
         'Use local security policy to enforce':
           - 'HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop\SCRNSAVE.EXE = scrnsave.scr'
@@ -311,7 +361,9 @@ sctm:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target:
+        - ''
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
 
@@ -319,13 +371,17 @@ sctm:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target:
+        - 'Enterprise Linux 6'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target:
+        - 'Enterprise Linux 6'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
 
@@ -333,19 +389,25 @@ sctm:
     'AU-9(2)':
       name: 'PROTECTION OF AUDIT INFORMATION | AUDIT BACKUP ON SEPARATE PHYSICAL SYSTEMS / COMPONENTS'
       type: 'Common'
-      implementation: 
+      target:
+        - 'Enterprise Linux 6'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
     'AU-12':
       name: 'AUDIT GENERATION'
       type: 'Common'
-      implementation: 
+      target:
+        - 'Enterprise Linux 6'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target:
+        - 'Enterprise Linux 6'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
 
@@ -353,13 +415,21 @@ sctm:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target:
+        - 'Enterprise Linux 6'
+        - 'Microsoft Windows Server 2012 R2'
+        - 'Microsoft Windows Server 2008 R2'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target:
+        - 'Enterprise Linux 6'
+        - 'Microsoft Windows Server 2012 R2'
+        - 'Microsoft Windows Server 2008 R2'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
 
@@ -367,13 +437,21 @@ sctm:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target:
+        - 'Enterprise Linux 6'
+        - 'Microsoft Windows Server 2012 R2'
+        - 'Microsoft Windows Server 2008 R2'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target:
+        - 'Enterprise Linux 6'
+        - 'Microsoft Windows Server 2012 R2'
+        - 'Microsoft Windows Server 2008 R2'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
 
@@ -381,13 +459,19 @@ sctm:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target:
+        - 'Microsoft Windows Server 2012 R2'
+        - 'Microsoft Windows Server 2008 R2'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target:
+        - 'Microsoft Windows Server 2012 R2'
+        - 'Microsoft Windows Server 2008 R2'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
 
@@ -395,19 +479,28 @@ sctm:
     'AU-9(2)':
       name: 'PROTECTION OF AUDIT INFORMATION | AUDIT BACKUP ON SEPARATE PHYSICAL SYSTEMS / COMPONENTS'
       type: 'Common'
-      implementation: 
+      target:
+        - 'Microsoft Windows Server 2012 R2'
+        - 'Microsoft Windows Server 2008 R2'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
     'AU-12':
       name: 'AUDIT GENERATION'
       type: 'Common'
-      implementation: 
+      target:
+        - 'Microsoft Windows Server 2012 R2'
+        - 'Microsoft Windows Server 2008 R2'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target:
+        - 'Microsoft Windows Server 2012 R2'
+        - 'Microsoft Windows Server 2008 R2'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
 
@@ -415,13 +508,19 @@ sctm:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target:
+        - 'Microsoft Windows Server 2012 R2'
+        - 'Microsoft Windows Server 2008 R2'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target:
+        - 'Microsoft Windows Server 2012 R2'
+        - 'Microsoft Windows Server 2008 R2'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
 
@@ -429,13 +528,19 @@ sctm:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target:
+        - 'Microsoft Windows Server 2012 R2'
+        - 'Microsoft Windows Server 2008 R2'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target:
+        - 'Microsoft Windows Server 2012 R2'
+        - 'Microsoft Windows Server 2008 R2'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
 
@@ -443,13 +548,19 @@ sctm:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target:
+        - 'Microsoft Windows Server 2012 R2'
+        - 'Microsoft Windows Server 2008 R2'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target:
+        - 'Microsoft Windows Server 2012 R2'
+        - 'Microsoft Windows Server 2008 R2'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
 
@@ -457,13 +568,19 @@ sctm:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target:
+        - 'Microsoft Windows Server 2012 R2'
+        - 'Microsoft Windows Server 2008 R2'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target:
+        - 'Microsoft Windows Server 2012 R2'
+        - 'Microsoft Windows Server 2008 R2'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
 
@@ -471,13 +588,18 @@ sctm:
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target:
+        - 'Microsoft Windows Server 2012 R2'
+        - 'Microsoft Windows Server 2008 R2'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
     <control ref>:
       name: <control name>
       type: <control type>
-      implementation: 
+      target:
+        - 'Microsoft Windows Server 2012 R2'
+        - 'Microsoft Windows Server 2008 R2'
+      implementation:
         <dictionary containing implementation details>
       source_ref: <list of source references>
-
