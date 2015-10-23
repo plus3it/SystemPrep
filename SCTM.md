@@ -21,6 +21,9 @@ The data elements of the SCTM are defined as follows:
 
 - **Project Name**
     - Refers to the name of the project that implements the security controls.
+- **Targets**
+    - Refers to the list of Operating System or application versions to which
+    the project or configuration item applies.
 - **Control Ref.**
     - Refers to the ID or paragraph number of the listed control or
     requirement.
@@ -56,39 +59,67 @@ git) to track changes over time.
 The data structure of the YAML SCTM is as follows:
 
 ```
-sctm:
+datamodel: <string containing the version of the data model>
+projects: <dictionary of projects>
+  <project name>:
+    targets: <list of target OS or application versions for the project as a whole>
+    controls:
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation: <list of dictionaries containing implementation details>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation: <list of dictionaries containing implementation details>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
 
   <project name>:
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target: <list of target OS or application versions>
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target: <list of target OS or application versions>
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
-
-  <project name>:
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target: <list of target OS or application versions>
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target: <list of target OS or application versions>
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
+    targets: <list of target OS or application versions for the project as a whole>
+    controls:
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation: <list of dictionaries containing implementation details>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation: <list of dictionaries containing implementation details>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
 ```
 
 The SCTM data may be found in the [SCTM.yml](SCTM.yml) file.

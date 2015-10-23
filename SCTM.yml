@@ -1,769 +1,1006 @@
-sctm:
-
-  # template of the data structure
+# datamodel: <string containing the version of the data model>
+# projects: <dictionary of projects>
   # <project name>:
-    # <control ref>:
-      # name: <control name>
-      # type: <control type>
-      # target: <list of target OS or application versions>
-      # implementation:
-        # <dictionary containing implementation details>
-      # source_ref: <list of source references>
-    # <control ref>:
-      # name: <control name>
-      # type: <control type>
-      # target: <list of target OS or application versions>
-      # implementation:
-        # <dictionary containing implementation details>
-      # source_ref: <list of source references>
+    # targets: <list of target OS or application versions for the project as a whole>
+    # controls:
+      # <control ref>:
+        # name: <control name>
+        # type: <control type>
+        # source_ref: <list of common source references for the configuration>
+        # implementation: <list of dictionaries containing implementation details>
+          # - action: <string describing the configuration being applied> 
+            # parameters: <list of parameters to apply to the action>
+            # targets: <optional list of targets for this specific configuration, overrides control targets>
+            # source_ref: <optional list of source reference overrides for the configuration>
+          # - action: <string describing the configuration being applied> 
+            # parameters: <list of parameters to apply to the action>
+            # targets: <optional list of targets for this specific configuration, overrides control targets>
+            # source_ref: <optional list of source reference overrides for the configuration>
+      # <control ref>:
+        # name: <control name>
+        # type: <control type>
+        # source_ref: <list of common source references for the configuration>
+        # implementation: <list of dictionaries containing implementation details>
+          # - action: <string describing the configuration being applied> 
+            # parameters: <list of parameters to apply to the action>
+            # targets: <optional list of targets for this specific configuration, overrides control targets>
+            # source_ref: <optional list of source reference overrides for the configuration>
+          # - action: <string describing the configuration being applied> 
+            # parameters: <list of parameters to apply to the action>
+            # targets: <optional list of targets for this specific configuration, overrides control targets>
+            # source_ref: <optional list of source reference overrides for the configuration>
 
+  # <project name>:
+    # targets: <list of target OS or application versions for the project as a whole>
+    # controls:
+      # <control ref>:
+        # name: <control name>
+        # type: <control type>
+        # source_ref: <list of common source references for the configuration>
+        # implementation: <list of dictionaries containing implementation details>
+          # - action: <string describing the configuration being applied> 
+            # parameters: <list of parameters to apply to the action>
+            # targets: <optional list of targets for this specific configuration, overrides control targets>
+            # source_ref: <optional list of source reference overrides for the configuration>
+          # - action: <string describing the configuration being applied> 
+            # parameters: <list of parameters to apply to the action>
+            # targets: <optional list of targets for this specific configuration, overrides control targets>
+            # source_ref: <optional list of source reference overrides for the configuration>
+      # <control ref>:
+        # name: <control name>
+        # type: <control type>
+        # source_ref: <list of common source references for the configuration>
+        # implementation: <list of dictionaries containing implementation details>
+          # - action: <string describing the configuration being applied> 
+            # parameters: <list of parameters to apply to the action>
+            # targets: <optional list of targets for this specific configuration, overrides control targets>
+            # source_ref: <optional list of source reference overrides for the configuration>
+          # - action: <string describing the configuration being applied> 
+            # parameters: <list of parameters to apply to the action>
+            # targets: <optional list of targets for this specific configuration, overrides control targets>
+            # source_ref: <optional list of source reference overrides for the configuration>
+
+datamodel: '2015-10-23'
+projects:
   AMIgen:
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target: <list of target OS or application versions>
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target: <list of target OS or application versions>
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
+    targets:
+      - 'Enterprise Linux 6'
+    controls:
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
 
   ash-linux-formula:
-    'AC-7':
-      name: 'UNSUCCESSFUL LOGON ATTEMPTS'
-      type: 'Common'
-      target:
-        - 'Enterprise Linux 6'
-      implementation:
-        'Modify "/etc/pam.d/system-auth-ac" and "/etc/pam.d/password-auth-ac" to enforce':
-          - 'auth required pam_faillock.so preauth silent audit deny=3 unlock_time=900'
-          - 'auth [default=die] pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900'
-          - 'auth required pam_faillock.so authsucc deny=3 unlock_time=900 fail_interval=900'
-      source_ref:
-        - 'Specified values are proscribed by CNSSI 1253.'
-    'AC-8':
-      name: 'SYSTEM USE NOTIFICATION'
-      type: 'Common'
-      target:
-        - 'Enterprise Linux 6'
-      implementation:
-        'Ensure "/etc/issue" contains':
-          - '<Required consent banner and user agreement>'
-        'Ensure "/etc/ssh/sshd_config" contains':
-          - 'Banner /etc/issue'
-        'If ftp services are installed, ensure they are configured with':
-          - '<banner config reflects the contents of /etc/issue>'
-          - '<ash-linux has banner config settings for proftpd, pure-ftpd, and vsftpd packages>'
-        'If package "gdm" is installed, ensure it is configured with':
-          - 'banner_message_enable true'
-          - 'banner_message_text contains the contents of /etc/issue'
-      source_ref:
-        - 'Content of the banner text is proscribed by DISA STIG and JTF-GNO CTO 08-008A and DoD CIO
-          Memo, "Policy on Use of Department of Defense (DoD) Information Systems Standard Consent
-          Banner and User Agreement," dated 9 May 2008.'
-    'AC-9':
-      name: 'PREVIOUS LOGON (ACCESS) NOTIFICATION'
-      type: 'Common'
-      target:
-        - 'Enterprise Linux 6'
-      implementation:
-        'Ensure "/etc/ssh/sshd_config" contains':
-          - 'PrintLastLog yes'
-      source_ref:
-        - 'Value is proscribed by DISA STIG.'
-    'AC-10':
-      name: 'CONCURRENT SESSION CONTROL'
-      type: 'Common'
-      target:
-        - 'Enterprise Linux 6'
-      implementation:
-        'Ensure "/etc/security/limits.conf" contains':
-          - '*	hard	maxlogins	10'
-      source_ref:
-        - 'Value is proscribed by DISA STIG.'
-    'AC-11':
-      name: 'SESSION LOCK'
-      type: 'Common'
-      target:
-        - 'Enterprise Linux 6'
-      implementation:
-        'Ensure the package "screen" is installed':
-          - 'yum install screen'
-        'If the package "gdm" is installed, enforce the settings':
-          - '/apps/gnome-screensaver/idle_delay 15'
-          - '/apps/gnome-screensaver/idle_activation_enabled true'
-          - '/apps/gnome-screensaver/lock_enabled true'
-          - '/apps/gnome_settings_daemon/keybindings/screensaver "l"'
-      source_ref:
-        - 'Settings are proscribed by DISA STIG.'
-    'AC-11(1)':
-      name: 'SESSION LOCK | PATTERN-HIDING DISPLAYS'
-      type: 'Common'
-      target:
-        - 'Enterprise Linux 6'
-      implementation:
-        'If the package "gdm" is installed, enforce the setting':
-          - '/apps/gnome-screensaver/mode blank-only'
-      source_ref:
-        - 'Setting is proscribed by DISA STIG.'
-    'AC-17(1)':
-      name: 'REMOTE ACCESS | AUTOMATED MONITORING / CONTROL'
-      type: 'Common'
-      target:
-        - 'Enterprise Linux 6'
-      implementation:
-        'Ensure the "auditd" service is enabled and running':
-          - 'chkconfig auditd on'
-          - 'service auditd start'
-      source_ref:
-        - 'Setting is proscribed by DISA STIG.'
-    'AC-17(2)':
-      name: 'REMOTE ACCESS | PROTECTION OF CONFIDENTIALITY / INTEGRITY USING ENCRYPTION'
-      type: 'Common'
-      target:
-        - 'Enterprise Linux 6'
-      implementation:
-        'Ensure the service "rsh" is disabled':
-          - 'chkconfig rsh off'
-        'Ensure the service "rexec" is disabled':
-          - 'chkconfig rexec off'
-        'If the package "pam_ldap" is installed, ensure "/etc/pam_ldap.conf" contains':
-          - 'ssl start_tls'
-      source_ref:
-        - 'Setting is proscribed by DISA STIG.'
-    'AU-3':
-      name: 'CONTENT OF AUDIT RECORDS'
-      type: 'Common'
-      target:
-        - 'Enterprise Linux 6'
-      implementation:
-        'Ensure the "auditd" service is enabled and running':
-          - 'chkconfig auditd on'
-          - 'service auditd start'
-        'If package "vsftpd" is installed, ensure "/etc/vsftpd/vsftpd.conf" contains':
-          - 'xferlog_enable=YES'
-          - 'xferlog_std_format=NO'
-          - 'log_ftp_protocol=YES'
-      source_ref:
-        - 'Setting is proscribed by DISA STIG.'
-    'AU-5':
-      name: 'RESPONSE TO AUDIT PROCESSING FAILURES'
-      type: 'Common'
-      target:
-        - 'Enterprise Linux 6'
-      implementation:
-        'Ensure "/etc/audit/auditd.conf" contains':
-          - 'action_mail_acct = root'
-          - 'disk_full_action = HALT'
-          - 'disk_error_action = HALT'
-      source_ref:
-        - 'Setting is proscribed by DISA STIG.'
-    'AU-9':
-      name: 'PROTECTION OF AUDIT INFORMATION'
-      type: 'Common'
-      target:
-        - 'Enterprise Linux 6'
-      implementation:
-        'Execute the commands':
-          - 'rpm --setperms audit'
-          - 'rpm --setugids audit'
-          - 'chmod 0640 /var/log/audit/*'
-          - 'chown root /var/log/audit/*'
-          - 'chmod 0700 /var/log/audit'
-      source_ref:
-        - 'Setting is proscribed by DISA STIG.'
-    'AU-9(3)':
-      name: 'PROTECTION OF AUDIT INFORMATION | CRYPTOGRAPHIC PROTECTION'
-      type: 'Common'
-      target:
-        - 'Enterprise Linux 6'
-      implementation:
-        'Execute the command':
-          - 'rpm -V audit | awk ''$1 ~ /..5/ && $2 != "c"'''
-      source_ref:
-        - 'Setting is proscribed by DISA STIG.'
-    'AU-12':
-      name: 'AUDIT GENERATION'
-      type: 'Common'
-      target:
-        - 'Enterprise Linux 6'
-      implementation:
-        'Ensure "/etc/audit/audit.rules" contains':
-          - 'audit_time_rules-a always,exit -F arch=b64 -S adjtimex -k audit_time_rules'
-          - 'audit_time_rules-a always,exit -F arch=b64 -S settimeofday -k audit_time_rules'
-          - 'audit_time_rules-a always,exit -F arch=b64 -S clock_settime -k audit_time_rules'
-          - '-w /etc/localtime -p wa -k audit_time_rules'
-          - '-w /etc/sudoers -p wa -k actions'
-          - '-w /sbin/insmod -p x -k modules'
-          - '-w /sbin/rmmod -p x -k modules'
-          - '-w /sbin/modprobe -p x -k modules'
-          - '-a always,exit -F arch=b64 -S init_module -S delete_module -k modules'
-          - '-a always,exit -F arch=b32 -S chmod -F auid>=500 -F auid!=4294967295 -k perm_mod'
-          - '-a always,exit -F arch=b32 -S chmod -F auid=0 -k perm_mod'
-          - '-a always,exit -F arch=b64 -S chmod -F auid>=500 -F auid!=4294967295 -k perm_mod'
-          - '-a always,exit -F arch=b64 -S chmod -F auid=0 -k perm_mod'
-          - '-a always,exit -F arch=b32 -S fchmod -F auid>=500 -F auid!=4294967295 -k perm_mod'
-          - '-a always,exit -F arch=b32 -S fchmod -F auid=0 -k perm_mod'
-          - '-a always,exit -F arch=b64 -S fchmod -F auid>=500 -F auid!=4294967295 -k perm_mod'
-          - '-a always,exit -F arch=b64 -S fchmod -F auid=0 -k perm_mod'
-          - '-a always,exit -F arch=b32 -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod'
-          - '-a always,exit -F arch=b32 -S fchmodat -F auid=0 -k perm_mod'
-          - '-a always,exit -F arch=b64 -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod'
-          - '-a always,exit -F arch=b64 -S fchmodat -F auid=0 -k perm_mod'
-          - '-a always,exit -F arch=b32 -S fchown -F auid>=500 -F auid!=4294967295 -k perm_mod'
-          - '-a always,exit -F arch=b32 -S fchown -F auid=0 -k perm_mod'
-          - '-a always,exit -F arch=b64 -S fchown -F auid>=500 -F auid!=4294967295 -k perm_mod'
-          - '-a always,exit -F arch=b64 -S fchown -F auid=0 -k perm_mod'
-          - '-a always,exit -F arch=b32 -S fchownat -F auid>=500 -F auid!=4294967295 -k perm_mod'
-          - '-a always,exit -F arch=b32 -S fchownat -F auid=0 -k perm_mod'
-          - '-a always,exit -F arch=b64 -S fchownat -F auid>=500 -F auid!=4294967295 -k perm_mod'
-          - '-a always,exit -F arch=b64 -S fchownat -F auid=0 -k perm_mod'
-          - '-a always,exit -F arch=b32 -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod'
-          - '-a always,exit -F arch=b32 -S fremovexattr -F auid=0 -k perm_mod'
-          - '-a always,exit -F arch=b32 -S fsetxattr -F auid>=500 -F auid!=4294967295 -k perm_mod'
-          - '-a always,exit -F arch=b32 -S fsetxattr -F auid=0 -k perm_mod'
-          - '-a always,exit -F arch=b32 -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod'
-          - '-a always,exit -F arch=b32 -S lchown -F auid=0 -k perm_mod'
-          - '-a always,exit -F arch=b32 -S lremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod'
-          - '-a always,exit -F arch=b32 -S lremovexattr -F auid=0 -k perm_mod'
-          - '-a always,exit -F arch=b64 -S lremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod'
-          - '-a always,exit -F arch=b64 -S lremovexattr -F auid=0 -k perm_mod'
-          - '-a always,exit -F arch=b32 -S lsetxattr -F auid>=500 -F auid!=4294967295 -k perm_mod'
-          - '-a always,exit -F arch=b32 -S lsetxattr -F auid=0 -k perm_mod'
-          - '-a always,exit -F arch=b32 -S removexattr -F auid>=500 -F auid!=4294967295 -k perm_mod'
-          - '-a always,exit -F arch=b32 -S removexattr -F auid=0 -k perm_mod'
-          - '-a always,exit -F arch=b32 -S setxattr -F auid>=500 -F auid!=4294967295 -k perm_mod'
-          - '-a always,exit -F arch=b32 -S setxattr -F auid=0 -k perm_mod'
-          - '-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access'
-          - '-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access'
-          - '-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid=0 -k access'
-          - '-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid=0 -k access'
-          - '-a always,exit -F arch=b64 -S mount -F auid>=500 -F auid!=4294967295 -k export'
-          - '-a always,exit -F arch=b64 -S mount -F auid=0 -k export'
-          - '-a always,exit -F arch=b64 -S rmdir -S unlink -S unlinkat -S rename -S renameat -F auid>=500 -F auid!=4294967295 -k delete'
-          - '-a always,exit -F arch=b64 -S rmdir -S unlink -S unlinkat -S rename -S renameat -F auid=0 -k delete'
-        'Ensure the "kernel" entry in "/etc/grub.conf" contains':
-          - 'audit=1'
-      source_ref:
-        - 'Settings are proscribed by DISA STIG.'
-    'CM-5(6)':
-      name: 'ACCESS RESTRICTIONS FOR CHANGE | LIMIT PRODUCTION / OPERATIONAL PRIVILEGES'
-      type: 'Hybrid'
-      target:
-        - 'Enterprise Linux 6'
-      implementation:
-        'Execute the commands':
-          - 'chmod go-w /lib/*'
-          - 'chmod go-w /lib64/*'
-          - 'chmod go-w /usr/lib/*'
-          - 'chmod go-w /usr/lib64/*'
-          - 'chmod go-w /bin/*'
-          - 'chmod go-w /usr/bin/*'
-          - 'chmod go-w /usr/local/bin/*'
-          - 'chmod go-w /sbin/*'
-          - 'chmod go-w /usr/sbin/*'
-          - 'chmod go-w /usr/local/sbin/*'
-          - 'chown root /lib/*'
-          - 'chown root /lib64/*'
-          - 'chown root /usr/lib/*'
-          - 'chown root /usr/lib64/*'
-          - 'chown root /bin/*'
-          - 'chown root /usr/bin/*'
-          - 'chown root /usr/local/bin/*'
-          - 'chown root /sbin/*'
-          - 'chown root /usr/sbin/*'
-          - 'chown root /usr/local/sbin/*'
-      source_ref:
-        - 'Settings are proscribed by DISA STIG.'
-    'CM-6':
-      name: 'CONFIGURATION SETTINGS'
-      type: 'Common'
-      target:
-        - 'Enterprise Linux 6'
-      implementation:
-        'Check that "/tmp" is mounted on a dedicated partition':
-          - 'grep -e "[\s]/tmp[\s]" "/etc/fstab"'
-        'Check that "/var" is mounted on a dedicated partition':
-          - 'grep -e "[\s]/var[\s]" "/etc/fstab"'
-        'Check that "/var/log" is mounted on a dedicated partition':
-          - 'grep -e "[\s]/var/log[\s]" "/etc/fstab"'
-        'Check that "/home" is mounted on a dedicated partition':
-          - 'grep -e "[\s]/home[\s]" "/etc/fstab"'
-        'Ensure selinux is not disabled when loading the kernel':
-          - 'sed -i -e ''s/selinux=0/selinux=1/g'' /boot/grub/grub.conf'
-        'Ensure selinux is set to enabled at boot time':
-          - 'sed -i -e ''s/^SELINUX=.*/SELINUX=enforcing/'' /etc/selinux/config'
-        'Ensure selinux is using the "targeted" policy':
-          - 'sed -i -e ''s/^SELINUXTYPE=.*/SELINUX=targeted/'' /etc/selinux/config'
-        'Check for device files with the SELinux type "unlabeled_t"':
-          - 'find /dev -print | xargs ls -dZ /dev 2> /dev/null | grep unlabeled_t | awk ''{print $5}'''
-        'For system accounts, ensure a password is set or disable logon by locking the account':
-          - 'passwd -l [SYSACCT]'
-        'Ensure accounts may not logon with null passwords':
-          - 'sed -i -e ''s/[\s]*nullok[\s]/ /g'' /etc/pam.d/system-auth-ac'
-        'Ensure account passwords are not stored in /etc/passwd':
-          - '/usr/sbin/pwconv'
-        'Ensure only "root" has a uid of 0':
-          - '[Delete and recreate any non-root account with a uid of 0]'
-        'Ensure secure file permissions and ownership on critical files':
-          - 'chown root /etc/shadow'
-          - 'chgrp root /etc/shadow'
-          - 'chmod 0000 /etc/shadow'
-          - 'chown root /etc/gshadow'
-          - 'chgrp root /etc/gshadow'
-          - 'chmod 0000 /etc/gshadow'
-          - 'chown root /etc/passwd'
-          - 'chgrp root /etc/passwd'
-          - 'chmod 0644 /etc/passwd'
-          - 'chown root /etc/group'
-          - 'chgrp root /etc/group'
-          - 'chmod 644 /etc/group'
-          - 'chown root /etc/grub.conf'
-          - 'chgrp root /etc/grub.conf'
-          - 'chmod 600 /boot/grub/grub.conf'
-        'Ensure "/etc/login.defs" contains the setting':
-          - 'PASS_WARN_AGE 7'
-        'Ensure "/etc/sysctl.conf" contains the settings':
-          - 'kernel.randomize_va_space = 2'
-          - 'kernel.exec-shield = 1'
-          - 'net.ipv4.conf.default.send_redirects = 0'
-          - 'net.ipv4.conf.all.send_redirects = 0'
-          - 'net.ipv4.ip_forward = 0'
-          - 'net.ipv4.conf.all.accept_source_route = 0'
-          - 'net.ipv4.conf.all.accept_redirects = 0'
-          - 'net.ipv4.conf.all.secure_redirects = 0'
-          - 'net.ipv4.conf.all.log_martians = 1'
-          - 'net.ipv4.conf.default.accept_source_route = 0'
-          - 'net.ipv4.conf.default.secure_redirects = 0'
-          - 'net.ipv4.conf.default.accept_redirects = 0'
-          - 'net.ipv4.icmp_echo_ignore_broadcasts = 1'
-          - 'net.ipv4.icmp_ignore_bogus_error_responses = 1'
-          - 'net.ipv4.conf.all.rp_filter = 1'
-          - 'net.ipv4.conf.default.rp_filter = 1'
-          - 'net.ipv6.conf.default.accept_redirects = 0'
-        'Execute the commands':
-          - 'sysctl -w kernel.randomize_va_space=2'
-          - 'sysctl -w kernel.exec-shield = 1'
-          - 'sysctl -w net.ipv4.conf.default.send_redirects = 0'
-          - 'sysctl -w net.ipv4.conf.all.send_redirects = 0'
-          - 'sysctl -w net.ipv4.ip_forward = 0'
-          - 'sysctl -w net.ipv4.conf.all.accept_source_route = 0'
-          - 'sysctl -w net.ipv4.conf.all.accept_redirects = 0'
-          - 'sysctl -w net.ipv4.conf.all.secure_redirects = 0'
-          - 'sysctl -w net.ipv4.conf.all.log_martians = 1'
-          - 'sysctl -w net.ipv4.conf.default.accept_source_route = 0'
-          - 'sysctl -w net.ipv4.conf.default.secure_redirects = 0'
-          - 'sysctl -w net.ipv4.conf.default.accept_redirects = 0'
-          - 'sysctl -w net.ipv4.icmp_echo_ignore_broadcasts = 1'
-          - 'sysctl -w net.ipv4.icmp_ignore_bogus_error_responses = 1'
-          - 'sysctl -w net.ipv4.conf.all.rp_filter = 1'
-          - 'sysctl -w net.ipv4.conf.default.rp_filter = 1'
-          - 'sysctl -w net.ipv6.conf.default.accept_redirects = 0'
-        'Ensure "/etc/modprobe.d/disabled.conf" contains the setting':
-          - 'options ipv6 disable=1'
-        'Ensure the package "logrotate" is installed properly':
-          - 'yum -y reinstall logrotate'
-        'Ensure "/etc/audit/auditd.conf" contains the settings':
-          - 'num_logs = 5'
-          - 'max_log_file = 6'
-          - 'max_log_file_action = rotate'
-          - 'admin_space_left_action = suspend'
-        'Ensure "/etc/audit/audit.rules" contains the settings':
-          - '-a always,exit -F arch=b64 -S sethostname -S setdomainname -k audit_network_modifications'
-          - '-w /etc/issue -p wa -k audit_network_modifications'
-          - '-w /etc/issue.net -p wa -k audit_network_modifications'
-          - '-w /etc/hosts -p wa -k audit_network_modifications'
-          - '-w /etc/sysconfig/network -p wa -k audit_network_modifications'
-          - '-w /etc/selinux/ -p wa -k MAC-policy'
-        'Ensure the service "crond" is enabled and running':
-          - 'chkconfig crond on'
-          - 'service crond start'
-        'Ensure the service "avahi-daemon" is disabled and stopped':
-          - 'chkconfig crond off'
-          - 'service crond stop'
-        'Remove the package "openldap-servers"':
-          - 'yum -y remove openldap-servers'
-        'Ensure NFS mounts are using the "nodev" mount option':
-          - '[Re-mount NFS devices that are not currently mounted with the "nodev" option]'
-          - '[Add the "nodev" option to NFS devices listed in "/etc/fstab"]'
-        'Ensure NFS mounts are using the "nosuid" mount option':
-          - '[Re-mount NFS devices that are not currently mounted with the "nosuid" option]'
-          - '[Add the "nosuid" option to NFS devices listed in "/etc/fstab"]'
-        'Ensure "/etc/samba/smb.conf" contains the settings':
-          - 'client signing = mandatory'
-        'Check whether CIFS mounts are using the "sec=krb5i" or "sec=ntlmv2i" mount options':
-          - '[Warn if CIFS mounts are not using mount options "sec=krb5i" or "sec=ntlmv2i"]'
-        'Ensure there are no world writeable files on the system':
-          - '[Execute "chmod o-w <filename>" on all world writeable files]'
-        'Ensure "/etc/init/control-alt-delete.override" contains the setting':
-          - 'exec /usr/bin/logger -p security.info "Ctrl-Alt-Delete pressed"'
-        'Ensure the package "postfix" is installed, enabled, and running':
-          - 'yum -y install postfix'
-          - 'chkconfig postfix on'
-          - 'service postfix start'
-        'Ensure the package "sendmail" is removed':
-          - 'yum -y remove sendmail'
-        'Check for network interfaces using DHCP':
-          - '[Warn if any network interfaces are configured to use DHCP]'
-        'Check that all groups referenced in "/etc/passwd" are defined in "/etc/group"':
-          - '[Warn if any groups referenced in "/etc/passwd" are missing from "/etc/group"]'
-        'Ensure "pam_cracklib" in "/etc/pam.d/system-auth-ac" is requiring the settings':
-          - 'maxrepeat=3'
-        'Ensure "/etc/security/limits.conf" contains the settings':
-          - '* hard core 0'
-        'Set the sticky bit on public, world-writeable directories':
-          - 'chmod 1777 /tmp'
-          - 'chmod 1777 /var/tmp'
-        'Check for world-writeable directories that are not owned by root':
-          - '[Warn if there are world-writeable directories that are not owned by root]'
-        'If "tftpd" is installed, ensure "/etc/xinetd.d/tftp" contains the setting':
-          - 'server_args = -s /var/lib/tftpboot'
-        'If "snmpd" is installed, ensure it is not configured to use "v1","v2c", or "com2sec"':
-          - '[Comment out from "/etc/snmp/snmpd.conf" lines containing "v1","v2c", or "com2sec"'
-        'If "snmpd" is installed, ensure it is not configured to use default community string "public"':
-          - '[Comment out from "/etc/snmp/snmpd.conf" lines containing "public"'
-        'Ensure "/etc/bashrc" contains the settings':
-          - 'umask 0777'
-        'Ensure "/etc/csh.cshrc" contains the settings':
-          - 'umask 0777'
-        'Ensure "/etc/profile" contains the settings':
-          - 'umask 0777'
-        'Ensure "/etc/login.defs" contains the settings':
-          - 'UMASK 0777'
-        'Ensure "/etc/init.d/functions" contains the settings':
-          - 'UMASK 0777'
-        'Ensure "/etc/pam.d/system-auth-ac" contains the settings':
-          - 'session     required      pam_lastlog.so showfailed'
-        'Ensure ownership of files and directories managed by the RPM database is correct':
-          - '[Use "rpm --setugids" to update files and directories with incorrect ownership]'
-        'Ensure persmissions of files and directories managed by the RPM database are correct':
-          - '[Use "rpm --setperms" to update files and directories with incorrect permissions]'
-        'Check for files with a hash different from that expected by the RPM database':
-          - '[Warn if any files have a hash different from that expected by the RPM database]'
-        'If installed, ensure "autofs" is disabled and stopped':
-          - 'chkconfig autofs off'
-          - 'service autofs stop'
-        'If installed, configure "gdm" to disable the display of known users':
-          - '/usr/bin/gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.mandatory --type bool --set /apps/gdm/simple-greeter/disable_user_list true'
-      source_ref:
-        - 'Settings are proscribed by DISA STIG.'
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
+    targets:
+      - 'Enterprise Linux 6'
+    controls:
+      'AC-7':
+        name: 'UNSUCCESSFUL LOGON ATTEMPTS'
+        type: 'Common'
+        implementation:
+          - action: 'Modify "/etc/pam.d/system-auth-ac" and "/etc/pam.d/password-auth-ac" to enforce'
+            parameters:
+              - 'auth required pam_faillock.so preauth silent audit deny=3 unlock_time=900'
+              - 'auth [default=die] pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900'
+              - 'auth required pam_faillock.so authsucc deny=3 unlock_time=900 fail_interval=900'
+            source_ref:
+              - 'Specified values are proscribed by CNSSI 1253.'
+      'AC-8':
+        name: 'SYSTEM USE NOTIFICATION'
+        type: 'Common'
+        source_ref:
+          - 'Content of the banner text is proscribed by DISA STIG and JTF-GNO CTO 08-008A and DoD CIO
+            Memo, "Policy on Use of Department of Defense (DoD) Information Systems Standard Consent
+            Banner and User Agreement," dated 9 May 2008.'
+        implementation:
+          - action: 'Ensure "/etc/issue" contains'
+            parameters:
+              - '<Required consent banner and user agreement>'
+          - action: 'Ensure "/etc/ssh/sshd_config" contains'
+            parameters:
+              - 'Banner /etc/issue'
+          - action: 'If ftp services are installed, ensure they are configured with'
+            parameters:
+              - '<banner config reflects the contents of /etc/issue>'
+              - '<ash-linux has banner config settings for proftpd, pure-ftpd, and vsftpd packages>'
+          - action: 'If package "gdm" is installed, ensure it is configured with'
+            parameters:
+              - 'banner_message_enable true'
+              - 'banner_message_text contains the contents of /etc/issue'
+      'AC-9':
+        name: 'PREVIOUS LOGON (ACCESS) NOTIFICATION'
+        type: 'Common'
+        source_ref:
+          - 'Value is proscribed by DISA STIG.'
+        implementation:
+          - action: 'Ensure "/etc/ssh/sshd_config" contains'
+            parameters:
+              - 'PrintLastLog yes'
+      'AC-10':
+        name: 'CONCURRENT SESSION CONTROL'
+        type: 'Common'
+        source_ref:
+          - 'Value is proscribed by DISA STIG.'
+        implementation:
+          - action: 'Ensure "/etc/security/limits.conf" contains'
+            parameters:
+              - '*	hard	maxlogins	10'
+      'AC-11':
+        name: 'SESSION LOCK'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Ensure the package "screen" is installed'
+            parameters:
+              - 'yum install screen'
+          - action: 'If the package "gdm" is installed, enforce the settings'
+            parameters:
+              - '/apps/gnome-screensaver/idle_delay 15'
+              - '/apps/gnome-screensaver/idle_activation_enabled true'
+              - '/apps/gnome-screensaver/lock_enabled true'
+              - '/apps/gnome_settings_daemon/keybindings/screensaver "l"'
+      'AC-11(1)':
+        name: 'SESSION LOCK | PATTERN-HIDING DISPLAYS'
+        type: 'Common'
+        source_ref:
+          - 'Setting is proscribed by DISA STIG.'
+        implementation:
+          - action: 'If the package "gdm" is installed, enforce the setting'
+            parameters:
+              - '/apps/gnome-screensaver/mode blank-only'
+      'AC-17(1)':
+        name: 'REMOTE ACCESS | AUTOMATED MONITORING / CONTROL'
+        type: 'Common'
+        source_ref:
+          - 'Setting is proscribed by DISA STIG.'
+        implementation:
+          - action: 'Ensure the "auditd" service is enabled and running'
+            parameters:
+              - 'chkconfig auditd on'
+              - 'service auditd start'
+      'AC-17(2)':
+        name: 'REMOTE ACCESS | PROTECTION OF CONFIDENTIALITY / INTEGRITY USING ENCRYPTION'
+        type: 'Common'
+        source_ref:
+          - 'Setting is proscribed by DISA STIG.'
+        implementation:
+          - action: 'Ensure the service "rsh" is disabled'
+            parameters:
+              - 'chkconfig rsh off'
+          - action: 'Ensure the service "rexec" is disabled'
+            parameters:
+              - 'chkconfig rexec off'
+          - action: 'If the package "pam_ldap" is installed, ensure "/etc/pam_ldap.conf" contains'
+            parameters:
+              - 'ssl start_tls'
+      'AU-3':
+        name: 'CONTENT OF AUDIT RECORDS'
+        type: 'Common'
+        source_ref:
+          - 'Setting is proscribed by DISA STIG.'
+        implementation:
+          - action: 'Ensure the "auditd" service is enabled and running'
+            parameters:
+              - 'chkconfig auditd on'
+              - 'service auditd start'
+          - action: 'If package "vsftpd" is installed, ensure "/etc/vsftpd/vsftpd.conf" contains'
+            parameters:
+              - 'xferlog_enable=YES'
+              - 'xferlog_std_format=NO'
+              - 'log_ftp_protocol=YES'
+      'AU-5':
+        name: 'RESPONSE TO AUDIT PROCESSING FAILURES'
+        type: 'Common'
+        source_ref:
+          - 'Setting is proscribed by DISA STIG.'
+        implementation:
+          - action: 'Ensure "/etc/audit/auditd.conf" contains'
+            parameters:
+              - 'action_mail_acct = root'
+              - 'disk_full_action = HALT'
+              - 'disk_error_action = HALT'
+      'AU-9':
+        name: 'PROTECTION OF AUDIT INFORMATION'
+        type: 'Common'
+        source_ref:
+          - 'Setting is proscribed by DISA STIG.'
+        implementation:
+          - action: 'Execute the commands'
+            parameters:
+              - 'rpm --setperms audit'
+              - 'rpm --setugids audit'
+              - 'chmod 0640 /var/log/audit/*'
+              - 'chown root /var/log/audit/*'
+              - 'chmod 0700 /var/log/audit'
+      'AU-9(3)':
+        name: 'PROTECTION OF AUDIT INFORMATION | CRYPTOGRAPHIC PROTECTION'
+        type: 'Common'
+        source_ref:
+          - 'Setting is proscribed by DISA STIG.'
+        implementation:
+          - action: 'Execute the command'
+            parameters:
+              - 'rpm -V audit | awk ''$1 ~ /..5/ && $2 != "c"'''
+      'AU-12':
+        name: 'AUDIT GENERATION'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Ensure "/etc/audit/audit.rules" contains'
+            parameters:
+              - 'audit_time_rules-a always,exit -F arch=b64 -S adjtimex -k audit_time_rules'
+              - 'audit_time_rules-a always,exit -F arch=b64 -S settimeofday -k audit_time_rules'
+              - 'audit_time_rules-a always,exit -F arch=b64 -S clock_settime -k audit_time_rules'
+              - '-w /etc/localtime -p wa -k audit_time_rules'
+              - '-w /etc/sudoers -p wa -k actions'
+              - '-w /sbin/insmod -p x -k modules'
+              - '-w /sbin/rmmod -p x -k modules'
+              - '-w /sbin/modprobe -p x -k modules'
+              - '-a always,exit -F arch=b64 -S init_module -S delete_module -k modules'
+              - '-a always,exit -F arch=b32 -S chmod -F auid>=500 -F auid!=4294967295 -k perm_mod'
+              - '-a always,exit -F arch=b32 -S chmod -F auid=0 -k perm_mod'
+              - '-a always,exit -F arch=b64 -S chmod -F auid>=500 -F auid!=4294967295 -k perm_mod'
+              - '-a always,exit -F arch=b64 -S chmod -F auid=0 -k perm_mod'
+              - '-a always,exit -F arch=b32 -S fchmod -F auid>=500 -F auid!=4294967295 -k perm_mod'
+              - '-a always,exit -F arch=b32 -S fchmod -F auid=0 -k perm_mod'
+              - '-a always,exit -F arch=b64 -S fchmod -F auid>=500 -F auid!=4294967295 -k perm_mod'
+              - '-a always,exit -F arch=b64 -S fchmod -F auid=0 -k perm_mod'
+              - '-a always,exit -F arch=b32 -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod'
+              - '-a always,exit -F arch=b32 -S fchmodat -F auid=0 -k perm_mod'
+              - '-a always,exit -F arch=b64 -S fchmodat -F auid>=500 -F auid!=4294967295 -k perm_mod'
+              - '-a always,exit -F arch=b64 -S fchmodat -F auid=0 -k perm_mod'
+              - '-a always,exit -F arch=b32 -S fchown -F auid>=500 -F auid!=4294967295 -k perm_mod'
+              - '-a always,exit -F arch=b32 -S fchown -F auid=0 -k perm_mod'
+              - '-a always,exit -F arch=b64 -S fchown -F auid>=500 -F auid!=4294967295 -k perm_mod'
+              - '-a always,exit -F arch=b64 -S fchown -F auid=0 -k perm_mod'
+              - '-a always,exit -F arch=b32 -S fchownat -F auid>=500 -F auid!=4294967295 -k perm_mod'
+              - '-a always,exit -F arch=b32 -S fchownat -F auid=0 -k perm_mod'
+              - '-a always,exit -F arch=b64 -S fchownat -F auid>=500 -F auid!=4294967295 -k perm_mod'
+              - '-a always,exit -F arch=b64 -S fchownat -F auid=0 -k perm_mod'
+              - '-a always,exit -F arch=b32 -S fremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod'
+              - '-a always,exit -F arch=b32 -S fremovexattr -F auid=0 -k perm_mod'
+              - '-a always,exit -F arch=b32 -S fsetxattr -F auid>=500 -F auid!=4294967295 -k perm_mod'
+              - '-a always,exit -F arch=b32 -S fsetxattr -F auid=0 -k perm_mod'
+              - '-a always,exit -F arch=b32 -S lchown -F auid>=500 -F auid!=4294967295 -k perm_mod'
+              - '-a always,exit -F arch=b32 -S lchown -F auid=0 -k perm_mod'
+              - '-a always,exit -F arch=b32 -S lremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod'
+              - '-a always,exit -F arch=b32 -S lremovexattr -F auid=0 -k perm_mod'
+              - '-a always,exit -F arch=b64 -S lremovexattr -F auid>=500 -F auid!=4294967295 -k perm_mod'
+              - '-a always,exit -F arch=b64 -S lremovexattr -F auid=0 -k perm_mod'
+              - '-a always,exit -F arch=b32 -S lsetxattr -F auid>=500 -F auid!=4294967295 -k perm_mod'
+              - '-a always,exit -F arch=b32 -S lsetxattr -F auid=0 -k perm_mod'
+              - '-a always,exit -F arch=b32 -S removexattr -F auid>=500 -F auid!=4294967295 -k perm_mod'
+              - '-a always,exit -F arch=b32 -S removexattr -F auid=0 -k perm_mod'
+              - '-a always,exit -F arch=b32 -S setxattr -F auid>=500 -F auid!=4294967295 -k perm_mod'
+              - '-a always,exit -F arch=b32 -S setxattr -F auid=0 -k perm_mod'
+              - '-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid>=500 -F auid!=4294967295 -k access'
+              - '-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid>=500 -F auid!=4294967295 -k access'
+              - '-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EACCES -F auid=0 -k access'
+              - '-a always,exit -F arch=b64 -S creat -S open -S openat -S truncate -S ftruncate -F exit=-EPERM -F auid=0 -k access'
+              - '-a always,exit -F arch=b64 -S mount -F auid>=500 -F auid!=4294967295 -k export'
+              - '-a always,exit -F arch=b64 -S mount -F auid=0 -k export'
+              - '-a always,exit -F arch=b64 -S rmdir -S unlink -S unlinkat -S rename -S renameat -F auid>=500 -F auid!=4294967295 -k delete'
+              - '-a always,exit -F arch=b64 -S rmdir -S unlink -S unlinkat -S rename -S renameat -F auid=0 -k delete'
+          - action: 'Ensure the "kernel" entry in "/etc/grub.conf" contains'
+            parameters:
+              - 'audit=1'
+      'CM-5(6)':
+        name: 'ACCESS RESTRICTIONS FOR CHANGE | LIMIT PRODUCTION / OPERATIONAL PRIVILEGES'
+        type: 'Hybrid'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Execute the commands'
+            parameters:
+              - 'chmod go-w /lib/*'
+              - 'chmod go-w /lib64/*'
+              - 'chmod go-w /usr/lib/*'
+              - 'chmod go-w /usr/lib64/*'
+              - 'chmod go-w /bin/*'
+              - 'chmod go-w /usr/bin/*'
+              - 'chmod go-w /usr/local/bin/*'
+              - 'chmod go-w /sbin/*'
+              - 'chmod go-w /usr/sbin/*'
+              - 'chmod go-w /usr/local/sbin/*'
+              - 'chown root /lib/*'
+              - 'chown root /lib64/*'
+              - 'chown root /usr/lib/*'
+              - 'chown root /usr/lib64/*'
+              - 'chown root /bin/*'
+              - 'chown root /usr/bin/*'
+              - 'chown root /usr/local/bin/*'
+              - 'chown root /sbin/*'
+              - 'chown root /usr/sbin/*'
+              - 'chown root /usr/local/sbin/*'
+      'CM-6':
+        name: 'CONFIGURATION SETTINGS'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Check that "/tmp" is mounted on a dedicated partition'
+            parameters:
+              - 'grep -e "[\s]/tmp[\s]" "/etc/fstab"'
+          - action: 'Check that "/var" is mounted on a dedicated partition'
+            parameters:
+              - 'grep -e "[\s]/var[\s]" "/etc/fstab"'
+          - action: 'Check that "/var/log" is mounted on a dedicated partition'
+            parameters:
+              - 'grep -e "[\s]/var/log[\s]" "/etc/fstab"'
+          - action: 'Check that "/home" is mounted on a dedicated partition'
+            parameters:
+              - 'grep -e "[\s]/home[\s]" "/etc/fstab"'
+          - action: 'Ensure selinux is not disabled when loading the kernel'
+            parameters:
+              - 'sed -i -e ''s/selinux=0/selinux=1/g'' /boot/grub/grub.conf'
+          - action: 'Ensure selinux is set to enabled at boot time'
+            parameters:
+              - 'sed -i -e ''s/^SELINUX=.*/SELINUX=enforcing/'' /etc/selinux/config'
+          - action: 'Ensure selinux is using the "targeted" policy'
+            parameters:
+              - 'sed -i -e ''s/^SELINUXTYPE=.*/SELINUX=targeted/'' /etc/selinux/config'
+          - action: 'Check for device files with the SELinux type "unlabeled_t"'
+            parameters:
+              - 'find /dev -print | xargs ls -dZ /dev 2> /dev/null | grep unlabeled_t | awk ''{print $5}'''
+          - action: 'For system accounts, ensure a password is set or disable logon by locking the account'
+            parameters:
+              - 'passwd -l [SYSACCT]'
+          - action: 'Ensure accounts may not logon with null passwords'
+            parameters:
+              - 'sed -i -e ''s/[\s]*nullok[\s]/ /g'' /etc/pam.d/system-auth-ac'
+          - action: 'Ensure account passwords are not stored in /etc/passwd'
+            parameters:
+              - '/usr/sbin/pwconv'
+          - action: 'Ensure only "root" has a uid of 0'
+            parameters:
+              - '[Delete and recreate any non-root account with a uid of 0]'
+          - action: 'Ensure secure file permissions and ownership on critical files'
+            parameters:
+              - 'chown root /etc/shadow'
+              - 'chgrp root /etc/shadow'
+              - 'chmod 0000 /etc/shadow'
+              - 'chown root /etc/gshadow'
+              - 'chgrp root /etc/gshadow'
+              - 'chmod 0000 /etc/gshadow'
+              - 'chown root /etc/passwd'
+              - 'chgrp root /etc/passwd'
+              - 'chmod 0644 /etc/passwd'
+              - 'chown root /etc/group'
+              - 'chgrp root /etc/group'
+              - 'chmod 644 /etc/group'
+              - 'chown root /etc/grub.conf'
+              - 'chgrp root /etc/grub.conf'
+              - 'chmod 600 /boot/grub/grub.conf'
+          - action: 'Ensure "/etc/login.defs" contains the setting'
+            parameters:
+              - 'PASS_WARN_AGE 7'
+          - action: 'Ensure "/etc/sysctl.conf" contains the settings'
+            parameters:
+              - 'kernel.randomize_va_space = 2'
+              - 'kernel.exec-shield = 1'
+              - 'net.ipv4.conf.default.send_redirects = 0'
+              - 'net.ipv4.conf.all.send_redirects = 0'
+              - 'net.ipv4.ip_forward = 0'
+              - 'net.ipv4.conf.all.accept_source_route = 0'
+              - 'net.ipv4.conf.all.accept_redirects = 0'
+              - 'net.ipv4.conf.all.secure_redirects = 0'
+              - 'net.ipv4.conf.all.log_martians = 1'
+              - 'net.ipv4.conf.default.accept_source_route = 0'
+              - 'net.ipv4.conf.default.secure_redirects = 0'
+              - 'net.ipv4.conf.default.accept_redirects = 0'
+              - 'net.ipv4.icmp_echo_ignore_broadcasts = 1'
+              - 'net.ipv4.icmp_ignore_bogus_error_responses = 1'
+              - 'net.ipv4.conf.all.rp_filter = 1'
+              - 'net.ipv4.conf.default.rp_filter = 1'
+              - 'net.ipv6.conf.default.accept_redirects = 0'
+          - action: 'Execute the commands'
+            parameters:
+              - 'sysctl -w kernel.randomize_va_space=2'
+              - 'sysctl -w kernel.exec-shield = 1'
+              - 'sysctl -w net.ipv4.conf.default.send_redirects = 0'
+              - 'sysctl -w net.ipv4.conf.all.send_redirects = 0'
+              - 'sysctl -w net.ipv4.ip_forward = 0'
+              - 'sysctl -w net.ipv4.conf.all.accept_source_route = 0'
+              - 'sysctl -w net.ipv4.conf.all.accept_redirects = 0'
+              - 'sysctl -w net.ipv4.conf.all.secure_redirects = 0'
+              - 'sysctl -w net.ipv4.conf.all.log_martians = 1'
+              - 'sysctl -w net.ipv4.conf.default.accept_source_route = 0'
+              - 'sysctl -w net.ipv4.conf.default.secure_redirects = 0'
+              - 'sysctl -w net.ipv4.conf.default.accept_redirects = 0'
+              - 'sysctl -w net.ipv4.icmp_echo_ignore_broadcasts = 1'
+              - 'sysctl -w net.ipv4.icmp_ignore_bogus_error_responses = 1'
+              - 'sysctl -w net.ipv4.conf.all.rp_filter = 1'
+              - 'sysctl -w net.ipv4.conf.default.rp_filter = 1'
+              - 'sysctl -w net.ipv6.conf.default.accept_redirects = 0'
+          - action: 'Ensure "/etc/modprobe.d/disabled.conf" contains the setting'
+            parameters:
+              - 'options ipv6 disable=1'
+          - action: 'Ensure the package "logrotate" is installed properly'
+            parameters:
+              - 'yum -y reinstall logrotate'
+          - action: 'Ensure "/etc/audit/auditd.conf" contains the settings'
+            parameters:
+              - 'num_logs = 5'
+              - 'max_log_file = 6'
+              - 'max_log_file_action = rotate'
+              - 'admin_space_left_action = suspend'
+          - action: 'Ensure "/etc/audit/audit.rules" contains the settings'
+            parameters:
+              - '-a always,exit -F arch=b64 -S sethostname -S setdomainname -k audit_network_modifications'
+              - '-w /etc/issue -p wa -k audit_network_modifications'
+              - '-w /etc/issue.net -p wa -k audit_network_modifications'
+              - '-w /etc/hosts -p wa -k audit_network_modifications'
+              - '-w /etc/sysconfig/network -p wa -k audit_network_modifications'
+              - '-w /etc/selinux/ -p wa -k MAC-policy'
+          - action: 'Ensure the service "crond" is enabled and running'
+            parameters:
+              - 'chkconfig crond on'
+              - 'service crond start'
+          - action: 'Ensure the service "avahi-daemon" is disabled and stopped'
+            parameters:
+              - 'chkconfig crond off'
+              - 'service crond stop'
+          - action: 'Remove the package "openldap-servers"'
+            parameters:
+              - 'yum -y remove openldap-servers'
+          - action: 'Ensure NFS mounts are using the "nodev" mount option'
+            parameters:
+              - '[Re-mount NFS devices that are not currently mounted with the "nodev" option]'
+              - '[Add the "nodev" option to NFS devices listed in "/etc/fstab"]'
+          - action: 'Ensure NFS mounts are using the "nosuid" mount option'
+            parameters:
+              - '[Re-mount NFS devices that are not currently mounted with the "nosuid" option]'
+              - '[Add the "nosuid" option to NFS devices listed in "/etc/fstab"]'
+          - action: 'Ensure "/etc/samba/smb.conf" contains the settings'
+            parameters:
+              - 'client signing = mandatory'
+          - action: 'Check whether CIFS mounts are using the "sec=krb5i" or "sec=ntlmv2i" mount options'
+            parameters:
+              - '[Warn if CIFS mounts are not using mount options "sec=krb5i" or "sec=ntlmv2i"]'
+          - action: 'Ensure there are no world writeable files on the system'
+            parameters:
+              - '[Execute "chmod o-w <filename>" on all world writeable files]'
+          - action: 'Ensure "/etc/init/control-alt-delete.override" contains the setting'
+            parameters:
+              - 'exec /usr/bin/logger -p security.info "Ctrl-Alt-Delete pressed"'
+          - action: 'Ensure the package "postfix" is installed, enabled, and running'
+            parameters:
+              - 'yum -y install postfix'
+              - 'chkconfig postfix on'
+              - 'service postfix start'
+          - action: 'Ensure the package "sendmail" is removed'
+            parameters:
+              - 'yum -y remove sendmail'
+          - action: 'Check for network interfaces using DHCP'
+            parameters:
+              - '[Warn if any network interfaces are configured to use DHCP]'
+          - action: 'Check that all groups referenced in "/etc/passwd" are defined in "/etc/group"'
+            parameters:
+              - '[Warn if any groups referenced in "/etc/passwd" are missing from "/etc/group"]'
+          - action: 'Ensure "pam_cracklib" in "/etc/pam.d/system-auth-ac" is requiring the settings'
+            parameters:
+              - 'maxrepeat=3'
+          - action: 'Ensure "/etc/security/limits.conf" contains the settings'
+            parameters:
+              - '* hard core 0'
+          - action: 'Set the sticky bit on public, world-writeable directories'
+            parameters:
+              - 'chmod 1777 /tmp'
+              - 'chmod 1777 /var/tmp'
+          - action: 'Check for world-writeable directories that are not owned by root'
+            parameters:
+              - '[Warn if there are world-writeable directories that are not owned by root]'
+          - action: 'If "tftpd" is installed, ensure "/etc/xinetd.d/tftp" contains the setting'
+            parameters:
+              - 'server_args = -s /var/lib/tftpboot'
+          - action: 'If "snmpd" is installed, ensure it is not configured to use "v1","v2c", or "com2sec"'
+            parameters:
+              - '[Comment out from "/etc/snmp/snmpd.conf" lines containing "v1","v2c", or "com2sec"'
+          - action: 'If "snmpd" is installed, ensure it is not configured to use default community string "public"'
+            parameters:
+              - '[Comment out from "/etc/snmp/snmpd.conf" lines containing "public"'
+          - descripton: 'Ensure "/etc/bashrc" contains the settings'
+            parameters:
+              - 'umask 0777'
+          - action: 'Ensure "/etc/csh.cshrc" contains the settings'
+            parameters:
+              - 'umask 0777'
+          - action: 'Ensure "/etc/profile" contains the settings'
+            parameters:
+              - 'umask 0777'
+          - action: 'Ensure "/etc/login.defs" contains the settings'
+            parameters:
+              - 'UMASK 0777'
+          - action: 'Ensure "/etc/init.d/functions" contains the settings'
+            parameters:
+              - 'UMASK 0777'
+          - action: 'Ensure "/etc/pam.d/system-auth-ac" contains the settings'
+            parameters:
+              - 'session     required      pam_lastlog.so showfailed'
+          - action: 'Ensure ownership of files and directories managed by the RPM database is correct'
+            parameters:
+              - '[Use "rpm --setugids" to update files and directories with incorrect ownership]'
+          - action: 'Ensure persmissions of files and directories managed by the RPM database are correct'
+            parameters:
+              - '[Use "rpm --setperms" to update files and directories with incorrect permissions]'
+          - action: 'Check for files with a hash different from that expected by the RPM database'
+            parameters:
+              - '[Warn if any files have a hash different from that expected by the RPM database]'
+          - action: 'If installed, ensure "autofs" is disabled and stopped'
+            parameters:
+              - 'chkconfig autofs off'
+              - 'service autofs stop'
+          - action: 'If installed, configure "gdm" to disable the display of known users'
+            parameters:
+              - '/usr/bin/gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.mandatory --type bool --set /apps/gdm/simple-greeter/disable_user_list true'
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
 
   ash-windows-formula:
-    'AC-7':
-      name: 'UNSUCCESSFUL LOGON ATTEMPTS'
-      type: 'Common'
-      target:
-        - 'Microsoft Windows Server 2012 R2'
-        - 'Microsoft Windows Server 2008 R2'
-      implementation:
-        'Use local security policy to enforce':
-          - 'LockoutBadCount = 3'
-          - 'ResetLockoutCount = 15'
-          - 'LockoutDuration = 15'
-      source_ref:
-        - 'Values are proscribed by CNSSI 1253.'
-    'AC-8':
-      name: 'SYSTEM USE NOTIFICATION'
-      type: 'Common'
-      target:
-        - 'Microsoft Windows Server 2012 R2'
-        - 'Microsoft Windows Server 2008 R2'
-      implementation:
-        'Use local security policy to enforce':
-          - 'LegalNoticeText = <Required consent banner and user agreement>'
-      source_ref:
-        - 'Banner text is proscribed by DISA STIG and JTF-GNO CTO 08-008A and DoD CIO Memo, "Policy
-          on Use of Department of Defense (DoD) Information Systems Standard Consent Banner and User
-          Agreement," dated 9 May 2008.'
-    'AC-10':
-      name: 'CONCURRENT SESSION CONTROL'
-      type: 'Common'
-      target:
-        - 'Microsoft Windows Server 2012 R2'
-        - 'Microsoft Windows Server 2008 R2'
-      implementation:
-        'Use local security policy to enforce':
-          - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\fSingleSessionPerUser = 1'
-      source_ref:
-        - 'Value is proscribed by DISA STIG.'
-    'AC-11':
-      name: 'SESSION LOCK'
-      type: 'Common'
-      target:
-        - 'Microsoft Windows Server 2012 R2'
-        - 'Microsoft Windows Server 2008 R2'
-      implementation:
-        'Use local security policy to enforce':
-          - 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\ScreenSaverGracePeriod = 5'
-          - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\InactivityTimeoutSecs = 900'
-          - 'HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop\ScreenSaveActive = 1'
-          - 'HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop\ScreenSaverIsSecure = 1'
-      source_ref:
-        - 'Values are proscribed by DISA STIG.'
-    'AC-11(1)':
-      name: 'SESSION LOCK | PATTERN-HIDING DISPLAYS'
-      type: 'Common'
-      target:
-        - 'Microsoft Windows Server 2012 R2'
-        - 'Microsoft Windows Server 2008 R2'
-      implementation:
-        'Use local security policy to enforce':
-          - 'HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop\SCRNSAVE.EXE = scrnsave.scr'
-      source_ref:
-        - 'Setting is proscribed by DISA STIG.'
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target:
-        - ''
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
+    targets:
+      - 'Microsoft Windows Server 2012 R2'
+      - 'Microsoft Windows Server 2008 R2'
+    controls:
+      'AC-7':
+        name: 'UNSUCCESSFUL LOGON ATTEMPTS'
+        type: 'Common'
+        source_ref:
+          - 'Values are proscribed by CNSSI 1253.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'LockoutBadCount = 3'
+              - 'ResetLockoutCount = 15'
+              - 'LockoutDuration = 15'
+      'AC-8':
+        name: 'SYSTEM USE NOTIFICATION'
+        type: 'Common'
+        source_ref:
+          - 'Banner text is proscribed by DISA STIG and JTF-GNO CTO 08-008A and DoD CIO Memo, "Policy
+            on Use of Department of Defense (DoD) Information Systems Standard Consent Banner and User
+            Agreement," dated 9 May 2008.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'LegalNoticeText = <Required consent banner and user agreement>'
+      'AC-10':
+        name: 'CONCURRENT SESSION CONTROL'
+        type: 'Common'
+        source_ref:
+          - 'Value is proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\fSingleSessionPerUser = 1'
+      'AC-11':
+        name: 'SESSION LOCK'
+        type: 'Common'
+        source_ref:
+          - 'Values are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\ScreenSaverGracePeriod = 5'
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\InactivityTimeoutSecs = 900'
+              - 'HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop\ScreenSaveActive = 1'
+              - 'HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop\ScreenSaverIsSecure = 1'
+      'AC-11(1)':
+        name: 'SESSION LOCK | PATTERN-HIDING DISPLAYS'
+        type: 'Common'
+        source_ref:
+          - 'Setting is proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop\SCRNSAVE.EXE = scrnsave.scr'
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
 
   EnterpriseLayer-HBSS-formula:
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target:
-        - 'Enterprise Linux 6'
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target:
-        - 'Enterprise Linux 6'
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
+    targets:
+      - 'Enterprise Linux 6'
+    controls:
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
 
   EnterpriseLayer-Splunk-formula:
-    'AU-9(2)':
-      name: 'PROTECTION OF AUDIT INFORMATION | AUDIT BACKUP ON SEPARATE PHYSICAL SYSTEMS / COMPONENTS'
-      type: 'Common'
-      target:
-        - 'Enterprise Linux 6'
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
-    'AU-12':
-      name: 'AUDIT GENERATION'
-      type: 'Common'
-      target:
-        - 'Enterprise Linux 6'
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target:
-        - 'Enterprise Linux 6'
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
+    targets:
+      - 'Enterprise Linux 6'
+    controls:
+      'AU-9(2)':
+        name: 'PROTECTION OF AUDIT INFORMATION | AUDIT BACKUP ON SEPARATE PHYSICAL SYSTEMS / COMPONENTS'
+        type: 'Common'
+        source_ref: <list of source references>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+      'AU-12':
+        name: 'AUDIT GENERATION'
+        type: 'Common'
+        source_ref: <list of source references>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
 
   join-domain-formula:
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target:
-        - 'Enterprise Linux 6'
-        - 'Microsoft Windows Server 2012 R2'
-        - 'Microsoft Windows Server 2008 R2'
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target:
-        - 'Enterprise Linux 6'
-        - 'Microsoft Windows Server 2012 R2'
-        - 'Microsoft Windows Server 2008 R2'
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
+    targets:
+      - 'Enterprise Linux 6'
+      - 'Microsoft Windows Server 2012 R2'
+      - 'Microsoft Windows Server 2008 R2'
+    controls:
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
 
   systemprep-formula:
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target:
-        - 'Enterprise Linux 6'
-        - 'Microsoft Windows Server 2012 R2'
-        - 'Microsoft Windows Server 2008 R2'
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target:
-        - 'Enterprise Linux 6'
-        - 'Microsoft Windows Server 2012 R2'
-        - 'Microsoft Windows Server 2008 R2'
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
+    targets:
+      - 'Enterprise Linux 6'
+      - 'Microsoft Windows Server 2012 R2'
+      - 'Microsoft Windows Server 2008 R2'
+    controls:
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
 
   mcafee-agent-windows-formula:
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target:
-        - 'Microsoft Windows Server 2012 R2'
-        - 'Microsoft Windows Server 2008 R2'
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target:
-        - 'Microsoft Windows Server 2012 R2'
-        - 'Microsoft Windows Server 2008 R2'
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
+    targets:
+      - 'Microsoft Windows Server 2012 R2'
+      - 'Microsoft Windows Server 2008 R2'
+    controls:
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
 
   splunkforwarder-windows-formula:
-    'AU-9(2)':
-      name: 'PROTECTION OF AUDIT INFORMATION | AUDIT BACKUP ON SEPARATE PHYSICAL SYSTEMS / COMPONENTS'
-      type: 'Common'
-      target:
-        - 'Microsoft Windows Server 2012 R2'
-        - 'Microsoft Windows Server 2008 R2'
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
-    'AU-12':
-      name: 'AUDIT GENERATION'
-      type: 'Common'
-      target:
-        - 'Microsoft Windows Server 2012 R2'
-        - 'Microsoft Windows Server 2008 R2'
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target:
-        - 'Microsoft Windows Server 2012 R2'
-        - 'Microsoft Windows Server 2008 R2'
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
+    targets:
+      - 'Microsoft Windows Server 2012 R2'
+      - 'Microsoft Windows Server 2008 R2'
+    controls:
+      'AU-9(2)':
+        name: 'PROTECTION OF AUDIT INFORMATION | AUDIT BACKUP ON SEPARATE PHYSICAL SYSTEMS / COMPONENTS'
+        type: 'Common'
+        source_ref: <list of source references>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+      'AU-12':
+        name: 'AUDIT GENERATION'
+        type: 'Common'
+        source_ref: <list of source references>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
 
   windows-update-agent-formula:
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target:
-        - 'Microsoft Windows Server 2012 R2'
-        - 'Microsoft Windows Server 2008 R2'
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target:
-        - 'Microsoft Windows Server 2012 R2'
-        - 'Microsoft Windows Server 2008 R2'
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
+    targets:
+      - 'Microsoft Windows Server 2012 R2'
+      - 'Microsoft Windows Server 2008 R2'
+    controls:
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
 
   netbanner-formula:
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target:
-        - 'Microsoft Windows Server 2012 R2'
-        - 'Microsoft Windows Server 2008 R2'
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target:
-        - 'Microsoft Windows Server 2012 R2'
-        - 'Microsoft Windows Server 2008 R2'
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
+    targets:
+      - 'Microsoft Windows Server 2012 R2'
+      - 'Microsoft Windows Server 2008 R2'
+    controls:
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
 
   emet-formula:
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target:
-        - 'Microsoft Windows Server 2012 R2'
-        - 'Microsoft Windows Server 2008 R2'
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target:
-        - 'Microsoft Windows Server 2012 R2'
-        - 'Microsoft Windows Server 2008 R2'
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
+    targets:
+      - 'Microsoft Windows Server 2012 R2'
+      - 'Microsoft Windows Server 2008 R2'
+    controls:
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
 
   dotnet4-formula:
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target:
-        - 'Microsoft Windows Server 2012 R2'
-        - 'Microsoft Windows Server 2008 R2'
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target:
-        - 'Microsoft Windows Server 2012 R2'
-        - 'Microsoft Windows Server 2008 R2'
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
+    targets:
+      - 'Microsoft Windows Server 2012 R2'
+      - 'Microsoft Windows Server 2008 R2'
+    controls:
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
 
   ntp-client-windows-formula:
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target:
-        - 'Microsoft Windows Server 2012 R2'
-        - 'Microsoft Windows Server 2008 R2'
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
-    <control ref>:
-      name: <control name>
-      type: <control type>
-      target:
-        - 'Microsoft Windows Server 2012 R2'
-        - 'Microsoft Windows Server 2008 R2'
-      implementation:
-        <dictionary containing implementation details>
-      source_ref: <list of source references>
+    targets:
+      - 'Microsoft Windows Server 2012 R2'
+      - 'Microsoft Windows Server 2008 R2'
+    controls:
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+      <control ref>:
+        name: <control name>
+        type: <control type>
+        source_ref: <list of common source references for the configuration>
+        implementation:
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
+          - action: <string describing the configuration being applied> 
+            parameters: <list of parameters to apply to the action>
+            targets: <optional list of targets for this specific configuration, overrides control targets>
+            source_ref: <optional list of source reference overrides for the configuration>
