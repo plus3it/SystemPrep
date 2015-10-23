@@ -647,6 +647,15 @@ projects:
           - action: 'Ensure partition "/tmp" is mounted with option "noexec" in "/etc/fstab"'
             parameters:
               - '[Parse /etc/fstab for /tmp and noexec, and add the option if it is missing]'
+      'CM-8':
+        name: 'INFORMATION SYSTEM COMPONENT INVENTORY'
+        type: 'Hybrid'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Check whether "aide --check" is configured to execute periodically'
+            parameters:
+              - '[Warn if aide is not present in /etc/crontab]'
       <control ref>:
         name: <control name>
         type: <control type>
