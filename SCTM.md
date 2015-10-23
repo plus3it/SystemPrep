@@ -69,11 +69,11 @@ projects: <dictionary of projects>
         type: <control type>
         source_ref: <list of common source references for the configuration>
         implementation: <list of dictionaries containing implementation details>
-          - action: <string describing the configuration being applied> 
+          - action: <string describing the configuration being applied>
             parameters: <list of parameters to apply to the action>
             targets: <optional list of targets for this specific configuration, overrides control targets>
             source_ref: <optional list of source reference overrides for the configuration>
-          - action: <string describing the configuration being applied> 
+          - action: <string describing the configuration being applied>
             parameters: <list of parameters to apply to the action>
             targets: <optional list of targets for this specific configuration, overrides control targets>
             source_ref: <optional list of source reference overrides for the configuration>
@@ -82,11 +82,11 @@ projects: <dictionary of projects>
         type: <control type>
         source_ref: <list of common source references for the configuration>
         implementation: <list of dictionaries containing implementation details>
-          - action: <string describing the configuration being applied> 
+          - action: <string describing the configuration being applied>
             parameters: <list of parameters to apply to the action>
             targets: <optional list of targets for this specific configuration, overrides control targets>
             source_ref: <optional list of source reference overrides for the configuration>
-          - action: <string describing the configuration being applied> 
+          - action: <string describing the configuration being applied>
             parameters: <list of parameters to apply to the action>
             targets: <optional list of targets for this specific configuration, overrides control targets>
             source_ref: <optional list of source reference overrides for the configuration>
@@ -99,11 +99,11 @@ projects: <dictionary of projects>
         type: <control type>
         source_ref: <list of common source references for the configuration>
         implementation: <list of dictionaries containing implementation details>
-          - action: <string describing the configuration being applied> 
+          - action: <string describing the configuration being applied>
             parameters: <list of parameters to apply to the action>
             targets: <optional list of targets for this specific configuration, overrides control targets>
             source_ref: <optional list of source reference overrides for the configuration>
-          - action: <string describing the configuration being applied> 
+          - action: <string describing the configuration being applied>
             parameters: <list of parameters to apply to the action>
             targets: <optional list of targets for this specific configuration, overrides control targets>
             source_ref: <optional list of source reference overrides for the configuration>
@@ -112,11 +112,11 @@ projects: <dictionary of projects>
         type: <control type>
         source_ref: <list of common source references for the configuration>
         implementation: <list of dictionaries containing implementation details>
-          - action: <string describing the configuration being applied> 
+          - action: <string describing the configuration being applied>
             parameters: <list of parameters to apply to the action>
             targets: <optional list of targets for this specific configuration, overrides control targets>
             source_ref: <optional list of source reference overrides for the configuration>
-          - action: <string describing the configuration being applied> 
+          - action: <string describing the configuration being applied>
             parameters: <list of parameters to apply to the action>
             targets: <optional list of targets for this specific configuration, overrides control targets>
             source_ref: <optional list of source reference overrides for the configuration>
