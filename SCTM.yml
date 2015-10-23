@@ -656,6 +656,54 @@ projects:
           - action: 'Check whether "aide --check" is configured to execute periodically'
             parameters:
               - '[Warn if aide is not present in /etc/crontab]'
+      'IA-2':
+        name: 'IDENTIFICATION AND AUTHENTICATION (ORGANIZATIONAL USERS)'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Ensure "/etc/exports" does not export volumes with the option "insecure_locks"'
+            parameters:
+              - 'sed -i ''{
+                  s/,insecure_locks)/)/
+                  s/(insecure_locks,/(/
+                  s/,insecure_locks,/,/
+                  s/(insecure_locks)//
+                }'' /etc/exports'
+          - action: 'Ensure "/etc/exports" does not export volumes with the option "all_squash"'
+            parameters:
+              - 'sed -i ''{
+                  s/,all_squash)/)/
+                  s/(all_squash,/(/
+                  s/,all_squash,/,/
+                  s/(all_squash)//
+                }'' /etc/exports'
+      'IA-2(2)':
+        name: 'IDENTIFICATION AND AUTHENTICATION | NETWORK ACCESS TO NON-PRIVILEGED ACCOUNTS'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Ensure "/etc/ssh/sshd_config" contain the settings'
+            parameters:
+              - 'IgnoreRhosts yes'
+              - 'HostbasedAuthentication no'
+              - 'PermitEmptyPasswords no'
+      'IA-2(5)':
+        name: 'IDENTIFICATION AND AUTHENTICATION | GROUP AUTHENTICATION'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Ensure "/etc/securetty" does not contain lines that begin with "vc/"'
+            parameters:
+              - 'sed -i -e ''s/^vc\/# vc\//g'' /etc/securetty'
+          - action: 'Ensure "/etc/securetty" does not contain lines that begin with "ttyS/"'
+            parameters:
+              - 'sed -i -e ''s/^ttyS.*$//g'' /etc/securetty'
+          - action: 'Ensure "/etc/ssh/sshd_config" contain the settings'
+            parameters:
+              - 'PermitRootLogin no'
       <control ref>:
         name: <control name>
         type: <control type>
