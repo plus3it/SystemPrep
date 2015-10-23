@@ -100,14 +100,14 @@ projects:
       'AC-7':
         name: 'UNSUCCESSFUL LOGON ATTEMPTS'
         type: 'Common'
+        source_ref:
+          - 'Specified values are proscribed by CNSSI 1253.'
         implementation:
           - action: 'Modify "/etc/pam.d/system-auth-ac" and "/etc/pam.d/password-auth-ac" to enforce'
             parameters:
               - 'auth required pam_faillock.so preauth silent audit deny=3 unlock_time=900'
               - 'auth [default=die] pam_faillock.so authfail deny=3 unlock_time=900 fail_interval=900'
               - 'auth required pam_faillock.so authsucc deny=3 unlock_time=900 fail_interval=900'
-            source_ref:
-              - 'Specified values are proscribed by CNSSI 1253.'
       'AC-8':
         name: 'SYSTEM USE NOTIFICATION'
         type: 'Common'
