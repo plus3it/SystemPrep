@@ -704,6 +704,15 @@ projects:
           - action: 'Ensure "/etc/ssh/sshd_config" contain the settings'
             parameters:
               - 'PermitRootLogin no'
+      'IA-4':
+        name: 'IDENTIFIER MANAGEMENT'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Ensure "/etc/default/useradd" contains the setting'
+            parameters:
+              - 'INACTIVE=35'
       <control ref>:
         name: <control name>
         type: <control type>
