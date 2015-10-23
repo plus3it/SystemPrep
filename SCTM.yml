@@ -558,6 +558,95 @@ projects:
           - action: 'If installed, configure "gdm" to disable the display of known users'
             parameters:
               - '/usr/bin/gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.mandatory --type bool --set /apps/gdm/simple-greeter/disable_user_list true'
+      'CM-7':
+        name: 'LEAST FUNCTIONALITY'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Ensure the service "rhnsd" is not running and is disabled'
+            parameters:
+              - 'chkconfig rhnsd off'
+              - 'service rhnsd stop'
+          - action: 'Disable "dccp" by ensuring "/etc/modprobe.d/dccp.conf" contains'
+            parameters:
+              - 'install dccp /bin/false'
+          - action: 'Disable "sctp" by ensuring "/etc/modprobe.d/sctp.conf" contains'
+            parameters:
+              - 'install sctp /bin/false'
+          - action: 'Disable "rds" by ensuring "/etc/modprobe.d/rds.conf" contains'
+            parameters:
+              - 'install rds /bin/false'
+          - action: 'Disable "tipc" by ensuring "/etc/modprobe.d/tipc.conf" contains'
+            parameters:
+              - 'install tipc /bin/false'
+          - action: 'If installed, ensure the service "xinetd" is not running and is disabled'
+            parameters:
+              - 'chkconfig xinetd off'
+              - 'service xinetd stop'
+          - action: 'Uninstall the package "xinetd"'
+            parameters:
+              - 'yum erase xinetd'
+          - action: 'If installed, ensure the service "telnet" is disabled'
+            parameters:
+              - 'chkconfig telnet off'
+          - action: 'Uninstall the package "telnet-server"'
+            parameters:
+              - 'yum erase telnet-server'
+          - action: 'If installed, ensure the service "rsh" is disabled'
+            parameters:
+              - 'chkconfig rsh off'
+          - action: 'Uninstall the package "rsh-server"'
+            parameters:
+              - 'yum erase rsh-server'
+          - action: 'Uninstall the package "ypserve"'
+            parameters:
+              - 'yum erase ypserve'
+          - action: 'If installed, ensure the service "ypbind" is not running and is disabled'
+            parameters:
+              - 'chkconfig ypbind off'
+              - 'service ypbind stop'
+          - action: 'Uninstall the package "tftp-server"'
+            parameters:
+              - 'yum erase tftp-server'
+          - action: 'If installed, ensure the service "tftp" is not running and is disabled'
+            parameters:
+              - 'chkconfig tftp off'
+              - 'service tftp stop'
+          - action: 'If package "postfix" is installed, ensure "/etc/postfix/main.cf contains'
+            parameters:
+              - 'inet_interfaces = localhost'
+          - action: 'If installed, ensure the service "abrtd" is not running and is disabled'
+            parameters:
+              - 'chkconfig abrtd off'
+              - 'service abrtd stop'
+          - action: 'If installed, ensure the service "atd" is not running and is disabled'
+            parameters:
+              - 'chkconfig atd off'
+              - 'service atd stop'
+          - action: 'If installed, ensure the service "ntpdate" is not running and is disabled'
+            parameters:
+              - 'chkconfig ntpdate off'
+              - 'service ntpdate stop'
+          - action: 'If installed, ensure the service "oddjobd" is not running and is disabled'
+            parameters:
+              - 'chkconfig oddjobd off'
+              - 'service oddjobd stop'
+          - action: 'If installed, ensure the service "qpidd" is not running and is disabled'
+            parameters:
+              - 'chkconfig qpidd off'
+              - 'service qpidd stop'
+          - action: 'If installed, ensure the service "rdisc" is not running and is disabled'
+            parameters:
+              - 'chkconfig rdisc off'
+              - 'service rdisc stop'
+          - action: 'If installed, ensure the service "netconsole" is not running and is disabled'
+            parameters:
+              - 'chkconfig netconsole off'
+              - 'service netconsole stop'
+          - action: 'Ensure partition "/tmp" is mounted with option "noexec" in "/etc/fstab"'
+            parameters:
+              - '[Parse /etc/fstab for /tmp and noexec, and add the option if it is missing]'
       <control ref>:
         name: <control name>
         type: <control type>
