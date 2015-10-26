@@ -764,6 +764,15 @@ projects:
           - action: 'Check for accounts with duplicate names'
             parameters:
               - '/usr/sbin/pwck -rq'
+      'MA-4':
+        name: 'NONLOCAL MAINTENANCE'
+        type: 'Hybrid'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Ensure "" contains the settings'
+            parameters:
+              - 'ClientAliveCountMax 0'
       <control ref>:
         name: <control name>
         type: <control type>
