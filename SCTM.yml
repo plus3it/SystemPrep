@@ -782,6 +782,20 @@ projects:
           - action: 'Ensure "/etc/sysctl.conf" contains the settings'
             parameters:
               - 'net.ipv4.tcp_syncookies = 1'
+      'SC-7':
+        name: 'BOUNDARY PROTECTION'
+        type: 'Hybrid'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Ensure the service "ipstables6" is enabled and running'
+            parameters:
+              - 'chkconfig iptables6 on'
+              - 'service iptables6 start'
+          - action: 'Ensure the service "ipstables" is enabled and running'
+            parameters:
+              - 'chkconfig iptables on'
+              - 'service iptables start'
       <control ref>:
         name: <control name>
         type: <control type>
