@@ -724,19 +724,37 @@ projects:
               - 'PASS_MIN_LEN 14'
               - 'PASS_MIN_DAYS 1'
               - 'PASS_MAX_DAYS 60'
-          - action: 'Ensure "pam_cracklib.so" is configured with the settings'
+          - action: 'Ensure "/etc/pam.d/system-auth-ac" contains the line
+                    "password requisite pam_cracklib.so" with these parameters'
             parameters:
               - 'dcredit=-1'
               - 'ucredit=-1'
               - 'ocredit=-1'
               - 'lcredit=-1'
-              - 'difok=4'
-          - action: 'Ensure "pam_unix.so" is configured with the settings'
+              - 'difok=-1'
+          - action: 'Ensure "/etc/pam.d/system-auth-ac" contains the line
+                    "password sufficient pam_unix.so" with these parameters'
             parameters:
               - 'remember=24'
           - action: 'Ensure no user has a ".netrc" file in their home directory'
             parameters:
               - '[For each user, check for "<home>/.netrc" and rename it if present]'
+      'IA-7':
+        name: 'CRYPTOGRAPHIC MODULE AUTHENTICATION'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Ensure "/etc/pam.d/system-auth-ac" contains the line
+                    "password sufficient pam_unix.so" with these parameters'
+            parameters:
+              - 'sha512'
+          - action: 'Ensure "/etc/login.defs" contains the settings'
+            parameters:
+              - 'ENCRYPT_METHOD SHA512'
+          - action: 'Ensure "/etc/libuser.conf" contains the settings'
+            parameters:
+              - 'crypt_style = sha512'
       <control ref>:
         name: <control name>
         type: <control type>
