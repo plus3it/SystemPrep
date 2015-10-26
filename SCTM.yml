@@ -773,6 +773,15 @@ projects:
           - action: 'Ensure "" contains the settings'
             parameters:
               - 'ClientAliveCountMax 0'
+      'SC-5(2)':
+        name: 'DENIAL OF SERVICE PROTECTION | EXCESS CAPACITY / BANDWIDTH / REDUNDANCY'
+        type: 'Hybrid'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Ensure "/etc/sysctl.conf" contains the settings'
+            parameters:
+              - 'net.ipv4.tcp_syncookies = 1'
       <control ref>:
         name: <control name>
         type: <control type>
