@@ -755,6 +755,15 @@ projects:
           - action: 'Ensure "/etc/libuser.conf" contains the settings'
             parameters:
               - 'crypt_style = sha512'
+      'IA-8':
+        name: 'IDENTIFICATION AND AUTHENTICATION (NON-ORGANIZATIONAL USERS)'
+        type: 'Hybrid'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Check for accounts with duplicate names'
+            parameters:
+              - '/usr/sbin/pwck -rq'
       <control ref>:
         name: <control name>
         type: <control type>
