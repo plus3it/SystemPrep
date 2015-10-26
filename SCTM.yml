@@ -805,6 +805,15 @@ projects:
           - action: 'Ensure "/etc/sysconfig/iptables" contains the settings'
             parameters:
               - 'FORWARD DROP [0:0]'
+      'SC-10':
+        name: 'NETWORK DISCONNECT'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Ensure "/etc/ssh/sshd_config" contains the settings'
+            parameters:
+              - 'ClientAliveInterval 900'
       <control ref>:
         name: <control name>
         type: <control type>
