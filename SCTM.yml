@@ -823,6 +823,21 @@ projects:
           - action: 'Execute the commands'
             parameters:
               - 'yum -y update'
+      'SI-11':
+        name: 'ERROR HANDLING'
+        type: 'Hybrid'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Ensure logging targets specified in "/etc/rsyslog.conf" are owned by root'
+            parameters:
+              - '[Search /etc/rsyslog.conf for log targets and for each execute "chown root <logtarget>"]'
+          - action: 'Ensure logging targets specified in "/etc/rsyslog.conf" belong to the root group'
+            parameters:
+              - '[Search /etc/rsyslog.conf for log targets and for each execute "chgrp root <logtarget>"]'
+          - action: 'Ensure logging targets specified in "/etc/rsyslog.conf" have file permissions of 0600'
+            parameters:
+              - '[Search /etc/rsyslog.conf for log targets and for each execute "chmod 0600 <logtarget>"]'
       <control ref>:
         name: <control name>
         type: <control type>
