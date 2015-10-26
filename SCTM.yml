@@ -838,19 +838,6 @@ projects:
           - action: 'Ensure logging targets specified in "/etc/rsyslog.conf" have file permissions of 0600'
             parameters:
               - '[Search /etc/rsyslog.conf for log targets and for each execute "chmod 0600 <logtarget>"]'
-      <control ref>:
-        name: <control name>
-        type: <control type>
-        source_ref: <list of common source references for the configuration>
-        implementation:
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
 
   ash-windows-formula:
     targets:
