@@ -796,6 +796,15 @@ projects:
             parameters:
               - 'chkconfig iptables on'
               - 'service iptables start'
+      'SC-7(5)':
+        name: 'BOUNDARY PROTECTION | DENY BY DEFAULT / ALLOW BY EXCEPTION'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Ensure "/etc/sysconfig/iptables" contains the settings'
+            parameters:
+              - 'FORWARD DROP [0:0]'
       <control ref>:
         name: <control name>
         type: <control type>
