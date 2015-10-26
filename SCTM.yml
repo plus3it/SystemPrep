@@ -814,6 +814,15 @@ projects:
           - action: 'Ensure "/etc/ssh/sshd_config" contains the settings'
             parameters:
               - 'ClientAliveInterval 900'
+      'SI-2(2)':
+        name: 'FLAW REMEDIATION | AUTOMATED FLAW REMEDIATION STATUS'
+        type: 'Hybrid'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Execute the commands'
+            parameters:
+              - 'yum -y update'
       <control ref>:
         name: <control name>
         type: <control type>
