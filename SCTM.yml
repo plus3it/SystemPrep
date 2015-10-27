@@ -1060,9 +1060,7 @@ projects:
         implementation:
           - action: 'Use local security policy to enforce'
             parameters:
-              - 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\ScreenSaverGracePeriod = 5'
               - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\InactivityTimeoutSecs = 900'
-              - 'HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop\ScreenSaveActive = 1'
               - 'HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop\ScreenSaverIsSecure = 1'
       'AC-11(1)':
         name: 'SESSION LOCK | PATTERN-HIDING DISPLAYS'
@@ -1072,7 +1070,9 @@ projects:
         implementation:
           - action: 'Use local security policy to enforce'
             parameters:
+              - 'HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop\ScreenSaveActive = 1'
               - 'HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop\SCRNSAVE.EXE = scrnsave.scr'
+              - 'HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\System\NoDispScrSavPage = 1'
       <control ref>:
         name: <control name>
         type: <control type>
