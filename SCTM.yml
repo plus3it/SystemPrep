@@ -1130,6 +1130,18 @@ projects:
           - action: 'Use local security policy to enforce'
             parameters:
               - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\Audit\ProcessCreationIncludeCmdLine_Enabled = 0'
+      'AU-4':
+        name: 'AUDIT STORAGE CAPACITY'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\Software\Policies\Microsoft\Windows\EventLog\Application\MaxSize = 32768'
+              - 'HKLM\Software\Policies\Microsoft\Windows\EventLog\Security\MaxSize = 196608'
+              - 'HKLM\Software\Policies\Microsoft\Windows\EventLog\Setup\MaxSize = 32768'
+              - 'HKLM\Software\Policies\Microsoft\Windows\EventLog\System\MaxSize = 32768'
       <control ref>:
         name: <control name>
         type: <control type>
