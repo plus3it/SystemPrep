@@ -1073,6 +1073,17 @@ projects:
               - 'HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop\ScreenSaveActive = 1'
               - 'HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop\SCRNSAVE.EXE = scrnsave.scr'
               - 'HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\System\NoDispScrSavPage = 1'
+      'AC-12':
+        name: 'SESSION TERMINATION'
+        type: 'Common'
+        source_ref:
+          - 'Setting is proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKCU\Software\Policies\Microsoft\Windows NT\Terminal Services\MaxIdleTime = 900000'
+              - 'HKCU\Software\Policies\Microsoft\Windows NT\Terminal Services\MaxDisconnectionTime = 60000'
+              - 'HKCU\System\CurrentControlSet\Services\LanManServer\Parameters\autodisconnect = 15'
       <control ref>:
         name: <control name>
         type: <control type>
