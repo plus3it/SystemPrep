@@ -844,6 +844,30 @@ projects:
       - 'Microsoft Windows Server 2012 R2'
       - 'Microsoft Windows Server 2008 R2'
     controls:
+      'AC-2(4)':
+        name: 'ACCOUNT MANAGEMENT | AUTOMATED AUDIT ACTIONS'
+        type: 'Common'
+        source_ref:
+          - 'Value is proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Account Management -> ''Audit Security Group
+                Management'' with ''Success'' selected'
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Account Management -> ''Audit Security Group
+                Management'' with ''Failure'' selected'
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Account Management -> ''Audit User Account
+                Management'' with ''Success'' selected.'
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Account Management -> ''Audit User Account
+                Management'' with ''Failure'' selected'
       'AC-7':
         name: 'UNSUCCESSFUL LOGON ATTEMPTS'
         type: 'Common'
