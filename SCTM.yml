@@ -1142,6 +1142,34 @@ projects:
               - 'HKLM\Software\Policies\Microsoft\Windows\EventLog\Security\MaxSize = 196608'
               - 'HKLM\Software\Policies\Microsoft\Windows\EventLog\Setup\MaxSize = 32768'
               - 'HKLM\Software\Policies\Microsoft\Windows\EventLog\System\MaxSize = 32768'
+      'AU-5':
+        name: 'RESPONSE TO AUDIT PROCESSING FAILURES'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\System\CurrentControlSet\Control\Lsa\CrashOnAuditFail = 0'
+              - 'HKLM\SYSTEM\CurrentControlSet\Services\Eventlog\Security\WarningLevel = 90'
+      'AU-5(1)':
+        name: 'RESPONSE TO AUDIT PROCESSING FAILURES | AUDIT STORAGE CAPACITY'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\SYSTEM\CurrentControlSet\Services\Eventlog\Security\WarningLevel = 90'
+      'AU-5(2)':
+        name: 'RESPONSE TO AUDIT PROCESSING FAILURES | REAL-TIME ALERTS'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\SYSTEM\CurrentControlSet\Services\Eventlog\Security\WarningLevel = 90'
       <control ref>:
         name: <control name>
         type: <control type>
