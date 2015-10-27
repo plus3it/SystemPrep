@@ -894,6 +894,86 @@ projects:
           - action: 'Use local security policy to enforce'
             parameters:
               - 'HKLM\System\CurrentControlSet\Control\Lsa\EveryoneIncludesAnonymous = 0'
+      'AC-6(9)':
+        name: 'LEAST PRIVILEGE | AUDITING USE OF PRIVILEGED FUNCTIONS'
+        type: 'Common'
+        source_ref:
+          - 'Values are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Account Management -> ''Audit Computer
+                Account Management'' with ''Success'' selected'
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Account Management -> ''Audit Computer
+                Account Management'' with ''Failure'' selected'
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Account Management -> ''Audit Other Account
+                Management Events'' with ''Success'' selected'
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Account Management -> ''Audit Other Account
+                Management Events'' with ''Failure'' selected'
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Account Management -> ''Audit Security Group
+                Management'' with ''Success'' selected'
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Account Management -> ''Audit Security Group
+                Management'' with ''Failure'' selected'
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Account Management -> ''Audit User Account
+                Management'' with ''Success'' selected.'
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Account Management -> ''Audit User Account
+                Management'' with ''Failure'' selected'
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Policy Change -> ''Audit Audit Policy
+                Change'' with ''Failure'' selected'
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Policy Change -> ''Audit Authentication
+                Policy Change'' with ''Success'' selected'
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Privilege Use -> ''Audit Sensitive Privilege
+                Use'' with ''Success'' selected'
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Privilege Use -> ''Audit Sensitive Privilege
+                Use'' with ''Failure'' selected'
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> System -> ''Audit Security State Change''
+                with ''Success'' selected'
+              - 'Computer Configuration -> Windows Settings -> Security 
+                Settings -> Advanced Audit Policy Configuration -> System 
+                Audit Policies -> System -> ''Audit Security State Change''
+                with ''Failure'' selected'
+              - 'Computer Configuration -> Windows Settings -> Security 
+                Settings -> Advanced Audit Policy Configuration -> System 
+                Audit Policies -> System -> ''Audit Security System 
+                Extension'' with ''Success'' selected'
+              - 'Computer Configuration -> Windows Settings -> Security 
+                Settings -> Advanced Audit Policy Configuration -> System 
+                Audit Policies -> System -> ''Audit Security System 
+                Extension'' with ''Failure'' selected'
+              - 'Computer Configuration -> Windows Settings -> Security 
+                Settings -> Advanced Audit Policy Configuration -> System 
+                Audit Policies -> System -> ''Audit System Integrity'' with 
+                ''Success'' selected'
+              - 'Computer Configuration -> Windows Settings -> Security 
+                Settings -> Advanced Audit Policy Configuration -> System 
+                Audit Policies -> System -> ''Audit System Integrity'' with 
+                ''Failure'' selected'
       'AC-7':
         name: 'UNSUCCESSFUL LOGON ATTEMPTS'
         type: 'Common'
