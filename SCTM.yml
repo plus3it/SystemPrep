@@ -868,6 +868,15 @@ projects:
                 Settings -> Advanced Audit Policy Configuration -> System
                 Audit Policies -> Account Management -> ''Audit User Account
                 Management'' with ''Failure'' selected'
+      'AC-3(4)':
+        name: 'ACCESS ENFORCEMENT | DISCRETIONARY ACCESS CONTROL'
+        type: 'Common'
+        source_ref:
+          - 'Value is proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\System\CurrentControlSet\Control\Lsa\EveryoneIncludesAnonymous = 0'
       'AC-7':
         name: 'UNSUCCESSFUL LOGON ATTEMPTS'
         type: 'Common'
