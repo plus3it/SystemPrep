@@ -1084,6 +1084,31 @@ projects:
               - 'HKCU\Software\Policies\Microsoft\Windows NT\Terminal Services\MaxIdleTime = 900000'
               - 'HKCU\Software\Policies\Microsoft\Windows NT\Terminal Services\MaxDisconnectionTime = 60000'
               - 'HKCU\System\CurrentControlSet\Services\LanManServer\Parameters\autodisconnect = 15'
+      'AC-17(1)':
+        name: 'REMOTE ACCESS | AUTOMATED MONITORING / CONTROL'
+        type: 'Common'
+        source_ref:
+          - 'Setting is proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Logon/Logoff -> ''Audit Logoff'' with
+                ''Success'' selected'
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Logon/Logoff -> ''Audit Logon'' with
+                ''Success'' selected'
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Logon/Logoff -> ''Audit Logon'' with
+                ''Failure'' selected'
+              - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\fDisableCcm = 1'
+              - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\fDisableLPT = 1'
+              - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\fEnableSmartCard = 1'
+              - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\fDisablePNPRedir = 1'
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\NoDisconnect = 1'
       <control ref>:
         name: <control name>
         type: <control type>
