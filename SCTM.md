@@ -59,7 +59,8 @@ git) to track changes over time.
 The data structure of the YAML SCTM is as follows:
 
 ```
-datamodel: <string containing the version of the data model>
+version: <string, version of the sctm>
+datamodel: <string, version of the data model>
 projects: <dictionary of projects>
   <project name>:
     targets: <list of target OS or application versions for the project as a whole>
