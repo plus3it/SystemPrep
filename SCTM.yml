@@ -954,26 +954,72 @@ projects:
                 Settings -> Advanced Audit Policy Configuration -> System
                 Audit Policies -> System -> ''Audit Security State Change''
                 with ''Success'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
                 Audit Policies -> System -> ''Audit Security State Change''
                 with ''Failure'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> System -> ''Audit Security System 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> System -> ''Audit Security System
                 Extension'' with ''Success'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> System -> ''Audit Security System 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> System -> ''Audit Security System
                 Extension'' with ''Failure'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> System -> ''Audit System Integrity'' with 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> System -> ''Audit System Integrity'' with
                 ''Success'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> System -> ''Audit System Integrity'' with 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> System -> ''Audit System Integrity'' with
                 ''Failure'' selected'
+      'AC-6(10)':
+        name: 'LEAST PRIVILEGE | PROHIBIT NON-PRIVILEGED USERS FROM EXECUTING PRIVILEGED FUNCTIONS'
+        type: 'Common'
+        source_ref:
+          - 'Values are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'SeTrustedCredManAccessPrivilege ='
+              - 'SeTcbPrivilege ='
+              - 'SeIncreaseQuotaPrivilege = *S-1-5-20,*S-1-5-19,*S-1-5-32-544'
+              - 'SeBackupPrivilege = *S-1-5-32-544'
+              - 'SeChangeNotifyPrivilege = *S-1-5-90-0,*S-1-5-20,*S-1-5-19,*S-1-5-11,*S-1-5-32-544'
+              - 'SeSystemTimePrivilege = *S-1-5-32-544,*S-1-5-19'
+              - 'SeCreatePagefilePrivilege = *S-1-5-32-544'
+              - 'SeCreateTokenPrivilege ='
+              - 'SeCreateGlobalPrivilege = *S-1-5-20,*S-1-5-19,*S-1-5-6,*S-1-5-32-544'
+              - 'SeCreatePermanentPrivilege ='
+              - 'SeCreateSymbolicLinkPrivilege = *S-1-5-32-544'
+              - 'SeDebugPrivilege = *S-1-5-32-544'
+              - 'SeRemoteShutdownPrivilege = *S-1-5-32-544'
+              - 'SeAuditPrivilege = *S-1-5-20,*S-1-5-19'
+              - 'SeImpersonatePrivilege = *S-1-5-20,*S-1-5-19,*S-1-5-6,*S-1-5-32-544'
+              - 'SeIncreaseBasePriorityPrivilege = *S-1-5-32-544'
+              - 'SeLoadDriverPrivilege = *S-1-5-32-544'
+              - 'SeLockMemoryPrivilege ='
+              - 'SeRelabelPrivilege ='
+              - 'SeSystemEnvironmentPrivilege = *S-1-5-32-544'
+              - 'SeManageVolumePrivilege = *S-1-5-32-544'
+              - 'SeProfileSingleProcessPrivilege = *S-1-5-32-544'
+              - 'SeSystemProfilePrivilege = *S-1-5-80-3139157870-2983391045-3678747466-658725712-1809340420,*S-1-5-32-544'
+              - 'SeAssignPrimaryTokenPrivilege = *S-1-5-20,*S-1-5-19'
+              - 'SeRestorePrivilege = *S-1-5-32-544'
+              - 'SeShutdownPrivilege = *S-1-5-32-544'
+              - 'SeTakeOwnershipPrivilege = *S-1-5-32-544'
+              - 'SeEnableDelegationPrivilege ='
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'SeIncreaseWorkingSetPrivilege = *S-1-5-90-0'
+            targets:
+              - 'Microsoft Windows Server 2012 R2'
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'SeIncreaseWorkingSetPrivilege = *S-1-5-90-0'
+            targets:
+              - 'Microsoft Windows Server 2008 R2'
       'AC-7':
         name: 'UNSUCCESSFUL LOGON ATTEMPTS'
         type: 'Common'
