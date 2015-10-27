@@ -1,4 +1,5 @@
-# datamodel: <string containing the version of the data model>
+# version: <string, version of the sctm>
+# datamodel: <string, version of the data model>
 # projects: <dictionary of projects>
   # <project name>:
     # targets: <list of target OS or application versions for the project as a whole>
@@ -60,7 +61,8 @@
             # targets: <optional list of targets for this specific configuration, overrides control targets>
             # source_ref: <optional list of source reference overrides for the configuration>
 
-datamodel: '2015-10-23'
+version: 'hydrogen'
+datamodel: '2015-10-27'
 projects:
   AMIgen:
     targets:
