@@ -1042,6 +1042,7 @@ projects:
           - action: 'Use local security policy to enforce'
             parameters:
               - 'LegalNoticeText = <Required consent banner and user agreement>'
+              - 'LegalNoticeCaption = DoD Notice and Consent Banner'
       'AC-10':
         name: 'CONCURRENT SESSION CONTROL'
         type: 'Common'
