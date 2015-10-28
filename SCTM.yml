@@ -1375,6 +1375,80 @@ projects:
                 with ''Principal:  Everyone'', ''Type:  Fail'', and 
                 ''Permissions:  all categories selected'''
               - 'HKLM\System\CurrentControlSet\Control\Lsa\EveryoneIncludesAnonymous = 0'
+      'CM-6':
+        name: 'ACCESS RESTRICTIONS FOR CHANGE | AUTOMATED ACCESS ENFORCEMENT / AUDITING'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\Software\Policies\Microsoft\Windows\TCPIP\v6Transition\Force_Tunneling = Enabled'
+              - 'HKLM\System\CurrentControlSet\Services\Tcpip\Parameters\EnableIPAutoConfigurationLimits = 1'
+              - 'HKLM\Software\Policies\Microsoft\Windows\DeviceInstall\Settings\DisableSystemRestore = 0'
+              - 'HKLM\System\CurrentControlSet\Policies\EarlyLaunch\DriverLoadPolicy = 1'
+              - 'HKLM\Software\Policies\Microsoft\Windows\Group Policy\{35378EAC-683F-11D2-A89A-00C04FBBCFA2}\NoBackgroundPolicy = 0'
+              - 'HKLM\Software\Policies\Microsoft\Windows\Group Policy\{35378EAC-683F-11D2-A89A-00C04FBBCFA2}\NoGPOListChanges = 0'
+              - 'HKLM\Software\Policies\Microsoft\Windows\Explorer\NoUseStoreOpenWith = 1'
+              - 'HKLM\Software\Policies\Microsoft\Power\PowerSettings\3C0BC021-C8A8-4E07-A973-6B14CBCB2B7E\DCSettingIndex = 1200'
+              - 'HKLM\Software\Policies\Microsoft\Power\PowerSettings\3C0BC021-C8A8-4E07-A973-6B14CBCB2B7E\ACSettingIndex = 1200'
+              - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\LoggingEnabled = 1'
+              - 'HKLM\Software\Policies\Microsoft\Windows\Appx\AllowAllTrustedApps = 1'
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\PreXPSP2ShellProtocolBehavior = 0'
+              - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\DeleteTempDirsOnExit = 1'
+              - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\PerSessionTempDir = 1'
+              - 'HKLM\Software\Policies\Microsoft\Internet Explorer\Feeds\DisableEnclosureDownload = 1'
+              - 'HKLM\Software\Policies\Microsoft\Windows\Installer\SafeForScripting = 0'
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\ReportControllerMissing = 1'
+              - 'HKLM\Software\Policies\Microsoft\WindowsMediaPlayer\GroupPrivacyAcceptance = 1'
+              - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\RedirectOnlyDefaultClientPrinter = 1'
+              - 'HKLM\System\CurrentControlSet\Control\Lsa\LimitBlankPasswordUse = 1'
+              - 'NewAdministratorName = "xAdministrator"'
+              - 'NewGuestName = "xGuest"'
+              - 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\WinLogon\AllocateDASD = 0'
+              - 'HKLM\System\CurrentControlSet\Services\Netlogon\Parameters\RefusePasswordChange = 0'
+              - 'HKLM\System\CurrentControlSet\Services\Netlogon\Parameters\MaximumPasswordAge = 30'
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\DontDisplayLastUserName = 1'
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\DisableCAD = 0'
+              - 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\CachedLogonsCount = "4"'
+              - 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\PasswordExpiryWarning = 14'
+              - 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\ScRemoveOption = "1"'
+              - 'HKLM\System\CurrentControlSet\Services\LanManServer\Parameters\SMBServerNameHardeningLevel = 0'
+              - 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\AutoAdminLogon = "0"'
+              - 'HKLM\System\CurrentControlSet\Services\Tcpip6\Parameters\DisableIPSourceRouting = 2'
+              - 'HKLM\System\CurrentControlSet\Services\Tcpip\Parameters\DisableIPSourceRouting = 2'
+              - 'HKLM\System\CurrentControlSet\Services\Tcpip\Parameters\EnableICMPRedirect = 0'
+              - 'HKLM\System\CurrentControlSet\Services\IPSEC\NoDefaultExempt = 3'
+              - 'HKLM\System\CurrentControlSet\Control\Session Manager\SafeDllSearchMode = 1'
+              - 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\ScreenSaverGracePeriod = "5"'
+              - 'LSAAnonymousNameLookup = 0'
+              - 'HKLM\System\CurrentControlSet\Control\Lsa\RestrictAnonymousSAM = 1'
+              - 'HKLM\System\CurrentControlSet\Control\Lsa\EveryoneIncludesAnonymous = 0'
+              - 'HKLM\System\CurrentControlSet\Control\Lsa\MSV1_0\allownullsessionfallback = 0'
+              - 'HKLM\System\CurrentControlSet\Control\Lsa\pku2u\AllowOnlineID = 0'
+              - 'HKLM\System\CurrentControlSet\Control\Lsa\LmCompatibilityLevel = 4'
+              - 'HKLM\System\CurrentControlSet\Services\LDAP\LDAPClientIntegrity = 1'
+              - 'HKLM\System\CurrentControlSet\Control\Lsa\MSV1_0\NTLMMinClientSec = 537395200'
+              - 'HKLM\System\CurrentControlSet\Control\Lsa\MSV1_0\NTLMMinServerSec = 537395200'
+              - 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\Setup\RecoveryConsole\securitylevel = 0'
+              - 'HKLM\Software\Microsoft\Windows NT\CurrentVersion\Setup\RecoveryConsole\setcommand = 0'
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\ShutdownWithoutLogon = 0'
+              - 'HKLM\System\CurrentControlSet\Control\Session Manager\Kernel\ObCaseInsensitive = 1'
+              - 'HKLM\System\CurrentControlSet\Control\Session Manager\ProtectionMode = 1'
+              - 'HKLM\Software\Policies\Microsoft\Windows\Safer\CodeIdentifiers\AuthenticodeEnabled = 1'
+              - 'SeTimeZonePrivilege = *S-1-5-32-544,*S-1-5-19'
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\LogonType = 0'
+          - action: 'Ensure the Startup Type for the Smart Card Removal Policy service is ''Automatic'''
+            parameters:
+              - 'Get-Service -name SCPolicySvc | Set-Service -StartupType 
+                "Automatic" -PassThru | Start-Service'
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\MSAOptional = 1'
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\DisableAutomaticRestartSignOn = 1'
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\MaxDevicePasswordFailedAttempts = 10'
+            targets:
+              - 'Microsoft Windows Server 2012 R2'
       <control ref>:
         name: <control name>
         type: <control type>
@@ -1596,19 +1670,20 @@ projects:
       - 'Microsoft Windows Server 2012 R2'
       - 'Microsoft Windows Server 2008 R2'
     controls:
-      <control ref>:
-        name: <control name>
-        type: <control type>
-        source_ref: <list of common source references for the configuration>
+      'CM-6':
+        name: 'CONFIGURATION SETTINGS'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
         implementation:
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
+          - action: 'Establish a process to automatically install security-related software updates.'
+            parameters:
+              - 'HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\WUServer = [wsus-server]'
+              - 'HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\WUStatusServer = [wsus-server]'
+              - 'HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate\AU\UseWUServer = 1'
+          - action: 'Install Microsoft KB2871997'
+            targets:
+              - 'Microsoft Windows Server 2008 R2'
       <control ref>:
         name: <control name>
         type: <control type>
@@ -1660,19 +1735,13 @@ projects:
       - 'Microsoft Windows Server 2012 R2'
       - 'Microsoft Windows Server 2008 R2'
     controls:
-      <control ref>:
-        name: <control name>
-        type: <control type>
-        source_ref: <list of common source references for the configuration>
+      'CM-6':
+        name: 'CONFIGURATION SETTINGS'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
         implementation:
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
+          - action: 'Install EMET v5.x or later'
       <control ref>:
         name: <control name>
         type: <control type>
