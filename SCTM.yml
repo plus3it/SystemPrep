@@ -1356,6 +1356,25 @@ projects:
           - action: 'Use local security policy to enforce'
             parameters:
               - 'SeSecurityPrivilege = *S-1-5-32-544'
+      'CM-5(1)':
+        name: 'ACCESS RESTRICTIONS FOR CHANGE | AUTOMATED ACCESS ENFORCEMENT / AUDITING'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'Computer Configuration -> Windows Settings -> Security 
+                Settings -> Advanced Audit Policy Configuration -> System 
+                Audit Policies -> Global Object Access Auditing -> ''File 
+                system'' with ''Principal:  Everyone'', Type:  Fail'', and 
+                ''Permissions:  all categories selected'''
+              - 'Computer Configuration -> Windows Settings -> Security 
+                Settings -> Advanced Audit Policy Configuration -> System 
+                Audit Policies -> Global Object Access Auditing -> ''Registry'' 
+                with ''Principal:  Everyone'', ''Type:  Fail'', and 
+                ''Permissions:  all categories selected'''
+              - 'HKLM\System\CurrentControlSet\Control\Lsa\EveryoneIncludesAnonymous = 0'
       <control ref>:
         name: <control name>
         type: <control type>
