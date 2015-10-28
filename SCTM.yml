@@ -1170,6 +1170,15 @@ projects:
           - action: 'Use local security policy to enforce'
             parameters:
               - 'HKLM\SYSTEM\CurrentControlSet\Services\Eventlog\Security\WarningLevel = 90'
+      'AU-9':
+        name: 'PROTECTION OF AUDIT INFORMATION'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'SeSecurityPrivilege = *S-1-5-32-544'
       <control ref>:
         name: <control name>
         type: <control type>
