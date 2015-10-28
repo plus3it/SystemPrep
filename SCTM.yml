@@ -1347,6 +1347,15 @@ projects:
                 ''Permissions:  all categories selected'''
               - 'HKLM\System\CurrentControlSet\Control\Lsa\SCENoApplyLegacyAuditPolicy = 1'
               - 'SeSecurityPrivilege = *S-1-5-32-544'
+      'AU-12(3)':
+        name: 'AUDIT GENERATION | CHANGES BY AUTHORIZED INDIVIDUALS'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'SeSecurityPrivilege = *S-1-5-32-544'
       <control ref>:
         name: <control name>
         type: <control type>
