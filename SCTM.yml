@@ -1519,19 +1519,16 @@ projects:
       - 'Microsoft Windows Server 2012 R2'
       - 'Microsoft Windows Server 2008 R2'
     controls:
-      <control ref>:
-        name: <control name>
-        type: <control type>
-        source_ref: <list of common source references for the configuration>
+      'AU-8(1)':
+        name: 'TIME STAMPS | SYNCHRONIZATION WITH AUTHORITATIVE TIME SOURCE'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
         implementation:
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
+          - action: 'Configure the registry settings'
+            parameters:
+              - 'HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Parameters\Type = NTP'
+              - 'HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Parameters\NtpServer = [list of ntp servers]'
       <control ref>:
         name: <control name>
         type: <control type>
