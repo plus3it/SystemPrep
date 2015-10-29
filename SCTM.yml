@@ -1618,6 +1618,17 @@ projects:
               - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\FilterAdministratorToken = 1'
               - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\ConsentPromptBehaviorUser = 0'
               - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\EnableLUA = 1'
+      'MA-4(6)':
+        name: 'NONLOCAL MAINTENANCE | CRYPTOGRAPHIC PROTECTION'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\MinEncryptionLevel = 3'
+              - 'HKLM\Software\Policies\Microsoft\Windows\WinRM\Client\AllowUnencryptedTraffic = 0'
+              - 'HKLM\Software\Policies\Microsoft\Windows\WinRM\Service\AllowUnencryptedTraffic = 0'
       <control ref>:
         name: <control name>
         type: <control type>
