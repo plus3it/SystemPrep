@@ -1449,6 +1449,17 @@ projects:
               - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\MaxDevicePasswordFailedAttempts = 10'
             targets:
               - 'Microsoft Windows Server 2012 R2'
+      'CM-7(2)':
+        name: 'LEAST FUNCTIONALITY | PREVENT PROGRAM EXECUTION'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\Software\Policies\Microsoft\Windows\Explorer\NoAutoplayfornonVolume = 1'
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\NoAutorun = 1'
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\NoDriveTypeAutoRun = 255'
       <control ref>:
         name: <control name>
         type: <control type>
