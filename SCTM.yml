@@ -1601,6 +1601,23 @@ projects:
           - action: 'Use local security policy to enforce'
             parameters:
               - 'EnableGuestAccount = 0'
+      'IA-11':
+        name: 'RE-AUTHENTICATION'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\Software\Policies\Microsoft\Power\PowerSettings\0e796bdb-100d-47d6-a2d5-f7d2daa51f51\DCSettingIndex = 1'
+              - 'HKLM\Software\Policies\Microsoft\Power\PowerSettings\0e796bdb-100d-47d6-a2d5-f7d2daa51f51\ACSettingIndex = 1'
+              - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\DisablePasswordSaving = 1'
+              - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\fPromptForPassword = 1'
+              - 'HKLM\Software\Policies\Microsoft\Windows\WinRM\Service\DisableRunAs = 1'
+              - 'HKLM\System\CurrentControlSet\Control\Lsa\DisableDomainCreds = 1'
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\FilterAdministratorToken = 1'
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\ConsentPromptBehaviorUser = 0'
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\EnableLUA = 1'
       <control ref>:
         name: <control name>
         type: <control type>
