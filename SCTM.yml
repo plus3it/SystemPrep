@@ -1583,6 +1583,15 @@ projects:
           - action: 'Use local security policy to enforce'
             parameters:
               - 'HKLM\Software\Policies\Microsoft\Windows\CredUI\DisablePasswordReveal = 1'
+      'IA-7':
+        name: 'CRYPTOGRAPHIC MODULE AUTHENTICATION'
+        type: 'Hybrid'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Kerberos\Parameters\SupportedEncryptionTypes = 2147483644'
       <control ref>:
         name: <control name>
         type: <control type>
