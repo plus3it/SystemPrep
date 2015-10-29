@@ -1564,6 +1564,16 @@ projects:
               - 'ClearTextPassword = 0'
               - 'HKLM\System\CurrentControlSet\Services\LanmanWorkstation\Parameters\EnablePlainTextPassword = 0'
               - 'HKLM\System\CurrentControlSet\Control\Lsa\NoLMHash = 1'
+      'IA-5(2)':
+        name: 'AUTHENTICATOR MANAGEMENT | PKI-BASED AUTHENTICATION'
+        type: 'Hybrid'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\Software\Policies\Microsoft\SystemCertificates\AuthRoot\DisableRootAutoUpdate = 1'
+              - 'HKLM\Software\Policies\Microsoft\Cryptography\ForceKeyProtection = 2'
       <control ref>:
         name: <control name>
         type: <control type>
