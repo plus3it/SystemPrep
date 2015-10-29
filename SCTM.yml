@@ -1592,6 +1592,15 @@ projects:
           - action: 'Use local security policy to enforce'
             parameters:
               - 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Kerberos\Parameters\SupportedEncryptionTypes = 2147483644'
+      'IA-8':
+        name: 'IDENTIFICATION AND AUTHENTICATION (NON-ORGANIZATIONAL USERS)'
+        type: 'Hybrid'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'EnableGuestAccount = 0'
       <control ref>:
         name: <control name>
         type: <control type>
