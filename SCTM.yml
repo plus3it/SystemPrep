@@ -1491,7 +1491,7 @@ projects:
               - 'HKLM\Software\Policies\Microsoft\Windows\LocationAndSensors\DisableLocation = 1'
               - 'HKLM\Software\Policies\Microsoft\Internet Explorer\Feeds\AllowBasicAuthInClear = 0'
               - 'HKLM\Software\Policies\Microsoft\WMDRM\DisableOnline = 1'
-              - 'HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\SubSystems\Optional = []'
+              - 'HKLM\System\CurrentControlSet\Control\Session Manager\SubSystems\Optional = []'
           - action: 'Use local security policy to enforce'
             parameters:
               - 'HKLM\Software\Policies\Microsoft\Windows\Personalization\NoLockScreenSlideshow = 1'
@@ -1510,6 +1510,25 @@ projects:
               - 'HKLM\Software\Policies\Microsoft\Windows\Explorer\NoAutoplayfornonVolume = 1'
               - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\NoAutorun = 1'
               - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\NoDriveTypeAutoRun = 255'
+      'CM-11(2)':
+        name: 'USER-INSTALLED SOFTWARE | PROHIBIT INSTALLATION WITHOUT PRIVILEGED STATUS'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\Software\Policies\Microsoft\Windows NT\Printers\DoNotInstallCompatibleDriverFromWindowsUpdate = 1'
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\Servicing\UseWindowsUpdate = 2'
+              - 'HKLM\Software\Policies\Microsoft\Windows\DriverSearching\SearchOrderConfig = 0'
+              - 'HKLM\Software\Policies\Microsoft\Windows\DriverSearching\DriverServerSelection = 1'
+              - 'HKLM\Software\Policies\Microsoft\Windows\DriverSearching\DontPromptForWindowsUpdate = 1'
+              - 'HKLM\Software\Policies\Microsoft\Windows\DriverSearching\DontSearchWindowsUpdate = 1'
+              - 'HKLM\Software\Policies\Microsoft\Windows\Installer\EnableUserControl = 0'
+              - 'HKLM\Software\Policies\Microsoft\Windows\Installer\AlwaysInstallElevated = 0'
+              - 'HKLM\Software\Policies\Microsoft\Windows\Installer\DisableLUAPatching = 1'
+              - 'HKLM\Software\Policies\Microsoft\WindowsMediaPlayer\DisableAutoUpdate = 1'
+              - 'HKLM\System\CurrentControlSet\Control\Print\Providers\LanMan Print Services\Servers\AddPrinterDrivers = 1'
       <control ref>:
         name: <control name>
         type: <control type>
