@@ -1529,6 +1529,16 @@ projects:
               - 'HKLM\Software\Policies\Microsoft\Windows\Installer\DisableLUAPatching = 1'
               - 'HKLM\Software\Policies\Microsoft\WindowsMediaPlayer\DisableAutoUpdate = 1'
               - 'HKLM\System\CurrentControlSet\Control\Print\Providers\LanMan Print Services\Servers\AddPrinterDrivers = 1'
+      'IA-3(1)':
+        name: 'DEVICE IDENTIFICATION AND AUTHENTICATION | CRYPTOGRAPHIC BIDIRECTIONAL AUTHENTICATION'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Rpc\EnableAuthEpResolution = 1'
+              - 'HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Rpc\RestrictRemoteClients = 1'
       <control ref>:
         name: <control name>
         type: <control type>
