@@ -1548,6 +1548,22 @@ projects:
             parameters:
               - 'HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Rpc\EnableAuthEpResolution = 1'
               - 'HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Rpc\RestrictRemoteClients = 1'
+      'IA-5(1)':
+        name: 'AUTHENTICATOR MANAGEMENT | PASSWORD-BASED AUTHENTICATION'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'PasswordHistorySize = 24'
+              - 'MaximumPasswordAge = 60'
+              - 'MinimumPasswordAge = 1'
+              - 'MinimumPasswordLength = 14'
+              - 'PasswordComplexity = 1'
+              - 'ClearTextPassword = 0'
+              - 'HKLM\System\CurrentControlSet\Services\LanmanWorkstation\Parameters\EnablePlainTextPassword = 0'
+              - 'HKLM\System\CurrentControlSet\Control\Lsa\NoLMHash = 1'
       <control ref>:
         name: <control name>
         type: <control type>
