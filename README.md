@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/lorengordon/SystemPrep.svg)](https://travis-ci.org/lorengordon/SystemPrep)
+
 # SystemPrep
 
 **SystemPrep** helps provision a system from its initial installation to its
