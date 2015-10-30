@@ -1698,6 +1698,20 @@ projects:
               - 'HKLM\System\CurrentControlSet\Services\LanManServer\Parameters\RestrictNullSessAccess = 1'
               - 'HKLM\System\CurrentControlSet\Services\LanManServer\Parameters\NullSessionShares = []'
               - 'HKLM\System\CurrentControlSet\Control\Lsa\ForceGuest = 0'
+      'SC-5':
+        name: 'DENIAL OF SERVICE PROTECTION'
+        type: 'Hybrid'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\Software\Policies\Microsoft\Windows\Explorer\NoHeapTerminationOnCorruption = 0'
+              - 'HKLM\System\CurrentControlSet\Services\Tcpip\Parameters\KeepAliveTime = 300000'
+              - 'HKLM\System\CurrentControlSet\Services\Netbt\Parameters\NoNameReleaseOnDemand = 1'
+              - 'HKLM\System\CurrentControlSet\Services\Tcpip\Parameters\PerformRouterDiscovery = 0'
+              - 'HKLM\System\CurrentControlSet\Services\Tcpip6\Parameters\TcpMaxDataRetransmissions = 3'
+              - 'HKLM\System\CurrentControlSet\Services\Tcpip\Parameters\TcpMaxDataRetransmissions = 3'
       <control ref>:
         name: <control name>
         type: <control type>
