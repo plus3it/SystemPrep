@@ -1187,13 +1187,13 @@ projects:
         implementation:
           - action: 'Use local security policy to enforce'
             parameters:
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> Account Logon -> ''Audit Credential 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Account Logon -> ''Audit Credential
                 Validation'' with ''Success'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> Account Logon -> ''Audit Credential 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Account Logon -> ''Audit Credential
                 Validation'' with ''Failure'' selected'
               - 'Computer Configuration -> Windows Settings -> Security
                 Settings -> Advanced Audit Policy Configuration -> System
@@ -1227,9 +1227,9 @@ projects:
                 Settings -> Advanced Audit Policy Configuration -> System
                 Audit Policies -> Account Management -> ''Audit User Account
                 Management'' with ''Failure'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> Detailed Tracking -> ''Audit Process 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Detailed Tracking -> ''Audit Process
                 Creation'' with ''Success'' selected'
               - 'Computer Configuration -> Windows Settings -> Security
                 Settings -> Advanced Audit Policy Configuration -> System
@@ -1243,73 +1243,73 @@ projects:
                 Settings -> Advanced Audit Policy Configuration -> System
                 Audit Policies -> Logon/Logoff -> ''Audit Logon'' with
                 ''Failure'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> Logon/Logoff -> ''Audit Special Logon'' with 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Logon/Logoff -> ''Audit Special Logon'' with
                 ''Success'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> Object Access -> ''Audit Central Access 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Object Access -> ''Audit Central Access
                 Policy Staging'' with ''Success'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> Object Access -> ''Audit Central Access 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Object Access -> ''Audit Central Access
                 Policy Staging'' with ''Failure'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> Object Access -> ''Audit File System'' with 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Object Access -> ''Audit File System'' with
                 ''Failure'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> Object Access -> ''Audit Handle 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Object Access -> ''Audit Handle
                 Manipulation'' with ''Failure'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> Object Access -> ''Audit Registry'' with 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Object Access -> ''Audit Registry'' with
                 ''Failure'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> Object Access -> ''Audit Removable Storage'' 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Object Access -> ''Audit Removable Storage''
                 with ''Success'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> Object Access -> ''Audit Removable Storage'' 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Object Access -> ''Audit Removable Storage''
                 with ''Failure'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> Policy Change -> ''Audit Audit Policy 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Policy Change -> ''Audit Audit Policy
                 Change'' with ''Success'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> Policy Change -> ''Audit Audit Policy 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Policy Change -> ''Audit Audit Policy
                 Change'' with ''Failure'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> Policy Change -> ''Audit Authentication 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Policy Change -> ''Audit Authentication
                 Policy Change'' with ''Success'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> Policy Change -> ''Audit Authorization 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Policy Change -> ''Audit Authorization
                 Policy Change'' with ''Success'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> Policy Change -> ''Audit Authorization 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Policy Change -> ''Audit Authorization
                 Policy Change'' with ''Failure'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> Privilege Use -> ''Audit Sensitive Privilege 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Privilege Use -> ''Audit Sensitive Privilege
                 Use'' with ''Success'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> Privilege Use -> ''Audit Sensitive Privilege 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Privilege Use -> ''Audit Sensitive Privilege
                 Use'' with ''Failure'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> System -> ''Audit IPsec Driver'' with 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> System -> ''Audit IPsec Driver'' with
                 ''Success'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> System -> ''Audit IPsec Driver'' with 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> System -> ''Audit IPsec Driver'' with
                 ''Failure'' selected'
               - 'Computer Configuration -> Windows Settings -> Security
                 Settings -> Advanced Audit Policy Configuration -> System
@@ -1335,15 +1335,15 @@ projects:
                 Settings -> Advanced Audit Policy Configuration -> System
                 Audit Policies -> System -> ''Audit System Integrity'' with
                 ''Failure'' selected'
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> Global Object Access Auditing -> ''File 
-                system'' with ''Principal:  Everyone'', Type:  Fail'', and 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Global Object Access Auditing -> ''File
+                system'' with ''Principal:  Everyone'', Type:  Fail'', and
                 ''Permissions:  all categories selected'''
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> Global Object Access Auditing -> ''Registry'' 
-                with ''Principal:  Everyone'', ''Type:  Fail'', and 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Global Object Access Auditing -> ''Registry''
+                with ''Principal:  Everyone'', ''Type:  Fail'', and
                 ''Permissions:  all categories selected'''
               - 'HKLM\System\CurrentControlSet\Control\Lsa\SCENoApplyLegacyAuditPolicy = 1'
               - 'SeSecurityPrivilege = *S-1-5-32-544'
@@ -1364,15 +1364,15 @@ projects:
         implementation:
           - action: 'Use local security policy to enforce'
             parameters:
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> Global Object Access Auditing -> ''File 
-                system'' with ''Principal:  Everyone'', Type:  Fail'', and 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Global Object Access Auditing -> ''File
+                system'' with ''Principal:  Everyone'', Type:  Fail'', and
                 ''Permissions:  all categories selected'''
-              - 'Computer Configuration -> Windows Settings -> Security 
-                Settings -> Advanced Audit Policy Configuration -> System 
-                Audit Policies -> Global Object Access Auditing -> ''Registry'' 
-                with ''Principal:  Everyone'', ''Type:  Fail'', and 
+              - 'Computer Configuration -> Windows Settings -> Security
+                Settings -> Advanced Audit Policy Configuration -> System
+                Audit Policies -> Global Object Access Auditing -> ''Registry''
+                with ''Principal:  Everyone'', ''Type:  Fail'', and
                 ''Permissions:  all categories selected'''
               - 'HKLM\System\CurrentControlSet\Control\Lsa\EveryoneIncludesAnonymous = 0'
       'CM-6':
@@ -1440,7 +1440,7 @@ projects:
               - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\LogonType = 0'
           - action: 'Ensure the Startup Type for the Smart Card Removal Policy service is ''Automatic'''
             parameters:
-              - 'Get-Service -name SCPolicySvc | Set-Service -StartupType 
+              - 'Get-Service -name SCPolicySvc | Set-Service -StartupType
                 "Automatic" -PassThru | Start-Service'
           - action: 'Use local security policy to enforce'
             parameters:
@@ -1679,11 +1679,11 @@ projects:
               - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\fAllowToGetHelp = 0'
               - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\fDisableCdm = 1'
               - 'HKLM\System\CurrentControlSet\Control\Lsa\RestrictAnonymous = 1'
-              - 'HKLM\System\CurrentControlSet\Control\SecurePipeServers\Winreg\AllowedExactPaths\Machine = 
+              - 'HKLM\System\CurrentControlSet\Control\SecurePipeServers\Winreg\AllowedExactPaths\Machine =
                 ["System\CurrentControlSet\Control\ProductOptions",
                 "System\CurrentControlSet\Control\Server Applications",
                 "Software\Microsoft\Windows NT\CurrentVersion"]'
-              - 'HKLM\System\CurrentControlSet\Control\SecurePipeServers\Winreg\AllowedPaths\Machine = 
+              - 'HKLM\System\CurrentControlSet\Control\SecurePipeServers\Winreg\AllowedPaths\Machine =
                 ["System\CurrentControlSet\Control\Print\Printers",
                 "System\CurrentControlSet\Services\Eventlog",
                 "Software\Microsoft\OLAP Server",
