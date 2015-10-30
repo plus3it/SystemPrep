@@ -1640,6 +1640,33 @@ projects:
               - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\MinEncryptionLevel = 3'
               - 'HKLM\Software\Policies\Microsoft\Windows\WinRM\Client\AllowUnencryptedTraffic = 0'
               - 'HKLM\Software\Policies\Microsoft\Windows\WinRM\Service\AllowUnencryptedTraffic = 0'
+      'SC-3':
+        name: 'SECURITY FUNCTION ISOLATION'
+        type: 'Hybrid'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\Software\Policies\Microsoft\Windows\Network Connections\NC_StdDomainUserSetLocation = 1'
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\CredUI\EnumerateAdministrators = 0'
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\EnableInstallerDetection = 1'
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\ValidateAdminCodeSignatures = 0'
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\EnableSecureUIAPaths = 1'
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\PromptOnSecureDesktop = 1'
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\EnableVirtualization = 1'
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\EnableUIADesktopToggle = 0'
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\LocalAccountTokenFilterPolicy = 0'
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\ConsentPromptBehaviorAdmin = 2'
+            targets:
+              - 'Microsoft Windows Server 2012 R2'
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\ConsentPromptBehaviorAdmin = 4'
+            targets:
+              - 'Microsoft Windows Server 2008 R2'
       <control ref>:
         name: <control name>
         type: <control type>
