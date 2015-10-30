@@ -1728,6 +1728,19 @@ projects:
               - 'HKLM\System\CurrentControlSet\Services\LanmanWorkstation\Parameters\EnableSecuritySignature = 1'
               - 'HKLM\System\CurrentControlSet\Services\LanManServer\Parameters\requiresecuritysignature = 1'
               - 'HKLM\System\CurrentControlSet\Services\LanManServer\Parameters\enablesecuritysignature = 1'
+      'SC-10':
+        name: 'NETWORK DISCONNECT'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\MaxIdleTime = 900000'
+              - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\MaxDisconnectionTime = 60000'
+              - 'HKLM\System\CurrentControlSet\Services\LanManServer\Parameters\autodisconnect = 15'
+              - 'HKLM\System\CurrentControlSet\Services\LanManServer\Parameters\enableforcedlogoff = 1'
+              - 'ForceLogoffWhenHourExpire = 1'
       <control ref>:
         name: <control name>
         type: <control type>
