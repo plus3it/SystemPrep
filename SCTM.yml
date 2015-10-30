@@ -1667,6 +1667,37 @@ projects:
               - 'HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\ConsentPromptBehaviorAdmin = 4'
             targets:
               - 'Microsoft Windows Server 2008 R2'
+      'SC-4':
+        name: 'INFORMATION IN SHARED RESOURCES'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\fAllowUnsolicited = 0'
+              - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\fAllowToGetHelp = 0'
+              - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\fDisableCdm = 1'
+              - 'HKLM\System\CurrentControlSet\Control\Lsa\RestrictAnonymous = 1'
+              - 'HKLM\System\CurrentControlSet\Control\SecurePipeServers\Winreg\AllowedExactPaths\Machine = 
+                ["System\CurrentControlSet\Control\ProductOptions",
+                "System\CurrentControlSet\Control\Server Applications",
+                "Software\Microsoft\Windows NT\CurrentVersion"]'
+              - 'HKLM\System\CurrentControlSet\Control\SecurePipeServers\Winreg\AllowedPaths\Machine = 
+                ["System\CurrentControlSet\Control\Print\Printers",
+                "System\CurrentControlSet\Services\Eventlog",
+                "Software\Microsoft\OLAP Server",
+                "Software\Microsoft\Windows NT\CurrentVersion\Print",
+                "Software\Microsoft\Windows NT\CurrentVersion\Windows",
+                "System\CurrentControlSet\Control\ContentIndex",
+                "System\CurrentControlSet\Control\Terminal Server",
+                "System\CurrentControlSet\Control\Terminal Server\UserConfig",
+                "System\CurrentControlSet\Control\Terminal Server\DefaultUserConfiguration",
+                "Software\Microsoft\Windows NT\CurrentVersion\Perflib",
+                "System\CurrentControlSet\Services\SysmonLog"]'
+              - 'HKLM\System\CurrentControlSet\Services\LanManServer\Parameters\RestrictNullSessAccess = 1'
+              - 'HKLM\System\CurrentControlSet\Services\LanManServer\Parameters\NullSessionShares = []'
+              - 'HKLM\System\CurrentControlSet\Control\Lsa\ForceGuest = 0'
       <control ref>:
         name: <control name>
         type: <control type>
