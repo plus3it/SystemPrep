@@ -1750,6 +1750,17 @@ projects:
           - action: 'Use local security policy to enforce'
             parameters:
               - 'HKLM\System\CurrentControlSet\Control\Lsa\FIPSAlgorithmPolicy\Enabled = 1'
+      'SI-11':
+        name: 'ERROR HANDLING'
+        type: 'Hybrid'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\Software\Policies\Microsoft\Windows\Windows Error Reporting\Disabled = 0'
+              - 'HKLM\Software\Policies\Microsoft\Windows\Windows Error Reporting\LoggingDisabled = 0'
+              - 'HKLM\Software\Policies\Microsoft\Windows\Windows Error Reporting\DontSendAdditionalData = 1'
       <control ref>:
         name: <control name>
         type: <control type>
