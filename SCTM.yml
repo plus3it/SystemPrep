@@ -1741,6 +1741,15 @@ projects:
               - 'HKLM\System\CurrentControlSet\Services\LanManServer\Parameters\autodisconnect = 15'
               - 'HKLM\System\CurrentControlSet\Services\LanManServer\Parameters\enableforcedlogoff = 1'
               - 'ForceLogoffWhenHourExpire = 1'
+      'SC-13':
+        name: 'CRYPTOGRAPHIC PROTECTION'
+        type: 'Hybrid'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\System\CurrentControlSet\Control\Lsa\FIPSAlgorithmPolicy\Enabled = 1'
       <control ref>:
         name: <control name>
         type: <control type>
