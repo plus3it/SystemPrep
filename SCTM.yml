@@ -2108,19 +2108,12 @@ projects:
           - 'Settings are proscribed by DISA STIG.'
         implementation:
           - action: 'Install EMET v5.x or later'
-      <control ref>:
-        name: <control name>
-        type: <control type>
-        source_ref: <list of common source references for the configuration>
+      'SI-16':
+        name: 'MEMORY PROTECTION'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
         implementation:
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
+          - action: 'Install EMET v5.x or later'
 
   dotnet4-formula:
     targets:
