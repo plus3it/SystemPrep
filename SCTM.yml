@@ -2050,19 +2050,6 @@ projects:
           - action: 'Install Microsoft KB2871997'
             targets:
               - 'Microsoft Windows Server 2008 R2'
-      <control ref>:
-        name: <control name>
-        type: <control type>
-        source_ref: <list of common source references for the configuration>
-        implementation:
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
 
   netbanner-formula:
     targets:
