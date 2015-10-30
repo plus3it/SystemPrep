@@ -1712,6 +1712,22 @@ projects:
               - 'HKLM\System\CurrentControlSet\Services\Tcpip\Parameters\PerformRouterDiscovery = 0'
               - 'HKLM\System\CurrentControlSet\Services\Tcpip6\Parameters\TcpMaxDataRetransmissions = 3'
               - 'HKLM\System\CurrentControlSet\Services\Tcpip\Parameters\TcpMaxDataRetransmissions = 3'
+      'SC-8(1)':
+        name: 'TRANSMISSION CONFIDENTIALITY AND INTEGRITY | CRYPTOGRAPHIC OR ALTERNATE PHYSICAL PROTECTION'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'HKLM\System\CurrentControlSet\Services\Netlogon\Parameters\requiresignorseal = 1'
+              - 'HKLM\System\CurrentControlSet\Services\Netlogon\Parameters\sealsecurechannel = 1'
+              - 'HKLM\System\CurrentControlSet\Services\Netlogon\Parameters\signsecurechannel = 1'
+              - 'HKLM\System\CurrentControlSet\Services\Netlogon\Parameters\requirestrongkey = 1'
+              - 'HKLM\System\CurrentControlSet\Services\LanmanWorkstation\Parameters\RequireSecuritySignature = 1'
+              - 'HKLM\System\CurrentControlSet\Services\LanmanWorkstation\Parameters\EnableSecuritySignature = 1'
+              - 'HKLM\System\CurrentControlSet\Services\LanManServer\Parameters\requiresecuritysignature = 1'
+              - 'HKLM\System\CurrentControlSet\Services\LanManServer\Parameters\enablesecuritysignature = 1'
       <control ref>:
         name: <control name>
         type: <control type>
