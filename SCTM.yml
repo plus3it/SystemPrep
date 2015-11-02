@@ -1970,32 +1970,54 @@ projects:
       - 'Microsoft Windows Server 2012 R2'
       - 'Microsoft Windows Server 2008 R2'
     controls:
-      <control ref>:
-        name: <control name>
-        type: <control type>
-        source_ref: <list of common source references for the configuration>
+      'AU-8(1)':
+        name: 'TIME STAMPS | SYNCHRONIZATION WITH AUTHORITATIVE TIME SOURCE'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
         implementation:
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
-      <control ref>:
-        name: <control name>
-        type: <control type>
-        source_ref: <list of common source references for the configuration>
+          - action: 'Join the Active Directory domain'
+            parameters: '[Name of the Active Directory domain]'
+      'AU-12(1)':
+        name: 'AUDIT GENERATION | SYSTEM-WIDE / TIME-CORRELATED AUDIT TRAIL'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
         implementation:
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
+          - action: 'Join the Active Directory domain'
+            parameters: '[Name of the Active Directory domain]'
+      'IA-2':
+        name: 'IDENTIFICATION AND AUTHENTICATION (ORGANIZATIONAL USERS)'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Join the Active Directory domain'
+            parameters: '[Name of the Active Directory domain]'
+      'IA-2(8)':
+        name: 'IDENTIFICATION AND AUTHENTICATION | NETWORK ACCESS TO PRIVILEGED ACCOUNTS - REPLAY RESISTANT'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Join the Active Directory domain'
+            parameters: '[Name of the Active Directory domain]'
+      'IA-2(9)':
+        name: 'IDENTIFICATION AND AUTHENTICATION | NETWORK ACCESS TO NON-PRIVILEGED ACCOUNTS - REPLAY RESISTANT'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Join the Active Directory domain'
+            parameters: '[Name of the Active Directory domain]'
+      'IA-5(1)':
+        name: 'AUTHENTICATOR MANAGEMENT | PASSWORD-BASED AUTHENTICATION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Join the Active Directory domain'
+            parameters: '[Name of the Active Directory domain]'
 
   mcafee-agent-windows-formula:
     targets:
