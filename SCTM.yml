@@ -1852,37 +1852,118 @@ projects:
     targets:
       - 'Enterprise Linux 6'
     controls:
+      'AU-4(1)':
+        name: 'AUDIT STORAGE CAPACITY | TRANSFER TO ALTERNATE STORAGE'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-9':
+        name: 'PROTECTION OF AUDIT INFORMATION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
       'AU-9(2)':
         name: 'PROTECTION OF AUDIT INFORMATION | AUDIT BACKUP ON SEPARATE PHYSICAL SYSTEMS / COMPONENTS'
         type: 'Common'
-        source_ref: <list of source references>
+        source_ref:
+          - 'NIST 800-53 rev 4'
         implementation:
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
-      'AU-12':
-        name: 'AUDIT GENERATION'
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-9(3)':
+        name: 'PROTECTION OF AUDIT INFORMATION | CRYPTOGRAPHIC PROTECTION'
         type: 'Common'
-        source_ref: <list of source references>
+        source_ref:
+          - 'NIST 800-53 rev 4'
         implementation:
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
-      <control ref>:
-        name: <control name>
-        type: <control type>
-        source_ref: <list of common source references for the configuration>
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-9(4)':
+        name: 'PROTECTION OF AUDIT INFORMATION | ACCESS BY SUBSET OF PRIVILEGED USERS'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
         implementation:
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-10':
+        name: 'NON-REPUDIATION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-10(1)':
+        name: 'NON-REPUDIATION | ASSOCIATION OF IDENTITIES'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-10(2)':
+        name: 'NON-REPUDIATION | VALIDATE BINDING OF INFORMATION PRODUCER IDENTITY'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-10(3)':
+        name: 'NON-REPUDIATION | CHAIN OF CUSTODY'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-10(4)':
+        name: 'NON-REPUDIATION | VALIDATE BINDING OF INFORMATION REVIEWER IDENTITY'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-11':
+        name: 'AUDIT RECORD RETENTION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-11(1)':
+        name: 'AUDIT RECORD RETENTION | LONG-TERM RETRIEVAL CAPABILITY'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-12(1)':
+        name: 'AUDIT GENERATION | SYSTEM-WIDE / TIME-CORRELATED AUDIT TRAIL'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-12(3)':
+        name: 'AUDIT GENERATION | CHANGES BY AUTHORIZED INDIVIDUALS'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'CM-6':
+        name: 'CONFIGURATION SETTINGS'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'MA-4(1)':
+        name: 'NONLOCAL MAINTENANCE | AUDITING AND REVIEW'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
 
   join-domain-formula:
     targets:
@@ -1956,37 +2037,118 @@ projects:
       - 'Microsoft Windows Server 2012 R2'
       - 'Microsoft Windows Server 2008 R2'
     controls:
+      'AU-4(1)':
+        name: 'AUDIT STORAGE CAPACITY | TRANSFER TO ALTERNATE STORAGE'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-9':
+        name: 'PROTECTION OF AUDIT INFORMATION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
       'AU-9(2)':
         name: 'PROTECTION OF AUDIT INFORMATION | AUDIT BACKUP ON SEPARATE PHYSICAL SYSTEMS / COMPONENTS'
         type: 'Common'
-        source_ref: <list of source references>
+        source_ref:
+          - 'NIST 800-53 rev 4'
         implementation:
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
-      'AU-12':
-        name: 'AUDIT GENERATION'
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-9(3)':
+        name: 'PROTECTION OF AUDIT INFORMATION | CRYPTOGRAPHIC PROTECTION'
         type: 'Common'
-        source_ref: <list of source references>
+        source_ref:
+          - 'NIST 800-53 rev 4'
         implementation:
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
-      <control ref>:
-        name: <control name>
-        type: <control type>
-        source_ref: <list of common source references for the configuration>
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-9(4)':
+        name: 'PROTECTION OF AUDIT INFORMATION | ACCESS BY SUBSET OF PRIVILEGED USERS'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
         implementation:
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-10':
+        name: 'NON-REPUDIATION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-10(1)':
+        name: 'NON-REPUDIATION | ASSOCIATION OF IDENTITIES'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-10(2)':
+        name: 'NON-REPUDIATION | VALIDATE BINDING OF INFORMATION PRODUCER IDENTITY'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-10(3)':
+        name: 'NON-REPUDIATION | CHAIN OF CUSTODY'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-10(4)':
+        name: 'NON-REPUDIATION | VALIDATE BINDING OF INFORMATION REVIEWER IDENTITY'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-11':
+        name: 'AUDIT RECORD RETENTION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-11(1)':
+        name: 'AUDIT RECORD RETENTION | LONG-TERM RETRIEVAL CAPABILITY'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-12(1)':
+        name: 'AUDIT GENERATION | SYSTEM-WIDE / TIME-CORRELATED AUDIT TRAIL'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-12(3)':
+        name: 'AUDIT GENERATION | CHANGES BY AUTHORIZED INDIVIDUALS'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'CM-6':
+        name: 'CONFIGURATION SETTINGS'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'MA-4(1)':
+        name: 'NONLOCAL MAINTENANCE | AUDITING AND REVIEW'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
 
   windows-update-agent-formula:
     targets:
@@ -2101,6 +2263,16 @@ projects:
         type: 'Common'
         source_ref:
           - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Configure the registry settings'
+            parameters:
+              - 'HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Parameters\Type = NTP'
+              - 'HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Parameters\NtpServer = [list of ntp servers]'
+      'AU-12(1)':
+        name: 'AUDIT GENERATION | SYSTEM-WIDE / TIME-CORRELATED AUDIT TRAIL'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
         implementation:
           - action: 'Configure the registry settings'
             parameters:
