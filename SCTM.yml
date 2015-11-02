@@ -68,32 +68,17 @@ projects:
     targets:
       - 'Enterprise Linux 6'
     controls:
-      <control ref>:
-        name: <control name>
-        type: <control type>
-        source_ref: <list of common source references for the configuration>
+      'CM-6':
+        name: 'CONFIGURATION SETTINGS'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
         implementation:
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
-      <control ref>:
-        name: <control name>
-        type: <control type>
-        source_ref: <list of common source references for the configuration>
-        implementation:
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
+          - action: 'Configure "/tmp" to be on its own partition'
+          - action: 'Configure "/var" to be on its own partition'
+          - action: 'Configure "/var/log" to be on its own partition'
+          - action: 'Configure "/var/log/audit" to be on its own partition'
+          - action: 'Configure "/home" to be on its own partition'
 
   ash-linux-formula:
     targets:
