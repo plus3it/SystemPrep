@@ -210,6 +210,13 @@ projects:
               - 'action_mail_acct = root'
               - 'disk_full_action = HALT'
               - 'disk_error_action = HALT'
+      'AU-8':
+        name: 'TIME STAMPS'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'No action required; Operating System provides this capability by default'
       'AU-9':
         name: 'PROTECTION OF AUDIT INFORMATION'
         type: 'Common'
@@ -1155,6 +1162,13 @@ projects:
           - action: 'Use local security policy to enforce'
             parameters:
               - 'HKLM\SYSTEM\CurrentControlSet\Services\Eventlog\Security\WarningLevel = 90'
+      'AU-8':
+        name: 'TIME STAMPS'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'No action required; Operating System provides this capability by default'
       'AU-9':
         name: 'PROTECTION OF AUDIT INFORMATION'
         type: 'Common'
