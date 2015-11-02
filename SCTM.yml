@@ -1833,32 +1833,20 @@ projects:
     targets:
       - 'Enterprise Linux 6'
     controls:
-      <control ref>:
-        name: <control name>
-        type: <control type>
-        source_ref: <list of common source references for the configuration>
+      'SC-5(3)':
+        name: 'DENIAL OF SERVICE PROTECTION | DETECTION / MONITORING'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
         implementation:
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
-      <control ref>:
-        name: <control name>
-        type: <control type>
-        source_ref: <list of common source references for the configuration>
+          - action: 'Install McAfee Agent for Linux'
+      'SC-7(12)':
+        name: 'BOUNDARY PROTECTION | HOST-BASED PROTECTION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
         implementation:
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
+          - action: 'Install McAfee Agent for Linux'
 
   EnterpriseLayer-Splunk-formula:
     targets:
@@ -1934,32 +1922,34 @@ projects:
       - 'Microsoft Windows Server 2012 R2'
       - 'Microsoft Windows Server 2008 R2'
     controls:
-      <control ref>:
-        name: <control name>
-        type: <control type>
-        source_ref: <list of common source references for the configuration>
+      'CM-6':
+        name: 'CONFIGURATION SETTINGS'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
         implementation:
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
-      <control ref>:
-        name: <control name>
-        type: <control type>
-        source_ref: <list of common source references for the configuration>
+          - action: 'Install McAfee Agent for Windows'
+      'SC-5(3)':
+        name: 'DENIAL OF SERVICE PROTECTION | DETECTION / MONITORING'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
         implementation:
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
-          - action: <string describing the configuration being applied>
-            parameters: <list of parameters to apply to the action>
-            targets: <optional list of targets for this specific configuration, overrides control targets>
-            source_ref: <optional list of source reference overrides for the configuration>
+          - action: 'Install McAfee Agent for Windows'
+      'SC-7(12)':
+        name: 'BOUNDARY PROTECTION | HOST-BASED PROTECTION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install McAfee Agent for Windows'
+      'SI-2(2)':
+        name: 'FLAW REMEDIATION | AUTOMATED FLAW REMEDIATION STATUS'
+        type: 'Common'
+        source_ref:
+          - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Install McAfee Agent for Windows'
 
   splunkforwarder-windows-formula:
     targets:
