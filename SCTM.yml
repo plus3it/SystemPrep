@@ -2182,6 +2182,13 @@ projects:
           - 'NIST 800-53 rev 4'
         implementation:
           - action: 'Install and configure Microsoft Netbanner for the security domain'
+      'CM-6':
+        name: 'CONFIGURATION SETTINGS'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install and configure Microsoft Netbanner for the security domain'
 
   emet-formula:
     targets:
