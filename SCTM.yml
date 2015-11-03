@@ -1970,6 +1970,54 @@ projects:
       - 'Microsoft Windows Server 2012 R2'
       - 'Microsoft Windows Server 2008 R2'
     controls:
+      'AC-2(2)':
+        name: 'ACCOUNT MANAGEMENT | REMOVAL OF TEMPORARY / EMERGENCY ACCOUNTS'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Join the Active Directory domain'
+            parameters: '[Name of the Active Directory domain]'
+      'AC-2(3)':
+        name: 'ACCOUNT MANAGEMENT | DISABLE INACTIVE ACCOUNTS'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Join the Active Directory domain'
+            parameters: '[Name of the Active Directory domain]'
+      'AC-2(4)':
+        name: 'ACCOUNT MANAGEMENT | AUTOMATED AUDIT ACTIONS'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Join the Active Directory domain'
+            parameters: '[Name of the Active Directory domain]'
+      'AC-2(10)':
+        name: 'ACCOUNT MANAGEMENT | SHARED / GROUP ACCOUNT CREDENTIAL TERMINATION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Join the Active Directory domain'
+            parameters: '[Name of the Active Directory domain]'
+      'AC-2(11)':
+        name: 'ACCOUNT MANAGEMENT | USAGE CONDITIONS'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Join the Active Directory domain'
+            parameters: '[Name of the Active Directory domain]'
+      'AC-3(4)':
+        name: 'ACCESS ENFORCEMENT | DISCRETIONARY ACCESS CONTROL'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Join the Active Directory domain'
+            parameters: '[Name of the Active Directory domain]'
       'AU-8(1)':
         name: 'TIME STAMPS | SYNCHRONIZATION WITH AUTHORITATIVE TIME SOURCE'
         type: 'Common'
