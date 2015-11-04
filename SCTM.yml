@@ -84,6 +84,12 @@ projects:
     targets:
       - 'Enterprise Linux 6'
     controls:
+      'AC-6(8)':
+        name: 'LEAST PRIVILEGE | PRIVILEGE LEVELS FOR CODE EXECUTION'
+        type: 'Common'
+        source_ref: 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Native feature of the target OS'
       'AC-7':
         name: 'UNSUCCESSFUL LOGON ATTEMPTS'
         type: 'Common'
@@ -888,6 +894,12 @@ projects:
           - action: 'Use local security policy to enforce'
             parameters:
               - 'HKLM\System\CurrentControlSet\Control\Lsa\EveryoneIncludesAnonymous = 0'
+      'AC-6(8)':
+        name: 'LEAST PRIVILEGE | PRIVILEGE LEVELS FOR CODE EXECUTION'
+        type: 'Common'
+        source_ref: 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Native feature of the target OS'
       'AC-6(9)':
         name: 'LEAST PRIVILEGE | AUDITING USE OF PRIVILEGED FUNCTIONS'
         type: 'Common'
