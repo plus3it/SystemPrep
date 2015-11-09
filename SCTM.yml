@@ -1931,6 +1931,69 @@ projects:
           - 'NIST 800-53 rev 4'
         implementation:
           - action: 'Install Splunk forwarder for Linux'
+      'AU-6':
+        name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-6(1)':
+        name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | PROCESS INTEGRATION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-6(3)':
+        name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | CORRELATE AUDIT REPOSITORIES'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-6(4)':
+        name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | CENTRAL REVIEW AND ANALYSIS'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-6(5)':
+        name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | INTEGRATION / SCANNING AND MONITORING CAPABILITIES'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-6(6)':
+        name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | CORRELATION WITH PHYSICAL MONITORING'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-6(7)':
+        name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | PERMITTED ACTIONS'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-6(9)':
+        name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | CORRELATION WITH INFORMATION FROM NONTECHNICAL SOURCES'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-6(10)':
+        name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | AUDIT LEVEL ADJUSTMENT'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
       'AU-9':
         name: 'PROTECTION OF AUDIT INFORMATION'
         type: 'Common'
@@ -2217,6 +2280,69 @@ projects:
           - action: 'Install Splunk forwarder for Linux'
       'AU-5(2)':
         name: 'RESPONSE TO AUDIT PROCESSING FAILURES | REAL-TIME ALERTS'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-6':
+        name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-6(1)':
+        name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | PROCESS INTEGRATION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-6(3)':
+        name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | CORRELATE AUDIT REPOSITORIES'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-6(4)':
+        name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | CENTRAL REVIEW AND ANALYSIS'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-6(5)':
+        name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | INTEGRATION / SCANNING AND MONITORING CAPABILITIES'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-6(6)':
+        name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | CORRELATION WITH PHYSICAL MONITORING'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-6(7)':
+        name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | PERMITTED ACTIONS'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-6(9)':
+        name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | CORRELATION WITH INFORMATION FROM NONTECHNICAL SOURCES'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-6(10)':
+        name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | AUDIT LEVEL ADJUSTMENT'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
