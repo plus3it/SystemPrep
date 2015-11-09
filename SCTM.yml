@@ -682,6 +682,14 @@ projects:
           - action: 'Check whether "aide --check" is configured to execute periodically'
             parameters:
               - '[Warn if aide is not present in /etc/crontab]'
+      'CM-11(2)':
+        name: 'USER-INSTALLED SOFTWARE | PROHIBIT INSTALLATION WITHOUT PRIVILEGED STATUS'
+        type: 'Common'
+        source_ref: 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Native feature of the target OS'
+            parameters:
+              - 'Non-privileged users are prevented from executing privileged functions, including software installation'
       'IA-2':
         name: 'IDENTIFICATION AND AUTHENTICATION (ORGANIZATIONAL USERS)'
         type: 'Common'
