@@ -2114,6 +2114,12 @@ projects:
           - 'NIST 800-53 rev 4'
         implementation:
           - action: 'Install Splunk forwarder for Linux'
+      'CM-11(1)':
+        name: 'USER-INSTALLED SOFTWARE | ALERTS FOR UNAUTHORIZED INSTALLATIONS'
+        type: 'Common'
+        source_ref: 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
       'MA-4(1)':
         name: 'NONLOCAL MAINTENANCE | AUDITING AND REVIEW'
         type: 'Common'
@@ -2480,6 +2486,12 @@ projects:
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'CM-11(1)':
+        name: 'USER-INSTALLED SOFTWARE | ALERTS FOR UNAUTHORIZED INSTALLATIONS'
+        type: 'Common'
+        source_ref: 'NIST 800-53 rev 4'
         implementation:
           - action: 'Install Splunk forwarder for Linux'
       'MA-4(1)':
