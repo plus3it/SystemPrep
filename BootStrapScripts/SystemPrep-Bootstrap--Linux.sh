@@ -189,7 +189,7 @@ if [[ -n "${AWSCLI_URL}" ]]; then
     echo "Unzipping aws cli -- ${AWSCLI_FULLPATH}"
     unzip -o $AWSCLI_FULLPATH || ( echo "Could not unzip file. Quitting..." && exit 1 )
     echo "Installing aws cli -- ${WORKINGDIR}/awscli-bundle/install"
-    ${WORKINGDIR}/awscli-bundle/install -i /opt/awscli -b $AWS || \
+    python ${WORKINGDIR}/awscli-bundle/install -i /opt/awscli -b $AWS || \
         ( echo "Could not install awscli. Quitting..." && exit 1 )
 fi
 
