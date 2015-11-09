@@ -1151,6 +1151,13 @@ projects:
             parameters:
               - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\MinEncryptionLevel = 3'
               - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\fEncryptRPCTraffic = 1'
+      'AU-3':
+        name: 'CONTENT OF AUDIT RECORDS'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Native feature of the target OS'
       'AU-3(1)':
         name: 'CONTENT OF AUDIT RECORDS | ADDITIONAL AUDIT INFORMATION'
         type: 'Common'
