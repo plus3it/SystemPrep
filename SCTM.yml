@@ -90,6 +90,23 @@ projects:
         source_ref: 'NIST 800-53 rev 4'
         implementation:
           - action: 'Native feature of the target OS'
+      'AC-6(9)':
+        name: 'LEAST PRIVILEGE | AUDITING USE OF PRIVILEGED FUNCTIONS'
+        type: 'Common'
+        source_ref: 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Native feature of the target OS'
+            parameters:
+              - 'Privileged functions require the use of `sudo` and all `sudo`
+                actions are logged'
+      'AC-6(10)':
+        name: 'LEAST PRIVILEGE | PROHIBIT NON-PRIVILEGED USERS FROM EXECUTING PRIVILEGED FUNCTIONS'
+        type: 'Common'
+        source_ref: 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Native feature of the target OS'
+            parameters:
+              - 'Non-privileged users are prevented from executing privileged functions'
       'AC-7':
         name: 'UNSUCCESSFUL LOGON ATTEMPTS'
         type: 'Common'
