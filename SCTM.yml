@@ -1994,6 +1994,20 @@ projects:
           - 'NIST 800-53 rev 4'
         implementation:
           - action: 'Install Splunk forwarder for Linux'
+      'AU-7':
+        name: 'AUDIT REDUCTION AND REPORT GENERATION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-7(1)':
+        name: 'AUDIT REDUCTION AND REPORT GENERATION | AUTOMATIC PROCESSING'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
       'AU-9':
         name: 'PROTECTION OF AUDIT INFORMATION'
         type: 'Common'
@@ -2343,6 +2357,20 @@ projects:
           - action: 'Install Splunk forwarder for Linux'
       'AU-6(10)':
         name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | AUDIT LEVEL ADJUSTMENT'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-7':
+        name: 'AUDIT REDUCTION AND REPORT GENERATION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-7(1)':
+        name: 'AUDIT REDUCTION AND REPORT GENERATION | AUTOMATIC PROCESSING'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
