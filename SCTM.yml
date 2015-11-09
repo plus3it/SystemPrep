@@ -1889,6 +1889,20 @@ projects:
     targets:
       - 'Enterprise Linux 6'
     controls:
+      'AU-3(1)':
+        name: 'CONTENT OF AUDIT RECORDS | ADDITIONAL AUDIT INFORMATION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-3(2)':
+        name: 'CONTENT OF AUDIT RECORDS | CENTRALIZED MANAGEMENT OF PLANNED AUDIT RECORD CONTENT'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
       'AU-4(1)':
         name: 'AUDIT STORAGE CAPACITY | TRANSFER TO ALTERNATE STORAGE'
         type: 'Common'
@@ -2152,6 +2166,20 @@ projects:
       - 'Microsoft Windows Server 2012 R2'
       - 'Microsoft Windows Server 2008 R2'
     controls:
+      'AU-3(1)':
+        name: 'CONTENT OF AUDIT RECORDS | ADDITIONAL AUDIT INFORMATION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
+      'AU-3(2)':
+        name: 'CONTENT OF AUDIT RECORDS | CENTRALIZED MANAGEMENT OF PLANNED AUDIT RECORD CONTENT'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install Splunk forwarder for Linux'
       'AU-4(1)':
         name: 'AUDIT STORAGE CAPACITY | TRANSFER TO ALTERNATE STORAGE'
         type: 'Common'
