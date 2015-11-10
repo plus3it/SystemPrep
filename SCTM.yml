@@ -853,6 +853,13 @@ projects:
           - 'NIST 800-53 rev 4'
         implementation:
           - action: 'Native capability of the "sshd" service and the target OS'
+      'SC-3':
+        name: 'SECURITY FUNCTION ISOLATION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Implemented via least privilege configuration detailed in ash-linux controls'
       'SC-5(2)':
         name: 'DENIAL OF SERVICE PROTECTION | EXCESS CAPACITY / BANDWIDTH / REDUNDANCY'
         type: 'Hybrid'
@@ -1947,6 +1954,13 @@ projects:
     targets:
       - 'Enterprise Linux 6'
     controls:
+      'SC-3(2)':
+        name: 'SECURITY FUNCTION ISOLATION | ACCESS / FLOW CONTROL FUNCTIONS'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install McAfee Agent for Linux'
       'SC-5(3)':
         name: 'DENIAL OF SERVICE PROTECTION | DETECTION / MONITORING'
         type: 'Common'
@@ -2343,6 +2357,13 @@ projects:
         type: 'Common'
         source_ref:
           - 'Settings are proscribed by DISA STIG.'
+        implementation:
+          - action: 'Install McAfee Agent for Windows'
+      'SC-3(2)':
+        name: 'SECURITY FUNCTION ISOLATION | ACCESS / FLOW CONTROL FUNCTIONS'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
         implementation:
           - action: 'Install McAfee Agent for Windows'
       'SC-5(3)':
