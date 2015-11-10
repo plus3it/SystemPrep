@@ -2230,6 +2230,22 @@ projects:
         implementation:
           - action: 'Join the Active Directory domain'
             parameters: '[Name of the Active Directory domain]'
+      'IA-3':
+        name: 'DEVICE IDENTIFICATION AND AUTHENTICATION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Join the Active Directory domain'
+            parameters: '[Name of the Active Directory domain]'
+      'IA-3(1)':
+        name: 'DEVICE IDENTIFICATION AND AUTHENTICATION | CRYPTOGRAPHIC BIDIRECTIONAL AUTHENTICATION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Join the Active Directory domain'
+            parameters: '[Name of the Active Directory domain]'
       'IA-5(1)':
         name: 'AUTHENTICATOR MANAGEMENT | PASSWORD-BASED AUTHENTICATION'
         type: 'Common'
