@@ -1989,6 +1989,20 @@ projects:
           - 'NIST 800-53 rev 4'
         implementation:
           - action: 'Install McAfee Agent for Linux'
+      'SC-7':
+        name: 'BOUNDARY PROTECTION'
+        type: 'Hybrid'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install McAfee Agent for Linux'
+      'SC-7(9)':
+        name: 'BOUNDARY PROTECTION | RESTRICT THREATENING OUTGOING COMMUNICATIONS TRAFFIC'
+        type: 'Hybrid'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install McAfee Agent for Linux'
       'SC-7(12)':
         name: 'BOUNDARY PROTECTION | HOST-BASED PROTECTION'
         type: 'Common'
@@ -2415,6 +2429,20 @@ projects:
           - 'NIST 800-53 rev 4'
         implementation:
           - action: 'Install McAfee Agent for Windows'
+      'SC-7':
+        name: 'BOUNDARY PROTECTION'
+        type: 'Hybrid'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install McAfee Agent for Linux'
+      'SC-7(9)':
+        name: 'BOUNDARY PROTECTION | RESTRICT THREATENING OUTGOING COMMUNICATIONS TRAFFIC'
+        type: 'Hybrid'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install McAfee Agent for Linux'
       'SC-7(12)':
         name: 'BOUNDARY PROTECTION | HOST-BASED PROTECTION'
         type: 'Common'
