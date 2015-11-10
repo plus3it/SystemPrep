@@ -825,7 +825,7 @@ projects:
         source_ref:
           - 'Settings are proscribed by DISA STIG.'
         implementation:
-          - action: 'Ensure "" contains the settings'
+          - action: 'Ensure "/etc/ssh/sshd_config" contains the settings'
             parameters:
               - 'ClientAliveCountMax 0'
       'SC-5(2)':
