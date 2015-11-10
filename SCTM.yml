@@ -846,6 +846,13 @@ projects:
           - action: 'Uninstall the package "rsh-server"'
             parameters:
               - 'yum erase rsh-server'
+      'MA-4(7)':
+        name: 'NONLOCAL MAINTENANCE | REMOTE DISCONNECT VERIFICATION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Native capability of the "sshd" service and the target OS'
       'SC-5(2)':
         name: 'DENIAL OF SERVICE PROTECTION | EXCESS CAPACITY / BANDWIDTH / REDUNDANCY'
         type: 'Hybrid'
@@ -1740,6 +1747,13 @@ projects:
               - 'HKLM\Software\Policies\Microsoft\Windows NT\Terminal Services\MinEncryptionLevel = 3'
               - 'HKLM\Software\Policies\Microsoft\Windows\WinRM\Client\AllowUnencryptedTraffic = 0'
               - 'HKLM\Software\Policies\Microsoft\Windows\WinRM\Service\AllowUnencryptedTraffic = 0'
+      'MA-4(7)':
+        name: 'NONLOCAL MAINTENANCE | REMOTE DISCONNECT VERIFICATION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Native capability of the target OS'
       'SC-3':
         name: 'SECURITY FUNCTION ISOLATION'
         type: 'Hybrid'
