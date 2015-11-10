@@ -2324,6 +2324,14 @@ projects:
         implementation:
           - action: 'Join the Active Directory domain'
             parameters: '[Name of the Active Directory domain]'
+      'RA-5(4)':
+        name: 'VULNERABILITY SCANNING | PRIVILEGED ACCESS'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Join the Active Directory domain'
+            parameters: '[Name of the Active Directory domain]'
 
   mcafee-agent-windows-formula:
     targets:
