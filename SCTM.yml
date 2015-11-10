@@ -1835,7 +1835,7 @@ projects:
               - 'HKLM\System\CurrentControlSet\Services\Tcpip\Parameters\TcpMaxDataRetransmissions = 3'
       'SC-8(1)':
         name: 'TRANSMISSION CONFIDENTIALITY AND INTEGRITY | CRYPTOGRAPHIC OR ALTERNATE PHYSICAL PROTECTION'
-        type: 'Common'
+        type: 'Hybrid'
         source_ref:
           - 'Settings are proscribed by DISA STIG.'
         implementation:
