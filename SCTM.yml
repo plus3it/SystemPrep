@@ -773,6 +773,20 @@ projects:
           - action: 'Ensure no user has a ".netrc" file in their home directory'
             parameters:
               - '[For each user, check for "<home>/.netrc" and rename it if present]'
+      'IA-5(4)':
+        name: 'AUTHENTICATOR MANAGEMENT | AUTOMATED SUPPORT FOR PASSWORD STRENGTH DETERMINATION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Ensure "/etc/pam.d/system-auth-ac" contains the line
+                    "password requisite pam_cracklib.so" with these parameters'
+            parameters:
+              - 'dcredit=-1'
+              - 'ucredit=-1'
+              - 'ocredit=-1'
+              - 'lcredit=-1'
+              - 'difok=-1'
       'IA-7':
         name: 'CRYPTOGRAPHIC MODULE AUTHENTICATION'
         type: 'Common'
@@ -1626,6 +1640,15 @@ projects:
             parameters:
               - 'HKLM\Software\Policies\Microsoft\SystemCertificates\AuthRoot\DisableRootAutoUpdate = 1'
               - 'HKLM\Software\Policies\Microsoft\Cryptography\ForceKeyProtection = 2'
+      'IA-5(4)':
+        name: 'AUTHENTICATOR MANAGEMENT | AUTOMATED SUPPORT FOR PASSWORD STRENGTH DETERMINATION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Use local security policy to enforce'
+            parameters:
+              - 'PasswordComplexity = 1'
       'IA-6':
         name: 'AUTHENTICATOR FEEDBACK'
         type: 'Hybrid'
@@ -2248,6 +2271,14 @@ projects:
             parameters: '[Name of the Active Directory domain]'
       'IA-5(1)':
         name: 'AUTHENTICATOR MANAGEMENT | PASSWORD-BASED AUTHENTICATION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Join the Active Directory domain'
+            parameters: '[Name of the Active Directory domain]'
+      'IA-5(4)':
+        name: 'AUTHENTICATOR MANAGEMENT | AUTOMATED SUPPORT FOR PASSWORD STRENGTH DETERMINATION'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
