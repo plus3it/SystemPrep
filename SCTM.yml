@@ -828,6 +828,24 @@ projects:
           - action: 'Ensure "/etc/ssh/sshd_config" contains the settings'
             parameters:
               - 'ClientAliveCountMax 0'
+      'MA-4(6)':
+        name: 'NONLOCAL MAINTENANCE | CRYPTOGRAPHIC PROTECTION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'If installed, ensure the service "telnet" is disabled'
+            parameters:
+              - 'chkconfig telnet off'
+          - action: 'Uninstall the package "telnet-server"'
+            parameters:
+              - 'yum erase telnet-server'
+          - action: 'If installed, ensure the service "rsh" is disabled'
+            parameters:
+              - 'chkconfig rsh off'
+          - action: 'Uninstall the package "rsh-server"'
+            parameters:
+              - 'yum erase rsh-server'
       'SC-5(2)':
         name: 'DENIAL OF SERVICE PROTECTION | EXCESS CAPACITY / BANDWIDTH / REDUNDANCY'
         type: 'Hybrid'
