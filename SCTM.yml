@@ -901,6 +901,25 @@ projects:
           - action: 'Ensure "/etc/ssh/sshd_config" contains the settings'
             parameters:
               - 'ClientAliveInterval 900'
+      'SC-13':
+        name: 'CRYPTOGRAPHIC PROTECTION'
+        type: 'Hybrid'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'If the package "pam_ldap" is installed, ensure "/etc/pam_ldap.conf" contains'
+            parameters:
+              - 'ssl start_tls'
+          - action: 'Ensure "/etc/pam.d/system-auth-ac" contains the line
+                    "password sufficient pam_unix.so" with these parameters'
+            parameters:
+              - 'sha512'
+          - action: 'Ensure "/etc/login.defs" contains the settings'
+            parameters:
+              - 'ENCRYPT_METHOD SHA512'
+          - action: 'Ensure "/etc/libuser.conf" contains the settings'
+            parameters:
+              - 'crypt_style = sha512'
       'SI-2(2)':
         name: 'FLAW REMEDIATION | AUTOMATED FLAW REMEDIATION STATUS'
         type: 'Hybrid'
