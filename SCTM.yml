@@ -787,6 +787,13 @@ projects:
               - 'ocredit=-1'
               - 'lcredit=-1'
               - 'difok=-1'
+      'IA-6':
+        name: 'AUTHENTICATOR FEEDBACK'
+        type: 'Hybrid'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'This is a native feature of the target OS'
       'IA-7':
         name: 'CRYPTOGRAPHIC MODULE AUTHENTICATION'
         type: 'Common'
