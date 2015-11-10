@@ -1961,6 +1961,27 @@ projects:
           - 'NIST 800-53 rev 4'
         implementation:
           - action: 'Install McAfee Agent for Linux'
+      'SC-5':
+        name: 'DENIAL OF SERVICE PROTECTION'
+        type: 'Hybrid'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install McAfee Agent for Linux'
+      'SC-5(1)':
+        name: 'DENIAL OF SERVICE PROTECTION'
+        type: 'Hybrid'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install McAfee Agent for Linux'
+      'SC-5(2)':
+        name: 'DENIAL OF SERVICE PROTECTION'
+        type: 'Hybrid'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install McAfee Agent for Linux'
       'SC-5(3)':
         name: 'DENIAL OF SERVICE PROTECTION | DETECTION / MONITORING'
         type: 'Common'
@@ -2362,6 +2383,27 @@ projects:
       'SC-3(2)':
         name: 'SECURITY FUNCTION ISOLATION | ACCESS / FLOW CONTROL FUNCTIONS'
         type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install McAfee Agent for Windows'
+      'SC-5':
+        name: 'DENIAL OF SERVICE PROTECTION'
+        type: 'Hybrid'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install McAfee Agent for Windows'
+      'SC-5(1)':
+        name: 'DENIAL OF SERVICE PROTECTION'
+        type: 'Hybrid'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install McAfee Agent for Windows'
+      'SC-5(2)':
+        name: 'DENIAL OF SERVICE PROTECTION'
+        type: 'Hybrid'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
