@@ -2043,6 +2043,34 @@ projects:
           - 'NIST 800-53 rev 4'
         implementation:
           - action: 'Install McAfee Agent for Linux'
+      'SI-3':
+        name: 'MALICIOUS CODE PROTECTION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install McAfee Agent for Linux'
+      'SI-3(1)':
+        name: 'MALICIOUS CODE PROTECTION | CENTRAL MANAGEMENT'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install McAfee Agent for Linux'
+      'SI-3(2)':
+        name: 'MALICIOUS CODE PROTECTION | AUTOMATIC UPDATES'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install McAfee Agent for Linux'
+      'SI-3(10)':
+        name: 'MALICIOUS CODE PROTECTION | MALICIOUS CODE ANALYSIS'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install McAfee Agent for Linux'
 
   EnterpriseLayer-Splunk-formula:
     targets:
@@ -2482,14 +2510,42 @@ projects:
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install McAfee Agent for Windows'
+          - action: 'Install McAfee Agent for Linux'
       'SI-2(2)':
         name: 'FLAW REMEDIATION | AUTOMATED FLAW REMEDIATION STATUS'
         type: 'Common'
         source_ref:
           - 'Settings are proscribed by DISA STIG.'
         implementation:
-          - action: 'Install McAfee Agent for Windows'
+          - action: 'Install McAfee Agent for Linux'
+      'SI-3':
+        name: 'MALICIOUS CODE PROTECTION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install McAfee Agent for Linux'
+      'SI-3(1)':
+        name: 'MALICIOUS CODE PROTECTION | CENTRAL MANAGEMENT'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install McAfee Agent for Linux'
+      'SI-3(2)':
+        name: 'MALICIOUS CODE PROTECTION | AUTOMATIC UPDATES'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install McAfee Agent for Linux'
+      'SI-3(10)':
+        name: 'MALICIOUS CODE PROTECTION | MALICIOUS CODE ANALYSIS'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'Install McAfee Agent for Linux'
 
   splunkforwarder-windows-formula:
     targets:
