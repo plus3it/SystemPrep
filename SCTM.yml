@@ -2496,56 +2496,56 @@ projects:
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install McAfee Agent for Linux'
+          - action: 'Install McAfee Agent for Windows'
       'SC-7(9)':
         name: 'BOUNDARY PROTECTION | RESTRICT THREATENING OUTGOING COMMUNICATIONS TRAFFIC'
         type: 'Hybrid'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install McAfee Agent for Linux'
+          - action: 'Install McAfee Agent for Windows'
       'SC-7(12)':
         name: 'BOUNDARY PROTECTION | HOST-BASED PROTECTION'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install McAfee Agent for Linux'
+          - action: 'Install McAfee Agent for Windows'
       'SI-2(2)':
         name: 'FLAW REMEDIATION | AUTOMATED FLAW REMEDIATION STATUS'
         type: 'Common'
         source_ref:
           - 'Settings are proscribed by DISA STIG.'
         implementation:
-          - action: 'Install McAfee Agent for Linux'
+          - action: 'Install McAfee Agent for Windows'
       'SI-3':
         name: 'MALICIOUS CODE PROTECTION'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install McAfee Agent for Linux'
+          - action: 'Install McAfee Agent for Windows'
       'SI-3(1)':
         name: 'MALICIOUS CODE PROTECTION | CENTRAL MANAGEMENT'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install McAfee Agent for Linux'
+          - action: 'Install McAfee Agent for Windows'
       'SI-3(2)':
         name: 'MALICIOUS CODE PROTECTION | AUTOMATIC UPDATES'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install McAfee Agent for Linux'
+          - action: 'Install McAfee Agent for Windows'
       'SI-3(10)':
         name: 'MALICIOUS CODE PROTECTION | MALICIOUS CODE ANALYSIS'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install McAfee Agent for Linux'
+          - action: 'Install McAfee Agent for Windows'
 
   splunkforwarder-windows-formula:
     targets:
@@ -2558,223 +2558,223 @@ projects:
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-3(2)':
         name: 'CONTENT OF AUDIT RECORDS | CENTRALIZED MANAGEMENT OF PLANNED AUDIT RECORD CONTENT'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-4(1)':
         name: 'AUDIT STORAGE CAPACITY | TRANSFER TO ALTERNATE STORAGE'
         type: 'Common'
         source_ref:
           - 'Settings are proscribed by DISA STIG.'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-5(1)':
         name: 'RESPONSE TO AUDIT PROCESSING FAILURES | AUDIT STORAGE CAPACITY'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-5(2)':
         name: 'RESPONSE TO AUDIT PROCESSING FAILURES | REAL-TIME ALERTS'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-6':
         name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-6(1)':
         name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | PROCESS INTEGRATION'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-6(3)':
         name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | CORRELATE AUDIT REPOSITORIES'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-6(4)':
         name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | CENTRAL REVIEW AND ANALYSIS'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-6(5)':
         name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | INTEGRATION / SCANNING AND MONITORING CAPABILITIES'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-6(6)':
         name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | CORRELATION WITH PHYSICAL MONITORING'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-6(7)':
         name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | PERMITTED ACTIONS'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-6(9)':
         name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | CORRELATION WITH INFORMATION FROM NONTECHNICAL SOURCES'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-6(10)':
         name: 'AUDIT REVIEW, ANALYSIS, AND REPORTING | AUDIT LEVEL ADJUSTMENT'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-7':
         name: 'AUDIT REDUCTION AND REPORT GENERATION'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-7(1)':
         name: 'AUDIT REDUCTION AND REPORT GENERATION | AUTOMATIC PROCESSING'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-9':
         name: 'PROTECTION OF AUDIT INFORMATION'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-9(2)':
         name: 'PROTECTION OF AUDIT INFORMATION | AUDIT BACKUP ON SEPARATE PHYSICAL SYSTEMS / COMPONENTS'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-9(3)':
         name: 'PROTECTION OF AUDIT INFORMATION | CRYPTOGRAPHIC PROTECTION'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-9(4)':
         name: 'PROTECTION OF AUDIT INFORMATION | ACCESS BY SUBSET OF PRIVILEGED USERS'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-10':
         name: 'NON-REPUDIATION'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-10(1)':
         name: 'NON-REPUDIATION | ASSOCIATION OF IDENTITIES'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-10(2)':
         name: 'NON-REPUDIATION | VALIDATE BINDING OF INFORMATION PRODUCER IDENTITY'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-10(3)':
         name: 'NON-REPUDIATION | CHAIN OF CUSTODY'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-10(4)':
         name: 'NON-REPUDIATION | VALIDATE BINDING OF INFORMATION REVIEWER IDENTITY'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-11':
         name: 'AUDIT RECORD RETENTION'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-11(1)':
         name: 'AUDIT RECORD RETENTION | LONG-TERM RETRIEVAL CAPABILITY'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-12(1)':
         name: 'AUDIT GENERATION | SYSTEM-WIDE / TIME-CORRELATED AUDIT TRAIL'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'AU-12(3)':
         name: 'AUDIT GENERATION | CHANGES BY AUTHORIZED INDIVIDUALS'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'CM-6':
         name: 'CONFIGURATION SETTINGS'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'CM-11(1)':
         name: 'USER-INSTALLED SOFTWARE | ALERTS FOR UNAUTHORIZED INSTALLATIONS'
         type: 'Common'
         source_ref: 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
       'MA-4(1)':
         name: 'NONLOCAL MAINTENANCE | AUDITING AND REVIEW'
         type: 'Common'
         source_ref:
           - 'NIST 800-53 rev 4'
         implementation:
-          - action: 'Install Splunk forwarder for Linux'
+          - action: 'Install Splunk forwarder for Windows'
 
   windows-update-agent-formula:
     targets:
