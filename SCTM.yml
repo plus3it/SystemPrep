@@ -951,6 +951,13 @@ projects:
           - action: 'Ensure logging targets specified in "/etc/rsyslog.conf" have file permissions of 0600'
             parameters:
               - '[Search /etc/rsyslog.conf for log targets and for each execute "chmod 0600 <logtarget>"]'
+      'SI-16':
+        name: 'MEMORY PROTECTION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'This is a native feature of the target OS'
 
   ash-windows-formula:
     targets:
@@ -1982,6 +1989,7 @@ projects:
               - 'HKCU\Software\Policies\Microsoft\EMET\SysSettings\DEP = 2'
               - 'HKCU\Software\Policies\Microsoft\EMET\SysSettings\SEHOP = 2'
               - 'HKLM\Software\Policies\Microsoft\Windows\Explorer\NoDataExecutionPrevention = 0'
+          - action: 'This is a native feature of the target OS'
 
   EnterpriseLayer-HBSS-formula:
     targets:
