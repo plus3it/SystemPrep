@@ -920,6 +920,13 @@ projects:
           - action: 'Ensure "/etc/libuser.conf" contains the settings'
             parameters:
               - 'crypt_style = sha512'
+      'SC-39':
+        name: 'PROCESS ISOLATION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'This is a native feature of the target OS'
       'SI-2(2)':
         name: 'FLAW REMEDIATION | AUTOMATED FLAW REMEDIATION STATUS'
         type: 'Hybrid'
@@ -1890,6 +1897,13 @@ projects:
           - action: 'Use local security policy to enforce'
             parameters:
               - 'HKLM\System\CurrentControlSet\Control\Lsa\FIPSAlgorithmPolicy\Enabled = 1'
+      'SC-39':
+        name: 'PROCESS ISOLATION'
+        type: 'Common'
+        source_ref:
+          - 'NIST 800-53 rev 4'
+        implementation:
+          - action: 'This is a native feature of the target OS'
       'SI-11':
         name: 'ERROR HANDLING'
         type: 'Hybrid'
