@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/lorengordon/SystemPrep.svg)](https://travis-ci.org/lorengordon/SystemPrep)
+[![Build Status](https://travis-ci.org/plus3it/SystemPrep.svg)](https://travis-ci.org/plus3it/SystemPrep)
 
 # SystemPrep
 
@@ -202,13 +202,13 @@ feel for the framework, or as reference examples for building your own
 templates.
 
 - [Deploy a single RHEL6 instance]
-(https://github.com/lorengordon/SystemPrep/blob/master/Utils/cfn/systemprep-lx-instance.template)
+(https://github.com/plus3it/SystemPrep/blob/master/Utils/cfn/systemprep-lx-instance.template)
 - [Deploy an Autoscaling Group of one or more RHEL6 instances]
-(https://github.com/lorengordon/SystemPrep/blob/master/Utils/cfn/systemprep-lx-autoscale.template)
+(https://github.com/plus3it/SystemPrep/blob/master/Utils/cfn/systemprep-lx-autoscale.template)
 - [Deploy a single Windows 2012 R2 instance]
-(https://github.com/lorengordon/SystemPrep/blob/master/Utils/cfn/systemprep-win-instance.template)
+(https://github.com/plus3it/SystemPrep/blob/master/Utils/cfn/systemprep-win-instance.template)
 - [Deploy an Autoscaling Group of one or more Windows 2012 R2 instances]
-(https://github.com/lorengordon/SystemPrep/blob/master/Utils/cfn/systemprep-win-autoscale.template)
+(https://github.com/plus3it/SystemPrep/blob/master/Utils/cfn/systemprep-win-autoscale.template)
 
 
 # Messy Details
