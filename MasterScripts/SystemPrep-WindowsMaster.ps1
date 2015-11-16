@@ -153,6 +153,7 @@ $ScriptsToExecute = @(
                                                                                                         "https://s3.amazonaws.com/salt-formulas/ntp-client-windows-formula-master.zip"
                                                                                                         "https://s3.amazonaws.com/salt-formulas/splunkforwarder-windows-formula-master.zip"
                                                                                                         "https://s3.amazonaws.com/salt-formulas/windows-update-agent-formula-master.zip"
+                                                                                                        "https://s3.amazonaws.com/salt-formulas/join-domain-formula-master.zip"
                                                                                                        )
                                                                                   FormulaTerminationStrings = @( "-latest", "-master" )
                                                                                   AshRole = "MemberServer"
