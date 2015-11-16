@@ -378,6 +378,7 @@ $MinionConfContent | Set-Content $MinionConf
 
 log -LogTag ${ScriptName} "Generating salt winrepo cachefile"
 $GenRepoResult = Start-Process $MinionExe -ArgumentList "--local winrepo.genrepo" -NoNewWindow -PassThru -Wait
+$RefreshDbResult = Start-Process $MinionExe -ArgumentList "--local pkg.refresh_db" -NoNewWindow -PassThru -Wait
 
 if ("none" -eq $SaltStates.tolower()) {
     log -LogTag ${ScriptName} "Detected the SaltStates parameter is set to: ${SaltStates}. Will not apply any salt states."
