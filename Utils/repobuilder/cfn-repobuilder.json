@@ -102,7 +102,7 @@
         ],
         "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
           "#!/bin/bash -v\n",
-          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/repobuilder/stagerpmpackages.sh -o /tmp/bootstrap.sh\n",
+          "curl https://raw.githubusercontent.com/plus3it/SystemPrep/master/Utils/repobuilder/stagerpmpackages.sh -o /tmp/bootstrap.sh\n",
           "bash /tmp/bootstrap.sh ", { "Ref" : "BucketName" }, "\n",
           "result=$?  # Store the exit code of the bootstrap script\n",
           "echo result = $result\n",
@@ -154,7 +154,7 @@
         ],
         "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
           "#!/bin/bash -v\n",
-          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/repobuilder/stagerpmpackages.sh -o /tmp/bootstrap.sh\n",
+          "curl https://raw.githubusercontent.com/plus3it/SystemPrep/master/Utils/repobuilder/stagerpmpackages.sh -o /tmp/bootstrap.sh\n",
           "bash /tmp/bootstrap.sh ", { "Ref" : "BucketName" }, "\n",
           "result=$?  # Store the exit code of the bootstrap script\n",
           "echo result = $result\n",
@@ -206,7 +206,7 @@
         ],
         "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
           "#!/bin/bash -v\n",
-          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/repobuilder/stagerpmpackages.sh -o /tmp/bootstrap.sh\n",
+          "curl https://raw.githubusercontent.com/plus3it/SystemPrep/master/Utils/repobuilder/stagerpmpackages.sh -o /tmp/bootstrap.sh\n",
           "bash /tmp/bootstrap.sh ", { "Ref" : "BucketName" }, "\n",
           "result=$?  # Store the exit code of the bootstrap script\n",
           "echo result = $result\n",
@@ -258,7 +258,7 @@
         ],
         "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
           "#!/bin/bash -v\n",
-          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/repobuilder/stagerpmpackages.sh -o /tmp/bootstrap.sh\n",
+          "curl https://raw.githubusercontent.com/plus3it/SystemPrep/master/Utils/repobuilder/stagerpmpackages.sh -o /tmp/bootstrap.sh\n",
           "bash /tmp/bootstrap.sh ", { "Ref" : "BucketName" }, "\n",
           "result=$?  # Store the exit code of the bootstrap script\n",
           "echo result = $result\n",
@@ -310,7 +310,7 @@
         ],
         "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
           "#!/bin/bash -v\n",
-          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/repobuilder/stagerpmpackages.sh -o /tmp/bootstrap.sh\n",
+          "curl https://raw.githubusercontent.com/plus3it/SystemPrep/master/Utils/repobuilder/stagerpmpackages.sh -o /tmp/bootstrap.sh\n",
           "bash /tmp/bootstrap.sh ", { "Ref" : "BucketName" }, "\n",
           "result=$?  # Store the exit code of the bootstrap script\n",
           "echo result = $result\n",
@@ -362,7 +362,7 @@
         ],
         "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
           "#!/bin/bash -v\n",
-          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/repobuilder/stagerpmpackages.sh -o /tmp/bootstrap.sh\n",
+          "curl https://raw.githubusercontent.com/plus3it/SystemPrep/master/Utils/repobuilder/stagerpmpackages.sh -o /tmp/bootstrap.sh\n",
           "bash /tmp/bootstrap.sh ", { "Ref" : "BucketName" }, "\n",
           "result=$?  # Store the exit code of the bootstrap script\n",
           "echo result = $result\n",
@@ -414,7 +414,7 @@
         ],
         "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
           "#!/bin/bash -v\n",
-          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/repobuilder/stagepippackages.sh -o /tmp/bootstrap.sh\n",
+          "curl https://raw.githubusercontent.com/plus3it/SystemPrep/master/Utils/repobuilder/stagepippackages.sh -o /tmp/bootstrap.sh\n",
           "bash /tmp/bootstrap.sh ", { "Ref" : "BucketName" }, "\n",
           "result=$?  # Store the exit code of the bootstrap script\n",
           "echo result = $result\n",
@@ -475,7 +475,7 @@
         ],
         "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
           "#!/bin/bash -v\n",
-          "curl https://raw.githubusercontent.com/lorengordon/SystemPrep/master/Utils/repobuilder/createrepo.sh -o /tmp/bootstrap.sh\n",
+          "curl https://raw.githubusercontent.com/plus3it/SystemPrep/master/Utils/repobuilder/createrepo.sh -o /tmp/bootstrap.sh\n",
           "bash /tmp/bootstrap.sh ", { "Ref" : "BucketName" }, "\n",
           "result=$?  # Store the exit code of the bootstrap script\n",
           "echo result = $result\n",
