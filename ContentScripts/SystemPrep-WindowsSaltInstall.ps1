@@ -8,7 +8,7 @@ Param(
     ,
 	[Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
     [ValidateScript({ $_ -match "^http[s]?://.*\.(exe|zip)$" })]
-    [string] $SaltInstallerUrl="http://docs.saltstack.com/downloads/Salt-Minion-2015.5.0-AMD64-Setup.exe"
+    [string] $SaltInstallerUrl="http://docs.saltstack.com/downloads/Salt-Minion-2015.8.1-AMD64-Setup.exe"
     ,
 	[Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
     [ValidateScript({ $_ -match "^http[s]?://.*\.zip$" })]
@@ -271,7 +271,7 @@ $MinionConfContent = Get-Content $MinionConf
 #set file_client: to "local"
 $MinionConfContent = $MinionConfContent | ForEach-Object {$_ -replace "^#file_client: remote","file_client: local"}
 #set win_repo_cachfile: to ${SaltWinRepo}\winrepo.p AND set win_repo: to ${SaltWinRepo}
-$MinionConfContent = $MinionConfContent | ForEach-Object {$_ -replace "^# win_repo_cachefile: 'salt://win/repo/winrepo.p'","win_repo_cachefile: '${SaltWinRepo}\winrepo.p'`r`nwin_repo: '${SaltWinRepo}'"}
+$MinionConfContent = $MinionConfContent | ForEach-Object {$_ -replace "^# win_repo_cachefile: 'salt://win/repo/winrepo.p'","winrepo_source_dir: 'salt://winrepo'`r`nwinrepo_dir: '${SaltWinRepo}\winrepo'"}
 #Construct an array of all the Formula directories to include in the minion conf file
 $FormulaFileRootConf = (Get-ChildItem ${SaltFormulaRoot} | where {$_.Attributes -eq "Directory"}) | ForEach-Object { "    - " + $(${_}.fullname) }
 
