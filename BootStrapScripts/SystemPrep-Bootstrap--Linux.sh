@@ -10,6 +10,7 @@ SYSTEMPREPMASTERSCRIPTSOURCE="https://s3.amazonaws.com/systemprep/MasterScripts/
 SYSTEMPREPPARAMS=( "SaltStates=Highstate"
                    "SaltContentSource=https://systemprep-content.s3.amazonaws.com/linux/salt/salt-content.zip"
                    "NoReboot=False"
+                   "EntEnv=False"
                    "SourceIsS3Bucket=${SOURCEISS3BUCKET}"
                    "AwsRegion=${AWSREGION}" )
 
