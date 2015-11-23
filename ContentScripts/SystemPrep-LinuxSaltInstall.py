@@ -175,6 +175,7 @@ def main(saltinstallmethod='git',
          saltstates='none',
          salt_results_log=None,
          salt_debug_log=None,
+         entenv='false',
          sourceiss3bucket='false',
          **kwargs):
     """
@@ -211,6 +212,11 @@ def main(saltinstallmethod='git',
                            salt-call state run
     :param sourceiss3bucket: str, set to 'true' if saltcontentsource and
                              formulastoinclude are hosted in an S3 bucket.
+    :param entenv: str, controls whether to set a custom grain in salt that
+                   identifies the enterprise environment.
+                   'false' does not set the custom grain
+                   'true' TODO: detect the environment from EC2 metadata / tags
+                   '*' set the custom grain to the `entenv` parameter value
     :param kwargs: dict, catch-all for other params that do not apply to this
                    content script
     :raise SystemError: error raised whenever an issue is encountered
@@ -223,6 +229,9 @@ def main(saltinstallmethod='git',
         formulaterminationstrings
     # Convert from string to bool
     sourceiss3bucket = 'true' == sourceiss3bucket.lower()
+    # Handle entenv tri-state
+    entenv = True if 'true' == entenv.lower() else False if 'false' == \
+        entenv.lower() else entenv.lower()
 
     print('+' * 80)
     print('Entering script -- ' + scriptname)
@@ -339,6 +348,15 @@ def main(saltinstallmethod='git',
     saltpillarrootconf += '  base:\n',
     saltpillarrootconf += '    - {0}\n'.format(saltpillarroot),
 
+    if entenv:
+        if entenv == True:
+            # TODO: Get environment from EC2 metadata or tags
+            entenv = 'true'
+        customgrainsconf = []
+        customgrainsconf += 'grains:\n',
+        customgrainsconf += '  systemprep:\n',
+        customgrainsconf += '    enterprise_environment: {0}\n'.format(entenv),
+
     #Backup the minionconf file
     shutil.copyfile(minionconf, '{0}.bak'.format(minionconf))
 
@@ -379,6 +397,24 @@ def main(saltinstallmethod='git',
     #Update the pillar_roots section with the new configuration
     minionconflines = minionconflines[0:beginindex] + \
                       saltpillarrootconf + minionconflines[endindex + 1:]
+
+    if customgrainsconf:
+        # Find the custom grains section in the minion conf file
+        $customgrainsbegin = '^#grains:|^grains:'
+        $customgrainsend = '^$'
+        beginindex = None
+        endindex = None
+        n = 0
+        for line in minionconflines:
+            if re.match(customgrainsbegin, line):
+                beginindex = n
+            if beginindex and not endindex and re.match(customgrainsend, line):
+                endindex = n
+            n += 1
+
+        #Update the custom grains section with the new configuration
+        minionconflines = minionconflines[0:beginindex] + \
+                          customgrainsconf + minionconflines[endindex + 1:]
 
     #Write the new configuration to minionconf
     try:
