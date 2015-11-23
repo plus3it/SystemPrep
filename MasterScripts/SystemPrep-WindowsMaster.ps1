@@ -135,45 +135,45 @@ function Download-File {
 
 #User variables
 $ScriptsToExecute = @(
-                        @{
-                            ScriptUrl  = "https://s3.amazonaws.com/systemprep/ContentScripts/SystemPrep-WindowsSaltInstall.ps1"
-                            Parameters = (Join-Hashtables $RemainingArgsHash  @{
-                                                                                  SaltWorkingDir = "${SystemPrepWorkingDir}\Salt"
-                                                                                  SaltDebugLog = "${SystemPrepLogDir}\salt.staterun.debug.log"
-                                                                                  SaltResultsLog = "${SystemPrepLogDir}\salt.staterun.results.log"
-                                                                                  SaltInstallerUrl = "https://s3.amazonaws.com/systemprep-repo/windows/salt/Salt-Minion-2015.8.1-AMD64-Setup.exe"
-                                                                                  SaltContentUrl = "https://s3.amazonaws.com/systemprep-content/windows/salt/salt-content.zip"
-                                                                                  FormulasToInclude = @(
-                                                                                                        "https://s3.amazonaws.com/salt-formulas/systemprep-formula-master.zip",
-                                                                                                        "https://s3.amazonaws.com/salt-formulas/ash-windows-formula-master.zip",
-                                                                                                        "https://s3.amazonaws.com/salt-formulas/dotnet4-formula-master.zip",
-                                                                                                        "https://s3.amazonaws.com/salt-formulas/emet-formula-master.zip",
-                                                                                                        "https://s3.amazonaws.com/salt-formulas/netbanner-formula-master.zip"
-                                                                                                        "https://s3.amazonaws.com/salt-formulas/mcafee-agent-windows-formula-master.zip"
-                                                                                                        "https://s3.amazonaws.com/salt-formulas/ntp-client-windows-formula-master.zip"
-                                                                                                        "https://s3.amazonaws.com/salt-formulas/splunkforwarder-windows-formula-master.zip"
-                                                                                                        "https://s3.amazonaws.com/salt-formulas/windows-update-agent-formula-master.zip"
-                                                                                                        "https://s3.amazonaws.com/salt-formulas/join-domain-formula-master.zip"
-                                                                                                       )
-                                                                                  FormulaTerminationStrings = @( "-latest", "-master" )
-                                                                                  AshRole = "MemberServer"
-                                                                                  NetBannerLabel = "Unclass"
-                                                                                  SaltStates = "Highstate"
-                                                                                  SourceIsS3Bucket = $SourceIsS3Bucket
-                                                                                  AwsRegion = $AwsRegion
-                                                                                } -Force
-                                         )
-                         }
-                     ) #Array of hashtables (key-value dictionaries). Each hashtable has two keys, ScriptUrl and Parameters.
-                       # -- ScriptUrl  -- The full path to the PowerShell script to download and execute.
-                       # -- Parameters -- Must be a hashtable of parameters to pass to the script.
-                       #                  Use $RemainingArgsHash to inherit any unassigned parameters that are passed to the Master script.
-                       #                  Use `Join-Hashtables $firsthash $secondhash -Force` to merge two hash tables (first overrides duplicate keys in second)
-                       #To download and execute additional scripts, create a new hashtable for each script and place it on a new line
-                       #in the array.
-                       #Hastables are of the form @{ ScriptUrl = "https://your.host/your.script"; Parameters = @{yourParam = "yourValue"} }
-                       #Scripts must be written in PowerShell.
-                       #Scripts will be downloaded and executed in the order listed.
+    @{
+        ScriptUrl  = "https://s3.amazonaws.com/systemprep/ContentScripts/SystemPrep-WindowsSaltInstall.ps1"
+        Parameters = (Join-Hashtables $RemainingArgsHash  @{
+                SaltWorkingDir = "${SystemPrepWorkingDir}\Salt"
+                SaltDebugLog = "${SystemPrepLogDir}\salt.staterun.debug.log"
+                SaltResultsLog = "${SystemPrepLogDir}\salt.staterun.results.log"
+                SaltInstallerUrl = "https://s3.amazonaws.com/systemprep-repo/windows/salt/Salt-Minion-2015.8.1-AMD64-Setup.exe"
+                SaltContentUrl = "https://s3.amazonaws.com/systemprep-content/windows/salt/salt-content.zip"
+                FormulasToInclude = @(
+                    "https://s3.amazonaws.com/salt-formulas/systemprep-formula-master.zip",
+                    "https://s3.amazonaws.com/salt-formulas/ash-windows-formula-master.zip",
+                    "https://s3.amazonaws.com/salt-formulas/dotnet4-formula-master.zip",
+                    "https://s3.amazonaws.com/salt-formulas/emet-formula-master.zip",
+                    "https://s3.amazonaws.com/salt-formulas/netbanner-formula-master.zip"
+                    "https://s3.amazonaws.com/salt-formulas/mcafee-agent-windows-formula-master.zip"
+                    "https://s3.amazonaws.com/salt-formulas/ntp-client-windows-formula-master.zip"
+                    "https://s3.amazonaws.com/salt-formulas/splunkforwarder-windows-formula-master.zip"
+                    "https://s3.amazonaws.com/salt-formulas/windows-update-agent-formula-master.zip"
+                    "https://s3.amazonaws.com/salt-formulas/join-domain-formula-master.zip"
+                )
+                FormulaTerminationStrings = @( "-latest", "-master" )
+                AshRole = "MemberServer"
+                EntEnv = $false
+                SaltStates = "Highstate"
+                SourceIsS3Bucket = $SourceIsS3Bucket
+                AwsRegion = $AwsRegion
+            } -Force
+        )
+    }
+) #Array of hashtables (key-value dictionaries). Each hashtable has two keys, ScriptUrl and Parameters.
+  # -- ScriptUrl  -- The full path to the PowerShell script to download and execute.
+  # -- Parameters -- Must be a hashtable of parameters to pass to the script.
+  #                  Use $RemainingArgsHash to inherit any unassigned parameters that are passed to the Master script.
+  #                  Use `Join-Hashtables $firsthash $secondhash -Force` to merge two hash tables (first overrides duplicate keys in second)
+  #To download and execute additional scripts, create a new hashtable for each script and place it on a new line
+  #in the array.
+  #Hastables are of the form @{ ScriptUrl = "https://your.host/your.script"; Parameters = @{yourParam = "yourValue"} }
+  #Scripts must be written in PowerShell.
+  #Scripts will be downloaded and executed in the order listed.
 
 
 ###
