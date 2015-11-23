@@ -26,8 +26,7 @@ Param(
     [string] $AshRole = "None"
     ,
     [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
-    [ValidateSet("None","Unclass","NIPR","SIPR","JWICS")]
-    [string] $NetBannerLabel = "None"
+    $EntEnv = $false
     ,
     [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)] 
     [string] $SaltStates = "None"
@@ -70,12 +69,10 @@ Param(
                       #-- "DomainController" -- Ash-windows applies the "DomainController" security baseline
                       #-- "Workstation"      -- Ash-windows applies the "Workstation" security baseline
 
-#$NetBannerLabel = "None" #Writes a salt custom grain to the system, netbanner:string. Determines the NetBanner string and color configuration. Parameter key:
-                           #-- "None"    -- Does not write the custom grain to the system; netbanner will default to the Unclass string
-                           #-- "Unclass" -- NetBanner Background color: Green,  Text color: White, String: "UNCLASSIFIED"
-                           #-- "NIPR"    -- NetBanner Background color: Green,  Text color: White, String: "UNCLASSIFIED//FOUO"
-                           #-- "SIPR"    -- NetBanner Background color: Red,    Text color: White, String: "SECRET AND AUTHORIZED TO PROCESS NATO SECRET"
-                           #-- "JWICS"   -- NetBanner Background color: Yellow, Text color: White, String: "TOPSECRET//SI/TK/NOFORN                  **G//HCS//NATO SECRET FOR APPROVED USERS IN SELECTED STORAGE SPACE**"
+#$EntEnv = $false #Determines whether to write a salt custom grain, systemprep:enterprise_environment. Parameter key:
+                           #-- $false    -- Does not write the custom grain to the system
+                           #-- $true     -- Attempts to detect the enterprise environment from EC2 metadata
+                           #-- <string>  -- Sets the grain to the value of $EntEnv
 
 #$SaltStates = "None" #Comma-separated list of salt states. Listed states will be applied to the system. Parameter key:
                       #-- "None"              -- Special keyword; will not apply any salt states
@@ -194,7 +191,7 @@ log -LogTag ${ScriptName} "SaltContentUrl = ${SaltContentUrl}"
 log -LogTag ${ScriptName} "FormulasToInclude = ${FormulasToInclude}"
 log -LogTag ${ScriptName} "FormulaTerminationStrings = ${FormulaTerminationStrings}"
 log -LogTag ${ScriptName} "AshRole = ${AshRole}"
-log -LogTag ${ScriptName} "NetBannerLabel = ${NetBannerLabel}"
+log -LogTag ${ScriptName} "EntEnv = ${EntEnv}"
 log -LogTag ${ScriptName} "SaltStates = ${SaltStates}"
 log -LogTag ${ScriptName} "SaltDebugLog = ${SaltDebugLog}"
 log -LogTag ${ScriptName} "SaltResultsLog = ${SaltResultsLog}"
@@ -332,7 +329,7 @@ $MinionConfContent | foreach -Begin {
 }
 
 #Write custom grains to the salt configuration file
-if ( ($AshRole -ne "None") -or ($NetBannerLabel -ne "None") ) {
+if ( ($AshRole -ne "None") -or ($EntEnv -ne $false) ) {
     $CustomGrainsContent = @()
     $CustomGrainsContent += "grains:"
 
@@ -342,15 +339,17 @@ if ( ($AshRole -ne "None") -or ($NetBannerLabel -ne "None") ) {
         $AshRoleCustomGrain += "  ash-windows:"
         $AshRoleCustomGrain += "    role: ${AshRole}"
     }
-    if ($NetBannerLabel -ne "None") {
-        log -LogTag ${ScriptName} "Adding the NetBanner label to a grain in the salt configuration file"
-        $NetBannerLabelCustomGrain = @()
-        $NetBannerLabelCustomGrain += "  netbanner:"
-        $NetBannerLabelCustomGrain += "    network_label: ${NetBannerLabel}"
+    if ($EntEnv -ne $false) {
+        if ($EntEnv -eq $true) {
+        }
+        log -LogTag ${ScriptName} "Adding the Enterprise Environment to a grain in the salt configuration file"
+        $EntEnvCustomGrain = @()
+        $EntEnvCustomGrain += "  systemprep:"
+        $EntEnvCustomGrain += "    enterprise_environment: ${EntEnv}"
     }
 
     $CustomGrainsContent += $AshRoleCustomGrain
-    $CustomGrainsContent += $NetBannerLabelCustomGrain
+    $CustomGrainsContent += $EntEnvCustomGrain
     $CustomGrainsContent += ""
 
     #Regex strings to mark the beginning and end of the custom grains section
