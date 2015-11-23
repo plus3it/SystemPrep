@@ -1,7 +1,7 @@
 [CmdLetBinding()]
 Param(
     [String]$SystemPrepMasterScriptUrl = 'https://s3.amazonaws.com/systemprep/MasterScripts/SystemPrep-WindowsMaster.ps1'
-    ,    
+    ,
     [Bool]$NoReboot = $false
     ,
     [String]$SaltStates = 'Highstate'
@@ -11,7 +11,7 @@ Param(
     [ValidateSet('Workstation','MemberServer','DomainController')]
     [String]$AshRole = 'MemberServer'
     ,
-    [String]$NetBannerLabel = 'Unclass'
+    $EntEnv = $false
     ,
     [Bool]$SourceIsS3Bucket = $false
     ,
@@ -22,18 +22,7 @@ Param(
     [Bool]$ConfigureEc2EventLogging = $true
 )
 
-###
-#Define System variables
-###
-$SystemPrepParams = @{
-    AshRole = $AshRole
-    NetBannerLabel = $NetBannerLabel
-    SaltStates = $SaltStates
-    SaltContentUrl = $SaltContentUrl
-    NoReboot = $NoReboot
-    SourceIsS3Bucket = $SourceIsS3Bucket
-    AwsRegion = $AwsRegion
-}
+# Define System variables
 $CertDir = "${env:temp}\certs"
 $SystemPrepDir = "${env:SystemDrive}\SystemPrep"
 $SystemPrepLogDir = "${env:SystemDrive}\SystemPrep\Logs"
@@ -43,9 +32,8 @@ $SystemPrepLogFile = "${SystemPrepLogDir}\systemprep-log_${DateTime}.txt"
 $ScriptName = $MyInvocation.mycommand.name
 $ErrorActionPreference = "Stop"
 
-###
-#Define Functions
-###
+
+# Define Functions
 function log {
     [CmdLetBinding()]
     Param(
@@ -64,11 +52,11 @@ function log {
     }
 }
 
+
 function die($Msg) {
-    log -EntryType "Error" -LogMessage $Msg
-    Stop-Transcript
-    throw
+    log -EntryType "Error" -LogMessage $Msg; Stop-Transcript; throw
 }
+
 
 function Manage-Output {
     [CmdLetBinding()]
@@ -163,14 +151,12 @@ function Expand-ZipFile {
     )
     PROCESS {
         foreach ($file in $FileName) {
-            if (!(Test-Path "$file")) {
-                throw "$file does not exist"
-            }
+            if (!(Test-Path "$file")) { throw "$file does not exist" }
             log "Unzipping file: ${file}"
             if ($CreateDirFromFileName) { $DestPath = "${DestPath}\$((Get-Item $file).BaseName)" }
             $null = New-Item -Path $DestPath -ItemType Directory -Force -WarningAction SilentlyContinue
             new-object -com shell.application | % {
-                $_.namespace($DestPath).copyhere($_.namespace("$file").items(), 0x14) 
+                $_.namespace($DestPath).copyhere($_.namespace("$file").items(), 0x14)
             }
             Write-Output (Get-Item $DestPath)
         }
@@ -190,7 +176,6 @@ function Import-509Certificate {
             log "Importing certificate: ${item}"
             $pfx = new-object System.Security.Cryptography.X509Certificates.X509Certificate2
             $pfx.import($item)
-
             $store = new-object System.Security.Cryptography.X509Certificates.x509Store($certStore,$certRootStore)
             $store.open("MaxAllowed")
             $store.add($pfx)
@@ -234,7 +219,6 @@ function Enable-Ec2EventLogging {
         $xml = [xml](get-content $EC2SettingsFile)
         $xmlElement = $xml.get_DocumentElement()
         $xmlElementToModify = $xmlElement.Plugins
-
         foreach ($element in $xmlElementToModify.Plugin) {
             if ($element.name -eq "Ec2EventLog") {
                 $element.State = "Enabled"
@@ -255,26 +239,19 @@ function Add-Ec2EventLogSource {
         foreach ($Source in $LogSource) {
             $EC2EventLogFile = "${env:ProgramFiles}\Amazon\Ec2ConfigService\Settings\EventLogConfig.xml"
             $xml = [xml](Get-Content $EC2EventLogFile)
-
             foreach ($MessageType in @("Information","Warning","Error")) {
                 $xmlElement = $xml.EventLogConfig.AppendChild($xml.CreateElement("Event"))
-
                 $xml_category = $xmlElement.AppendChild($xml.CreateElement("Category"))
                 $xml_category.AppendChild($xml.CreateTextNode("Application")) | Out-null
-
                 $xml_errortype = $xmlElement.AppendChild($xml.CreateElement("ErrorType"))
                 $xml_errortype.AppendChild($xml.CreateTextNode($MessageType)) | Out-null
-
                 $xml_numentries = $xmlElement.AppendChild($xml.CreateElement("NumEntries"))
                 $xml_numentries.AppendChild($xml.CreateTextNode("9999")) | Out-null
-
                 $xml_appname = $xmlElement.AppendChild($xml.CreateElement("AppName"))
                 $xml_appname.AppendChild($xml.CreateTextNode("${Source}")) | Out-null
-
                 $xml_lastmessagetime = $xmlElement.AppendChild($xml.CreateElement("LastMessageTime"))
                 $xml_lastmessagetime.AppendChild($xml.CreateTextNode($(get-date -Format "yyyy-MM-ddTHH:mm:ss.0000000+00:00"))) | Out-null
             }
-
             $xml.Save($EC2EventLogFile)
             log "Added the log source, ${Source}, to the EC2 Event Log configuration file"
         }
@@ -282,19 +259,17 @@ function Add-Ec2EventLogSource {
 }
 
 
-###
-#Begin Script
-###
+# Begin Script
 
-#Create the SystemPrep log directory
+# Create the SystemPrep log directory
 New-Item -Path $SystemPrepDir -ItemType "directory" -Force 2>&1 > $null
 New-Item -Path $SystemPrepLogDir -ItemType "directory" -Force 2>&1 > $null
-#Increase the screen width to avoid line wraps in the log file
+# Increase the screen width to avoid line wraps in the log file
 Set-OutputBuffer -Width 10000
-#Start a transcript to record script output
+# Start a transcript to record script output
 Start-Transcript $SystemPrepLogFile
 
-#Create a "SystemPrep" event log source
+# Create a "SystemPrep" event log source
 try {
     New-EventLog -LogName Application -Source "${LogSource}"
 } catch {
@@ -310,7 +285,7 @@ try {
 }
 
 if ($ConfigureEc2EventLogging) {
-    #Enable and configure EC2 event logging
+    # Enable and configure EC2 event logging
     try {
         Enable-Ec2EventLogging
         Add-Ec2EventLogSource -LogSource ${LogSource}
@@ -321,7 +296,7 @@ if ($ConfigureEc2EventLogging) {
 }
 
 if ($RootCertUrl) {
-    #Download and install the root certificates
+    # Download and install the root certificates
     try {
         Install-RootCerts -RootCertHost ${RootCertUrl}
     } catch {
@@ -330,7 +305,7 @@ if ($RootCertUrl) {
     }
 }
 
-#Download the master script
+# Download the master script
 log "Downloading the SystemPrep master script: ${SystemPrepMasterScriptUrl}"
 try {
     $SystemPrepMasterScript = Download-File $SystemPrepMasterScriptUrl $SystemPrepDir -SourceIsS3Bucket:($SystemPrepParams["SourceIsS3Bucket"]) -AwsRegion $SystemPrepParams["AwsRegion"]
@@ -339,7 +314,7 @@ try {
     die "ERROR: Encountered a problem downloading the master script!"
 }
 
-#Execute the master script
+# Execute the master script
 log "Running the SystemPrep master script: ${SystemPrepMasterScript}"
 try {
     Invoke-Expression "& ${SystemPrepMasterScript} @SystemPrepParams" | Manage-Output
@@ -348,6 +323,6 @@ try {
     die "ERROR: Encountered a problem executing the master script!"
 }
 
-#Reached the exit without an error, log success message
-log "SystemPrep completed successfully! Exiting..."
+# Reached the exit without an error, log success message
+log "SUCCESS: SystemPrep completed! Exiting..."
 Stop-Transcript
