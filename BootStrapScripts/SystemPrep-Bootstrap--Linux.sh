@@ -2,6 +2,7 @@
 set -e
 
 #User variables
+ENTENV="False"
 SOURCEISS3BUCKET="False"
 AWSREGION="us-east-1"
 AWSCLI_URL="https://s3.amazonaws.com/aws-cli/awscli-bundle.zip"
@@ -10,6 +11,7 @@ SYSTEMPREPMASTERSCRIPTSOURCE="https://s3.amazonaws.com/systemprep/MasterScripts/
 SYSTEMPREPPARAMS=( "SaltStates=Highstate"
                    "SaltContentSource=https://systemprep-content.s3.amazonaws.com/linux/salt/salt-content.zip"
                    "NoReboot=False"
+                   "EntEnv=${ENTENV}"
                    "SourceIsS3Bucket=${SOURCEISS3BUCKET}"
                    "AwsRegion=${AWSREGION}" )
 

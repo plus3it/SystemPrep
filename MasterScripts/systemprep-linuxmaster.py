@@ -99,6 +99,7 @@ Use `merge_dicts({yourdict}, scriptparams)` to merge command line parameters wit
                         "-latest",
                     ],
                     'saltstates': 'Highstate',
+                    'entenv': 'False',
                     'salt_results_log': '/var/log/saltcall.results.log',
                     'salt_debug_log': '/var/log/saltcall.debug.log',
                     'sourceiss3bucket': 'True',
@@ -120,7 +121,7 @@ Use `merge_dicts({yourdict}, scriptparams)` to merge command line parameters wit
                         "-latest",
                     ],
                     'ashrole': "MemberServer",
-                    'netbannerstring': "Unclass",
+                    'entenv': 'False',
                     'saltstates': "Highstate",
                 }, scriptparams)
             },
