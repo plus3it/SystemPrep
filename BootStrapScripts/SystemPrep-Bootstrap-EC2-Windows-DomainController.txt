@@ -1,9 +1,10 @@
 <powershell>
 # Define User variables
+$EntEnv = $false
 $SystemPrepMasterScriptUrl = 'https://s3.amazonaws.com/systemprep/MasterScripts/SystemPrep-WindowsMaster.ps1'
 $SystemPrepParams = @{
     AshRole = "DomainController"
-    EntEnv = $false
+    EntEnv = $EntEnv
     SaltStates = "Highstate"
     SaltContentUrl = "https://s3.amazonaws.com/systemprep-content/windows/salt/salt-content.zip"
     NoReboot = $false
