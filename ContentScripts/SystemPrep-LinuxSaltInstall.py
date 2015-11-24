@@ -262,7 +262,7 @@ def main(saltinstallmethod='git',
     workingdir = create_working_dir('/usr/tmp/', 'saltinstall-')
     salt_results_logfile = salt_results_log or os.sep.join((workingdir,
                                 'saltcall.results.log'))
-    salt_debug_logfile = salt_debug_log or os.sep.join.join((workingdir,
+    salt_debug_logfile = salt_debug_log or os.sep.join((workingdir,
                                 'saltcall.debug.log'))
     saltcall_arguments = '--out json --out-file {0} --return local --log-file ' \
                          '{1} --log-file-level debug' \
@@ -346,7 +346,7 @@ def main(saltinstallmethod='git',
     saltpillarrootconf = []
     saltpillarrootconf += 'pillar_roots:\n',
     saltpillarrootconf += '  base:\n',
-    saltpillarrootconf += '    - {0}\n'.format(saltpillarroot),
+    saltpillarrootconf += '    - {0}\n\n'.format(saltpillarroot),
 
     if entenv:
         if entenv == True:
@@ -355,7 +355,7 @@ def main(saltinstallmethod='git',
         customgrainsconf = []
         customgrainsconf += 'grains:\n',
         customgrainsconf += '  systemprep:\n',
-        customgrainsconf += '    enterprise_environment: {0}\n'.format(entenv),
+        customgrainsconf += '    enterprise_environment: {0}\n\n'.format(entenv),
 
     #Backup the minionconf file
     shutil.copyfile(minionconf, '{0}.bak'.format(minionconf))
@@ -366,7 +366,7 @@ def main(saltinstallmethod='git',
 
     #Find the file_roots section in the minion conf file
     filerootsbegin = '^#file_roots:|^file_roots:'
-    filerootsend = '^$'
+    filerootsend = '#$|^$'
     beginindex = None
     endindex = None
     n = 0
@@ -383,7 +383,7 @@ def main(saltinstallmethod='git',
 
     #Find the pillar_roots section in the minion conf file
     pillarrootsbegin = '^#pillar_roots:|^pillar_roots:'
-    pillarrootsend = '^#$'
+    pillarrootsend = '^#$|^$'
     beginindex = None
     endindex = None
     n = 0
@@ -400,8 +400,8 @@ def main(saltinstallmethod='git',
 
     if customgrainsconf:
         # Find the custom grains section in the minion conf file
-        $customgrainsbegin = '^#grains:|^grains:'
-        $customgrainsend = '^$'
+        customgrainsbegin = '^#grains:|^grains:'
+        customgrainsend = '#$|^$'
         beginindex = None
         endindex = None
         n = 0
@@ -483,11 +483,13 @@ if __name__ == "__main__":
     #Need to convert comma-delimited strings strings to lists,
     #where the strings may have parentheses or brackets
     #First, remove any parentheses or brackets
-    kwargs['formulastoinclude'] = kwargs['formulastoinclude'].translate(None, '()[]')
-    kwargs['formulaterminationstrings'] = kwargs['formulaterminationstrings'].translate(None, '()[]')
     #Then, split the string on the comma to convert to a list,
     #and remove empty strings with filter
-    kwargs['formulastoinclude'] = filter(None, kwargs['formulastoinclude'].split(','))
-    kwargs['formulaterminationstrings'] = filter(None, kwargs['formulaterminationstrings'].split(','))
+    if 'formulastoinclude' in kwargs:
+        kwargs['formulastoinclude'] = kwargs['formulastoinclude'].translate(None, '()[]')
+        kwargs['formulastoinclude'] = filter(None, kwargs['formulastoinclude'].split(','))
+    if 'formulaterminationstrings' in kwargs:
+        kwargs['formulaterminationstrings'] = kwargs['formulaterminationstrings'].translate(None, '()[]')
+        kwargs['formulaterminationstrings'] = filter(None, kwargs['formulaterminationstrings'].split(','))
 
     main(**kwargs)
