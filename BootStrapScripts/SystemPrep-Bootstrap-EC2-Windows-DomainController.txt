@@ -362,9 +362,20 @@ powershell.exe -noprofile -command "" ^
     "" > %temp%\aws-sdk-dir.txt
 set /p aws-sdk-dir= < %temp%\aws-sdk-dir.txt
 
-echo Removing any previous SDK installation...
-start /wait msiexec /X{F614C929-1D26-4066-9980-B639029FA66B} /quiet /qn /norestart /lv "%temp%\aws-sdk-uninstall.log"
+echo Checking for previous SDK installation...
+wmic product where "Description like 'AWS Tools for Windows'" get IdentifyingNumber | findstr /I /C:"{" > %temp%\aws-sdk-guid.txt
+if %ERRORLEVEL% EQU 0 goto removesdk
 
+echo No previous SDK install was found...
+goto installsdk
+
+:removesdk
+echo Removing any previous SDK installation...
+set /p guid= < %temp%\aws-sdk-guid.txt
+set guid=%guid: =%
+start /wait msiexec /X%guid% /quiet /qn /norestart /lv "%temp%\aws-sdk-uninstall.log"
+
+:installsdk
 echo Installing the SDK...
 start /wait msiexec /i "%aws-sdk-dir%\AWSToolsAndSDKForNet.msi" /quiet /qn /norestart /lv "%temp%\aws-sdk-install.log"
 
@@ -377,6 +388,7 @@ echo Installation complete!
 
 :cleanup
 if "true"=="%cleanup%" (
+    del /q "%temp%\aws-sdk-guid.txt" > nul
     del /q "%temp%\aws-sdk-dir.txt" > nul
     rmdir /s /q "%aws-sdk-dir%" > nul
 )
