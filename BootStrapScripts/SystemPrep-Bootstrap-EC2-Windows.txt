@@ -354,8 +354,8 @@ powershell.exe -noprofile -command "" ^
     $DestPath = \"${env:temp}\$($File.BaseName)\"; ^
     $DestDir = New-Item -Path $DestPath -ItemType Directory -Force -WarningAction SilentlyContinue; ^
     if ($File.Extension -eq \".zip\") { ; ^
-      new-object -ComObject shell.application | % { ^
-        $_.namespace(\"$DestPath\").copyhere($_.namespace(\"$File\").items(), 0x14) }; ^
+      $a = new-object -ComObject shell.application; ^
+      $a.namespace(\"$DestPath\").copyhere($a.namespace(\"$File\").items(), 0x14); ^
     }; ^
     $rc = Move-Item $File $DestDir -Force -Confirm:$false; ^
     return $DestPath ^
