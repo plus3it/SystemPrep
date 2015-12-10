@@ -93,6 +93,7 @@ Use `merge_dicts({yourdict}, scriptparams)` to merge command line parameters wit
                         "https://salt-formulas.s3.amazonaws.com/systemprep-formula-master.zip",
                         "https://salt-formulas.s3.amazonaws.com/ash-linux-formula-master.zip",
                         "https://salt-formulas.s3.amazonaws.com/join-domain-formula-master.zip",
+                        "https://salt-formulas.s3.amazonaws.com/scc-formula-master.zip",
                     ],
                     'formulaterminationstrings': [
                         "-master",
