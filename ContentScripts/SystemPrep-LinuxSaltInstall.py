@@ -264,7 +264,7 @@ def main(saltinstallmethod='git',
                                 'saltcall.results.log'))
     salt_debug_logfile = salt_debug_log or os.sep.join((workingdir,
                                 'saltcall.debug.log'))
-    saltcall_arguments = '--out json --out-file {0} --return local --log-file ' \
+    saltcall_arguments = '--out yaml --out-file {0} --return local --log-file ' \
                          '{1} --log-file-level debug' \
                          .format(salt_results_logfile, salt_debug_logfile)
 
@@ -455,8 +455,8 @@ def main(saltinstallmethod='git',
                             'Exception: {1}' \
                             .format(salt_results_logfile, exc)
             raise SystemError(error_message)
-        if (not re.search('"result": false', salt_results)) and \
-           (re.search('"result": true', salt_results)):
+        if (not re.search('result: false', salt_results)) and \
+           (re.search('result: true', salt_results)):
             #At least one state succeeded, and no states failed, so log success
             print('Salt states applied successfully! Details are in the log, '
                   '{0}'.format(salt_results_logfile))
