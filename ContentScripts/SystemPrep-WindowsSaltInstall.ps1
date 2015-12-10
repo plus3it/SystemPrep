@@ -245,7 +245,7 @@ if (-not $SaltResultsLog) {
 else {
     $SaltResultsLogFile = $SaltResultsLog
 }
-$SaltStateArguments = "--out json --out-file ${SaltResultsLogFile} --return local --log-file ${SaltDebugLogFile} --log-file-level debug"
+$SaltStateArguments = "--out yaml --out-file ${SaltResultsLogFile} --return local --log-file ${SaltDebugLogFile} --log-file-level debug"
 
 log -LogTag ${ScriptName} "Installing salt -- ${SaltInstaller}"
 $SaltInstallResult = Start-Process -FilePath $SaltInstaller.FullName -ArgumentList "/S" -NoNewWindow -PassThru -Wait
@@ -398,8 +398,8 @@ else {
         log -LogTag ${ScriptName} "Return code of salt-call: $(${ApplyStatesResult}.ExitCode)"
     }
     # Check for errors in the results file
-    if ((-not (Select-String -Path ${SaltResultsLogFile} -Pattern '"result": false')) -and
-        (Select-String -Path ${SaltResultsLogFile} -Pattern '"result": true')) {
+    if ((-not (Select-String -Path ${SaltResultsLogFile} -Pattern 'result: false')) -and
+        (Select-String -Path ${SaltResultsLogFile} -Pattern 'result: true')) {
         # At least one state succeeded, and no states failed, so log success
         log -LogTag ${ScriptName} "Salt states applied successfully! Details are in the log, ${SaltResultsLogFile}"
     }
