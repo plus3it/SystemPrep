@@ -8,7 +8,7 @@ Param(
     [String] $SystemRole
     ,
     [Parameter(Mandatory=$false, ValueFromPipeline=$false)]
-    [String] $BootstrapUrl = 'https://s3.amazonaws.com/systemprep/BootStrapScripts/SystemPrep-BootStrap--Windows.ps1'
+    [String] $BootstrapUrl = 'https://s3.amazonaws.com/systemprep/BootStrapScripts/SystemPrep-Bootstrap--Windows.ps1'
 )
 
 BEGIN

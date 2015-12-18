@@ -31,6 +31,15 @@ $DateTime = $(get-date -format "yyyyMMdd_HHmm_ss")
 $SystemPrepLogFile = "${SystemPrepLogDir}\systemprep-log_${DateTime}.txt"
 $ScriptName = $MyInvocation.mycommand.name
 $ErrorActionPreference = "Stop"
+$SystemPrepParams = @{
+    AshRole = "${AshRole}"
+    EntEnv = ${EntEnv}
+    SaltStates = "${SaltStates}"
+    SaltContentUrl = "${SaltContentUrl}"
+    NoReboot = ${NoReboot}
+    SourceIsS3Bucket = ${SourceIsS3Bucket}
+    AwsRegion = "${AwsRegion}"
+}
 
 
 # Define Functions
@@ -235,6 +244,7 @@ function Add-Ec2EventLogSource {
     Param(
         [Parameter(Mandatory=$true,Position=0,ValueFromPipeLine=$false)] [string[]] $LogSource
     )
+    BEGIN { Stop-Service -Name Ec2Config -WarningAction SilentlyContinue }
     PROCESS {
         foreach ($Source in $LogSource) {
             $EC2EventLogFile = "${env:ProgramFiles}\Amazon\Ec2ConfigService\Settings\EventLogConfig.xml"
@@ -256,6 +266,7 @@ function Add-Ec2EventLogSource {
             log "Added the log source, ${Source}, to the EC2 Event Log configuration file"
         }
     }
+    END { Start-Service -Name Ec2Config }
 }
 
 
