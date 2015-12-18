@@ -57,6 +57,12 @@ EOT
 }  # ----------  end of function print_usage  ----------
 
 
+lower()
+{
+    echo "${1}" | tr '[:upper:]' '[:lower:]'
+}  # ----------  end of function lower  ----------
+
+
 # Define default values
 SYSTEMPREP_ENV=
 BOOTSTRAP_URL=https://systemprep.s3.amazonaws.com/BootStrapScripts/SystemPrep-Bootstrap--Linux.sh
@@ -91,7 +97,7 @@ do
             ;;
         -e|--environment)
             shift
-            SYSTEMPREP_ENV="${1}"
+            SYSTEMPREP_ENV=$(lower "${1}")
             ;;
         -u|--bootstrap-url)
             shift
@@ -115,8 +121,6 @@ if [ -z "${SYSTEMPREP_ENV}" ]
 then
     print_usage
     die "ERROR: Mandatory parameter (-e|--environment) was not specified."
-else
-    SYSTEMPREP_ENV="$(echo ${SYSTEMPREP_ENV} | tr '[:upper:]' '[:lower:]')"
 fi
 
 
