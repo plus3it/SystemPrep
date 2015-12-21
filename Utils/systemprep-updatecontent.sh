@@ -34,10 +34,15 @@ print_usage()
 {
     cat << EOT
 
+  This script will update the content managed by the systemprep capability.
+  Parameters may be passed as short-form or long-form arguments, or they may
+  be exported as environment variables. Command line arguments take precedence
+  over environment variables.
+
   Usage: ${__SCRIPTNAME} [required] [options]
 
   Required:
-  -e|--environment
+  -e|--environment|\$SYSTEMPREP_ENV
       The environment in which the system is operating. This is parameter
       accepts a tri-state value:
         "true":   Attempt to detect the environment automatically. WARNING:
@@ -50,7 +55,7 @@ print_usage()
   Options:
   -h|--help
       Display this message.
-  -u|--bootstrap-url
+  -u|--bootstrap-url|\$SYSTEMPREP_BOOTSTRAP_URL
       URL of the systemprep bootstrapper.
 
 EOT
@@ -64,8 +69,8 @@ lower()
 
 
 # Define default values
-SYSTEMPREP_ENV=
-BOOTSTRAP_URL=https://systemprep.s3.amazonaws.com/BootStrapScripts/SystemPrep-Bootstrap--Linux.sh
+SYSTEMPREP_ENV="${SYSTEMPREP_ENV}"
+BOOTSTRAP_URL="${SYSTEMPREP_BOOTSTRAP_URL:-https://systemprep.s3.amazonaws.com/BootStrapScripts/SystemPrep-Bootstrap--Linux.sh}"
 
 
 # Parse command-line parameters
