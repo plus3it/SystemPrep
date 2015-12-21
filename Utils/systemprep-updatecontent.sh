@@ -17,8 +17,14 @@ __SCRIPTNAME=$(basename ${__SCRIPTPATH})
 
 log()
 {
-    logger -i -t "${__SCRIPTNAME}" -s -- "$1" 2> /dev/console
-    echo "$1"
+    if [ "$1" != "-v" ]
+    then
+        logger -i -t "${__SCRIPTNAME}" -s -- "$1" 2> /dev/console
+        echo "$1"
+    elif [ -n "${VERBOSE}" ]
+    then
+        log "$2"
+    fi
 }  # ----------  end of function log  ----------
 
 
@@ -53,10 +59,12 @@ print_usage()
                   uppercase values will be converted to lowercase.
 
   Options:
-  -h|--help
-      Display this message.
   -u|--bootstrap-url|\$SYSTEMPREP_BOOTSTRAP_URL
       URL of the systemprep bootstrapper.
+  -h|--help
+      Display this message.
+  -v|--verbose
+      Display verbose output
 
 EOT
 }  # ----------  end of function print_usage  ----------
@@ -71,11 +79,11 @@ lower()
 # Define default values
 SYSTEMPREP_ENV="${SYSTEMPREP_ENV}"
 BOOTSTRAP_URL="${SYSTEMPREP_BOOTSTRAP_URL:-https://systemprep.s3.amazonaws.com/BootStrapScripts/SystemPrep-Bootstrap--Linux.sh}"
-
+VERBOSE=
 
 # Parse command-line parameters
-SHORTOPTS="he:u:"
-LONGOPTS="help,environment:,bootstrap-url:"
+SHORTOPTS="hve:u:"
+LONGOPTS="help,verbose,environment:,bootstrap-url:"
 ARGS=$(getopt \
     --options "${SHORTOPTS}" \
     --longoptions "${LONGOPTS}" \
@@ -108,6 +116,9 @@ do
             shift
             BOOTSTRAP_URL="${1}"
             ;;
+        -v|--verbose)
+            VERBOSE="true"
+            ;;
         --)
             shift
             break
@@ -128,6 +139,10 @@ then
     die "ERROR: Mandatory parameter (-e|--environment) was not specified."
 fi
 
+log -v "Printing parameters:"
+log -v "  environment:   ${SYSTEMPREP_ENV}"
+log -v "  bootstrap-url: ${BOOTSTRAP_URL}"
+
 
 # Check dependencies
 if [ $(command -v curl > /dev/null 2>&1)$? -ne 0 ]
@@ -140,7 +155,7 @@ fi
 log "Using bootstrapper to update systemprep content..."
 curl -L --retry 3 --silent --show-error "${BOOTSTRAP_URL}" | \
     sed "{
-        s/^ENTENV=.*/ENTENV=${SYSTEMPREP_ENV}/
+        s/^ENTENV=.*/ENTENV=\"${SYSTEMPREP_ENV}\"/
         s/NoReboot=.*/NoReboot=True\"/
         s/SaltStates=.*/SaltStates=None\"/
     }" | \
