@@ -341,15 +341,13 @@ if ( ($AshRole.tolower() -ne "none") -or ($EntEnv -ne $false) ) {
         $AshRoleCustomGrain += "  ash-windows:"
         $AshRoleCustomGrain += "    role: ${AshRole}"
     }
-    if ($EntEnv -ne $false) {
-        if ($EntEnv -eq $true) {
-            # TODO: Get environment from EC2 metadata or tags
-        }
-        log -LogTag ${ScriptName} "Adding the Enterprise Environment to a grain in the salt configuration file"
-        $EntEnvCustomGrain = @()
-        $EntEnvCustomGrain += "  systemprep:"
-        $EntEnvCustomGrain += "    enterprise_environment: $(${EntEnv}.tolower())"
+    if ($EntEnv -eq $true) {
+        # TODO: Get environment from EC2 metadata or tags
     }
+    log -LogTag ${ScriptName} "Adding the Enterprise Environment to a grain in the salt configuration file"
+    $EntEnvCustomGrain = @()
+    $EntEnvCustomGrain += "  systemprep:"
+    $EntEnvCustomGrain += "    enterprise_environment: $(${EntEnv}.tolower())"
 
     $CustomGrainsContent += $AshRoleCustomGrain
     $CustomGrainsContent += $EntEnvCustomGrain
