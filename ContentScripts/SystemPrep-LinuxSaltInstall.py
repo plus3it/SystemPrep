@@ -349,13 +349,11 @@ def main(saltinstallmethod='git',
     saltpillarrootconf += '    - {0}\n\n'.format(saltpillarroot),
 
     customgrainsconf = []
-    if entenv:
-        if entenv == True:
-            # TODO: Get environment from EC2 metadata or tags
-            entenv = 'true'
-        customgrainsconf += 'grains:\n',
-        customgrainsconf += '  systemprep:\n',
-        customgrainsconf += '    enterprise_environment: {0}\n\n'.format(entenv),
+    if entenv == True:
+        # TODO: Get environment from EC2 metadata or tags
+    customgrainsconf += 'grains:\n',
+    customgrainsconf += '  systemprep:\n',
+    customgrainsconf += '    enterprise_environment: {0}\n\n'.format(entenv),
 
     #Backup the minionconf file
     shutil.copyfile(minionconf, '{0}.bak'.format(minionconf))
