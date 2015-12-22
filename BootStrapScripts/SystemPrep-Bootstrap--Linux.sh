@@ -72,6 +72,105 @@ EOT
 
 }
 
+# Are we EL-compatible and do we have 6.5+ behaviour?
+get_mode() {
+    UPDATETRUST="/usr/bin/update-ca-trust"
+    CERTUTIL="/usr/bin/certutil"
+    if [ -x ${UPDATETRUST} ]; then
+        echo "6.5"
+    elif [ -x ${CERTUTIL} ]; then
+        echo "6.0"
+    else
+        echo "Cannot determine CA update-method. Aborting."
+        exit 1
+    fi
+}  # --- end of function get_mode  ---
+
+# Try to fetch all CA .cer files from our root_cert_url
+fetch_ca_certs() {
+    if [ $# -ne 2 ]; then
+        echo "fetch_ca_certs requires two parameters."
+        echo "  \$1, 'url', is a url hosting the root CA certificates."
+        echo "  \$2, 'cert_dir', is a directory in which to save the certificates."
+        exit 1
+    fi
+
+    URL="${1}"
+    FETCH_CERT_DIR="${2}"
+    WGET="/usr/bin/wget"
+    local TIMESTAMP=$(date -u +"%Y%m%d_%H%M_%S")
+
+    # Create a working directory
+    if [ -d "${FETCH_CERT_DIR}" ]; then
+        echo "'${FETCH_CERT_DIR}' already exists. Recreating for safety."
+        mv "${FETCH_CERT_DIR}" "${FETCH_CERT_DIR}"-"${TIMESTAMP}".bak || \
+        ( echo "Couldn't move '${FETCH_CERT_DIR}'. Aborting..." && exit 1 )
+    fi
+
+    install -d -m 0700 -o root -g root "${FETCH_CERT_DIR}" || \
+    ( echo "Could not create '${FETCH_CERT_DIR}'. Aborting..." && exit 1 )
+
+    # Make sure wget is available
+    if [ ! -x ${WGET} ]; then
+        echo "The wget utility not found. Attempting to install..."
+        yum -y install wget || \
+        ( echo "Could not install 'wget', which is required to download the certs. Aborting..." && exit 1 )
+    fi
+
+    echo "Attempting to download the root CA certs..."
+    ${WGET} -r -l1 -nd -np -A.cer -P "${FETCH_CERT_DIR}" --quiet $URL || \
+    ( echo "Could not download certs via 'wget'. Check the url. Quitting..." && \
+      exit 1 )
+}  # --- end of function fetch_ca_certs  ---
+
+# Update CA trust store
+update_trust() {
+    if [ $# -ne 2 ]; then
+        echo "update_trust requires two parameters."
+        echo "  \$1, 'mode', is either '6.0' or '6.5', as determined by the 'GetMode' function."
+        echo "  \$2, 'cert_dir', is a directory that contains the root certificates."
+        exit 1
+    fi
+
+    MODE="${1}"
+    UPDATE_CERT_DIR="${2}"
+
+    if [[ "6.5" == "${MODE}" ]]; then
+        # Make sure the cert dir exists
+        cert_dir="/etc/pki/ca-trust/source/anchors"
+        install -d -m 0755 -o root -g root "${cert_dir}"
+
+        echo "Copying certs to $cert_dir..."
+        (cd "${UPDATE_CERT_DIR}" ; find . -print | cpio -vpud "${cert_dir}" )
+
+        echo "Enabling 'update-ca-trust'..."
+        update-ca-trust force-enable
+
+        echo "Extracting root certificates..."
+        update-ca-trust extract && echo "Certs updated successfully." || \
+        ( echo "ERROR: Failed to update certs." && exit 1 )
+    elif [[ "6.0" == "${MODE}" ]]; then
+        CADIR="/etc/pki/IC-CAs"
+        if [ ! -d ${CADIR} ]; then
+            install -d -m 0755 ${CADIR}
+        fi
+
+        echo "Copying certs to ${CADIR}..."
+        ( cd "${UPDATE_CERT_DIR}" ; find . -print | cpio -vpud "${CADIR}" )
+
+        for ADDCER in $(find ${CADIR} -type f -name "*.cer" -o -name "*.CER")
+        do
+            echo "Adding \"${ADDCER}\" to system CA trust-list"
+            ${CERTUTIL} -A -t u,u,u -d . -i "${ADDCER}" || \
+            ( echo "ERROR: Failed to update certs." && exit 1 )
+        done
+    else
+        echo "Unknown 'mode'. 'mode' must be '6.5' or '6.0'."
+        exit 1
+    fi
+}  # --- end of function update_trust  ---
+
+
 # Parse command-line parameters
 SHORTOPTS="e:ns:g:c:r:m:o:uh"
 LONGOPTS=(
@@ -171,110 +270,9 @@ for param in "${SYSTEMPREPPARAMS[@]}"; do echo "   ${param}" ; done
 
 # Install root certs, if the root cert url is provided
 if [[ -n "${ROOT_CERT_URL}" ]]; then
-    #######################################################
-    # Are we EL-compatible and do we have 6.5+ behaviour?
-    #######################################################
-    GetMode() {
-        UPDATETRUST="/usr/bin/update-ca-trust"
-        CERTUTIL="/usr/bin/certutil"
-        if [ -x ${UPDATETRUST} ]; then
-            echo "6.5"
-        elif [ -x ${CERTUTIL} ]; then
-            echo "6.0"
-        else
-            echo "Cannot determine CA update-method. Aborting."
-            exit 1
-        fi
-    }
-    #########################################################
-    # Try to fetch all CA .cer files from our root_cert_url
-    #########################################################
-    FetchCAs() {
-        if [ $# -ne 2 ]; then
-            echo "FetchCAs requires two parameters."
-            echo "  \$1, 'url', is a url hosting the root CA certificates."
-            echo "  \$2, 'cert_dir', is a directory in which to save the certificates."
-            exit 1
-        fi
 
-        URL="${1}"
-        FETCH_CERT_DIR="${2}"
-        WGET="/usr/bin/wget"
-        local TIMESTAMP=$(date -u +"%Y%m%d_%H%M_%S")
-
-        # Create a working directory
-        if [ -d "${FETCH_CERT_DIR}" ]; then
-            echo "'${FETCH_CERT_DIR}' already exists. Recreating for safety."
-            mv "${FETCH_CERT_DIR}" "${FETCH_CERT_DIR}"-"${TIMESTAMP}".bak || \
-            ( echo "Couldn't move '${FETCH_CERT_DIR}'. Aborting..." && exit 1 )
-        fi
-
-        install -d -m 0700 -o root -g root "${FETCH_CERT_DIR}" || \
-        ( echo "Could not create '${FETCH_CERT_DIR}'. Aborting..." && exit 1 )
-
-        # Make sure wget is available
-        if [ ! -x ${WGET} ]; then
-            echo "The wget utility not found. Attempting to install..."
-            yum -y install wget || \
-            ( echo "Could not install 'wget', which is required to download the certs. Aborting..." && exit 1 )
-        fi
-
-        echo "Attempting to download the root CA certs..."
-        ${WGET} -r -l1 -nd -np -A.cer -P "${FETCH_CERT_DIR}" --quiet $URL || \
-        ( echo "Could not download certs via 'wget'. Check the url. Quitting..." && \
-          exit 1 )
-    }
-    ######################################
-    # Update CA Trust
-    ######################################
-    UpdateTrust() {
-        if [ $# -ne 2 ]; then
-            echo "UpdateTrust requires two parameters."
-            echo "  \$1, 'mode', is either '6.0' or '6.5', as determined by the 'GetMode' function."
-            echo "  \$2, 'cert_dir', is a directory that contains the root certificates."
-            exit 1
-        fi
-
-        MODE="${1}"
-        UPDATE_CERT_DIR="${2}"
-
-        if [[ "6.5" == "${MODE}" ]]; then
-            # Make sure the cert dir exists
-            cert_dir="/etc/pki/ca-trust/source/anchors"
-            install -d -m 0755 -o root -g root "${cert_dir}"
-
-            echo "Copying certs to $cert_dir..."
-            (cd "${UPDATE_CERT_DIR}" ; find . -print | cpio -vpud "${cert_dir}" )
-
-            echo "Enabling 'update-ca-trust'..."
-            update-ca-trust force-enable
-
-            echo "Extracting root certificates..."
-            update-ca-trust extract && echo "Certs updated successfully." || \
-            ( echo "ERROR: Failed to update certs." && exit 1 )
-        elif [[ "6.0" == "${MODE}" ]]; then
-            CADIR="/etc/pki/IC-CAs"
-            if [ ! -d ${CADIR} ]; then
-                install -d -m 0755 ${CADIR}
-            fi
-
-            echo "Copying certs to ${CADIR}..."
-            ( cd "${UPDATE_CERT_DIR}" ; find . -print | cpio -vpud "${CADIR}" )
-
-            for ADDCER in $(find ${CADIR} -type f -name "*.cer" -o -name "*.CER")
-            do
-                echo "Adding \"${ADDCER}\" to system CA trust-list"
-                ${CERTUTIL} -A -t u,u,u -d . -i "${ADDCER}" || \
-                ( echo "ERROR: Failed to update certs." && exit 1 )
-            done
-        else
-            echo "Unknown 'mode'. 'mode' must be '6.5' or '6.0'."
-            exit 1
-        fi
-    }
-
-    FetchCAs "${ROOT_CERT_URL}" "${WORKINGDIR}/certs"
-    UpdateTrust "$(GetMode)" "${WORKINGDIR}/certs"
+    fetch_ca_certs "${ROOT_CERT_URL}" "${WORKINGDIR}/certs"
+    update_trust "$(get_mode)" "${WORKINGDIR}/certs"
 
     # Configure the ENV so the awscli sees the updated certs
     export AWS_CA_BUNDLE=/etc/pki/tls/certs/ca-bundle.crt
