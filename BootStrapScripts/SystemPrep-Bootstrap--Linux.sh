@@ -149,16 +149,11 @@ update_trust() {
     UPDATE_CERT_DIR="${2}"
 
     if [[ "6.5" == "${MODE}" ]]; then
-        # Make sure the cert dir exists
         cert_dir="/etc/pki/ca-trust/source/anchors"
-        install -d -m 0755 -o root -g root "${cert_dir}"
-
         echo "Copying certs to $cert_dir..."
         (cd "${UPDATE_CERT_DIR}" ; find . -print | cpio -vpud "${cert_dir}" )
-
         echo "Enabling 'update-ca-trust'..."
         update-ca-trust force-enable
-
         echo "Extracting root certificates..."
         update-ca-trust extract && echo "Certs updated successfully." || \
         ( echo "ERROR: Failed to update certs." && exit 1 )
@@ -167,10 +162,8 @@ update_trust() {
         if [ ! -d ${CADIR} ]; then
             install -d -m 0755 ${CADIR}
         fi
-
         echo "Copying certs to ${CADIR}..."
         ( cd "${UPDATE_CERT_DIR}" ; find . -print | cpio -vpud "${CADIR}" )
-
         for ADDCER in $(find ${CADIR} -type f -name "*.cer" -o -name "*.CER")
         do
             echo "Adding \"${ADDCER}\" to system CA trust-list"
