@@ -156,8 +156,8 @@ log "Using bootstrapper to update systemprep content..."
 curl -L --retry 3 --silent --show-error "${BOOTSTRAP_URL}" | \
     sed "{
         s/^ENTENV=.*/ENTENV=\"${SYSTEMPREP_ENV}\"/
-        s/NoReboot=.*/NoReboot=True\"/
-        s/SaltStates=.*/SaltStates=None\"/
+        s/^NOREBOOT=.*/NOREBOOT=\"True\"/
+        s/^SALTSTATES=.*/SALTSTATES=\"None\"/
     }" | \
     bash || \
     die "ERROR: systemprep bootstrapper failed."
