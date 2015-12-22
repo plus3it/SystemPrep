@@ -351,6 +351,7 @@ def main(saltinstallmethod='git',
     customgrainsconf = []
     if entenv == True:
         # TODO: Get environment from EC2 metadata or tags
+        entenv = entenv
     customgrainsconf += 'grains:\n',
     customgrainsconf += '  systemprep:\n',
     customgrainsconf += '    enterprise_environment: {0}\n\n'.format(entenv),
