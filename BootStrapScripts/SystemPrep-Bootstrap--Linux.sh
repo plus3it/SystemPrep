@@ -258,9 +258,8 @@ if [[ ! -d ${WORKINGDIR} ]]; then
     echo "Creating ${WORKINGDIR} directory" 2>&1 | ${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console
     mkdir -p ${WORKINGDIR} 2>&1 | ${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console
 fi
-# This line performs the log magic
+install -b -m 0600 /dev/null ${LOGFILE}
 exec > >(tee "${LOGFILE}" | "${LOGGER}" -i -t "${LOGTAG}" -s 2> /dev/console) 2>&1
-touch ${LOGFILE}
 ln -s -f ${LOGFILE} ${LOGLINK}
 cd ${WORKINGDIR}
 
