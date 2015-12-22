@@ -4,7 +4,7 @@ Param(
     $Environment
     ,
     [Parameter(Mandatory=$true, Position=1, ValueFromPipeline=$false)]
-    [ValidateSet('Workstation','MemberServer','DomainController')]
+    [ValidateSet('None','Workstation','MemberServer','DomainController')]
     [String] $SystemRole
     ,
     [Parameter(Mandatory=$false, ValueFromPipeline=$false)]

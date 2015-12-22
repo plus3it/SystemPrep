@@ -8,7 +8,7 @@ Param(
     ,
     [String]$SaltContentUrl = 'https://s3.amazonaws.com/systemprep-content/windows/salt/salt-content.zip'
     ,
-    [ValidateSet('Workstation','MemberServer','DomainController')]
+    [ValidateSet('None','Workstation','MemberServer','DomainController')]
     [String]$AshRole = 'MemberServer'
     ,
     $EntEnv = $false
