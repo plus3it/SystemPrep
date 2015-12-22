@@ -1,22 +1,142 @@
 #!/usr/bin/env bash
 set -e
 
-#User variables
-ENTENV="False"
-SOURCEISS3BUCKET="False"
-AWSREGION="us-east-1"
-AWSCLI_URL="https://s3.amazonaws.com/aws-cli/awscli-bundle.zip"
-ROOT_CERT_URL=""
-SYSTEMPREPMASTERSCRIPTSOURCE="https://s3.amazonaws.com/systemprep/MasterScripts/systemprep-linuxmaster.py"
-SYSTEMPREPPARAMS=( "SaltStates=Highstate"
-                   "SaltContentSource=https://systemprep-content.s3.amazonaws.com/linux/salt/salt-content.zip"
-                   "NoReboot=False"
-                   "EntEnv=${ENTENV}"
-                   "SourceIsS3Bucket=${SOURCEISS3BUCKET}"
-                   "AwsRegion=${AWSREGION}" )
+# Set default option values
+ENTENV="${SYSTEMPREP_ENVIRONMENT:-False}"
+NOREBOOT="${SYSTEMPREP_NOREBOOT:-False}"
+SALTSTATES="${SYSTEMPREP_SALTSTATES:-Highstate}"
+AWSREGION="${SYSTEMPREP_AWSREGION:-us-east-1}"
+AWSCLI_URL="${SYSTEMPREP_AWSCLI_URL:-https://s3.amazonaws.com/aws-cli/awscli-bundle.zip}"
+ROOT_CERT_URL="${SYSTEMPREP_ROOT_CERT_URL}"
+SYSTEMPREPMASTERSCRIPTSOURCE="${SYSTEMPREP_MASTER_URL:-https://s3.amazonaws.com/systemprep/MasterScripts/systemprep-linuxmaster.py}"
+SALTCONTENTURL="${SYSTEMPREP_SALTCONTENT_URL:-https://systemprep-content.s3.amazonaws.com/linux/salt/salt-content.zip}"
+SOURCEISS3BUCKET="${SYSTEMPREP_USES3UTILS:-False}"
 
-#System variables
-SCRIPTNAME=${0}
+
+print_usage()
+{
+    cat << EOT
+
+  This script is used to bootstrap an instance using the SystemPrep
+  Provisioning Framework.
+  Parameters may be passed as short-form or long-form arguments, or they may
+  be exported as environment variables. Command line arguments take precedence
+  over environment variables.
+
+  Usage: ${__SCRIPTNAME} [options]
+
+  Options:
+  -e|--environment|\$SYSTEMPREP_ENV
+      The environment in which the system is operating. This is parameter
+      accepts a tri-state value:
+        "True":   Attempt to detect the environment automatically. WARNING:
+                  Currently this value is non-functional.
+        "False":  (Default) Do not set an environment. Any content that is
+                  dependent on the environment will not be available to this
+                  system.
+        <string>: Set the environment to the value of "<string>". Note that
+                  uppercase values will be converted to lowercase.
+  -n|--noreboot|\$SYSTEMPREP_NOREBOOT
+      Prevent the system from rebooting upon successful application of the
+      framework.
+  -s|--saltstates|\$SYSTEMPREP_SALTSTATES
+      Specifies the salt states to apply to the system.
+        "None":       Do not apply any salt states.
+        "Highstate":  Apply the salt highstate.
+        <string>:     Comma-separated string of states to apply
+  -g|--region|\$SYSTEMPREP_AWSREGION
+      The region hosting the bucket containing the data. Option value is
+      ignored unless '-u|--use-s3-utils' is set.
+        <string>:   Default is "us-east-1".
+  -c|--awscli-url|\$SYSTEMPREP_AWSCLI_URL
+      URL hosting an installable bundle of the AWS CLI utility. If empty, the
+      utility is not installed.
+        <string>:   Default is "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip".
+  -r|--root-cert-url|\$SYSTEMPREP_ROOT_CERT_URL
+      URL hosting Root CA certificates that should be injected into the system
+      cert bundle. If empty, no certs are added.
+        <string>:   Default is "".
+  -m|--systemprep-master-url|\$SYSTEMPREP_MASTER_URL
+      URL hosting the SystemPrep Master Script.
+        <string>:   Default is "https://s3.amazonaws.com/systemprep/MasterScripts/systemprep-linuxmaster.py".
+  -o|--salt-content-url|\$SYSTEMPREP_SALTCONTENT_URL
+      URL hosting an archive zip file of the salt content to apply to the
+      system.
+        <string>:   Default is "https://systemprep-content.s3.amazonaws.com/linux/salt/salt-content.zip".
+  -u|--use-s3-utils|\$SYSTEMPREP_USES3UTILS
+      Use S3 utils (awscli, python boto) instead of http utils (curl, wget,
+      python requests) to download content. Requires '-g|--region'.
+  -h|--help
+      Display this message.
+
+EOT
+
+}
+
+
+# Parse command-line parameters
+SHORTOPTS="e:ns:g:c:r:m:o:uh"
+LONGOPTS=(
+    "environment:,noreboot,saltstates:,region:,awscli-url:,root-cert-url:,"
+    "systemprep-master-url:,salt-content-url:,use-s3-utils,help")
+LONGOPTS_STRING=$(IFS=$''; echo "${LONGOPTS[*]}")
+ARGS=$(getopt \
+    --options "${SHORTOPTS}" \
+    --longoptions "${LONGOPTS_STRING}" \
+    --name "${__SCRIPTNAME}" \
+    -- "$@")
+
+if [ $? -ne 0 ]
+then
+    # Bad arguments.
+    print_usage
+    exit 1
+fi
+
+eval set -- "${ARGS}"
+
+while [ true ]
+do
+    # When adding options, be sure to update SHORTOPTS and LONGOPTS. If the
+    # parameter should be passed to the master script, also update
+    # SYSTEMPREPPARAMS, below, under System Variables.
+    case "${1}" in
+        -e|--environment)
+            shift; ENTENV="${1}" ;;
+        -n|--noreboot)
+            NOREBOOT="True" ;;
+        -s|--saltstates)
+            shift; SALTSTATES="${1}" ;;
+        -g|--region)
+            shift; AWSREGION="${1}" ;;
+        -c|--awscli-url)
+            shift; AWSCLI_URL="${1}" ;;
+        -r|--root-cert-url)
+            shift; ROOT_CERT_URL="${1}" ;;
+        -m|--systemprep-master-url)
+            shift; SYSTEMPREPMASTERSCRIPTSOURCE="${1}" ;;
+        -o|--salt-content-url)
+            shift; SALTCONTENTURL="${1}" ;;
+        -u|--use-s3-utils)
+            SOURCEISS3BUCKET="True" ;;
+        -h|--help)
+            print_usage; exit 0 ;;
+        --)
+            shift; break ;;
+        *)
+            print_usage
+            echo "ERROR: Unhandled option parsing error."
+            exit 1
+            ;;
+    esac
+    shift
+done
+
+
+# System variables
+__SCRIPTPATH=$(readlink -f ${0})
+__SCRIPTDIR=$(dirname ${__SCRIPTPATH})
+__SCRIPTNAME=$(basename ${__SCRIPTPATH})
 LOGGER=$(which logger)
 TIMESTAMP=$(date -u +"%Y%m%d_%H%M_%S")
 LOGDIR=/var/log
@@ -25,33 +145,33 @@ LOGFILE="${LOGDIR}/${LOGTAG}-${TIMESTAMP}.log"
 LOGLINK="${LOGDIR}/${LOGTAG}.log"
 WORKINGDIR=/usr/tmp/"${LOGTAG}"
 CLEANUP=true
+SYSTEMPREPPARAMS=( "SaltStates=${SALTSTATES}"
+                   "SaltContentSource=${SALTCONTENTURL}"
+                   "NoReboot=${NOREBOOT}"
+                   "EntEnv=${ENTENV}"
+                   "SourceIsS3Bucket=${SOURCEISS3BUCKET}"
+                   "AwsRegion=${AWSREGION}" )
 
-# Validate log directory exists
+# Setup logging
 if [[ ! -d ${LOGDIR} ]]; then
   echo "Creating ${LOGDIR} directory." 2>&1 | ${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console
   mkdir -p ${LOGDIR} 2>&1 | ${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console
 fi
-
-# Validate working directory exists
 if [[ ! -d ${WORKINGDIR} ]]; then
   echo "Creating ${WORKINGDIR} directory" 2>&1 | ${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console
   mkdir -p ${WORKINGDIR} 2>&1 | ${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console
 fi
-
-# Establish logging to write to the logfile, syslog, and the console
 exec > >(tee "${LOGFILE}" | "${LOGGER}" -i -t "${LOGTAG}" -s 2> /dev/console) 2>&1
-
-# Create the link to the logfile
 touch ${LOGFILE}
 ln -s -f ${LOGFILE} ${LOGLINK}
-
-# Change to the working directory
 cd ${WORKINGDIR}
 
-# Create the log file and write out the parameters
-echo "Entering SystemPrep script -- ${SCRIPTNAME}"
+
+# Write out the parameters
+echo "Entering SystemPrep script -- ${__SCRIPTNAME}"
 echo "Writing SystemPrep Parameters to log file..."
 for param in "${SYSTEMPREPPARAMS[@]}"; do echo "   ${param}" ; done
+
 
 # Install root certs, if the root cert url is provided
 if [[ -n "${ROOT_CERT_URL}" ]]; then
@@ -274,7 +394,7 @@ fi
 if [[ -n $error_result ]]; then
     echo "ERROR: There was an error executing the SystemPrep Master script!"
     echo "Check the log file at: ${LOGLINK}"
-    echo "Exiting SystemPrep bootstrap script -- ${SCRIPTNAME}"
+    echo "Exiting SystemPrep bootstrap script -- ${__SCRIPTNAME}"
     exit $error_result
 else
     echo "SUCCESS: SystemPrep Master script completed successfully!"
@@ -283,6 +403,6 @@ else
         echo "Deleting the working directory -- ${WORKINGDIR}"
         rm -rf ${WORKINGDIR}
     fi
-    echo "Exiting SystemPrep bootstrap script -- ${SCRIPTNAME}"
+    echo "Exiting SystemPrep bootstrap script -- ${__SCRIPTNAME}"
     exit 0
 fi
