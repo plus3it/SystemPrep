@@ -12,7 +12,6 @@ SYSTEMPREPMASTERSCRIPTSOURCE="${SYSTEMPREP_MASTER_URL:-https://s3.amazonaws.com/
 SALTCONTENTURL="${SYSTEMPREP_SALTCONTENT_URL:-https://systemprep-content.s3.amazonaws.com/linux/salt/salt-content.zip}"
 SOURCEISS3BUCKET="${SYSTEMPREP_USES3UTILS:-False}"
 
-
 print_usage()
 {
     cat << EOT
@@ -73,7 +72,6 @@ EOT
 
 }
 
-
 # Parse command-line parameters
 SHORTOPTS="e:ns:g:c:r:m:o:uh"
 LONGOPTS=(
@@ -86,8 +84,7 @@ ARGS=$(getopt \
     --name "${__SCRIPTNAME}" \
     -- "$@")
 
-if [ $? -ne 0 ]
-then
+if [ $? -ne 0 ]; then
     # Bad arguments.
     print_usage
     exit 1
@@ -95,11 +92,11 @@ fi
 
 eval set -- "${ARGS}"
 
-while [ true ]
-do
-    # When adding options, be sure to update SHORTOPTS and LONGOPTS. If the
-    # parameter should be passed to the master script, also update
-    # SYSTEMPREPPARAMS, below, under System Variables.
+while [ true ]; do
+    # When adding options to the case statement, also update print_usage(),
+    # SHORTOPTS and LONGOPTS. If the option should be passed to the master
+    # script, also update SYSTEMPREPPARAMS, below, under System Variables.
+    # Make sure the final file size is less than 16,384 bytes.
     case "${1}" in
         -e|--environment)
             shift; ENTENV="${1}" ;;
@@ -132,7 +129,6 @@ do
     shift
 done
 
-
 # System variables
 __SCRIPTPATH=$(readlink -f ${0})
 __SCRIPTDIR=$(dirname ${__SCRIPTPATH})
@@ -145,60 +141,55 @@ LOGFILE="${LOGDIR}/${LOGTAG}-${TIMESTAMP}.log"
 LOGLINK="${LOGDIR}/${LOGTAG}.log"
 WORKINGDIR=/usr/tmp/"${LOGTAG}"
 CLEANUP=true
-SYSTEMPREPPARAMS=( "SaltStates=${SALTSTATES}"
-                   "SaltContentSource=${SALTCONTENTURL}"
-                   "NoReboot=${NOREBOOT}"
-                   "EntEnv=${ENTENV}"
-                   "SourceIsS3Bucket=${SOURCEISS3BUCKET}"
-                   "AwsRegion=${AWSREGION}" )
+SYSTEMPREPPARAMS=(
+    "SaltStates=${SALTSTATES}"
+    "SaltContentSource=${SALTCONTENTURL}"
+    "NoReboot=${NOREBOOT}"
+    "EntEnv=${ENTENV}"
+    "SourceIsS3Bucket=${SOURCEISS3BUCKET}"
+    "AwsRegion=${AWSREGION}")
 
 # Setup logging
 if [[ ! -d ${LOGDIR} ]]; then
-  echo "Creating ${LOGDIR} directory." 2>&1 | ${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console
-  mkdir -p ${LOGDIR} 2>&1 | ${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console
+    echo "Creating ${LOGDIR} directory." 2>&1 | ${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console
+    mkdir -p ${LOGDIR} 2>&1 | ${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console
 fi
 if [[ ! -d ${WORKINGDIR} ]]; then
-  echo "Creating ${WORKINGDIR} directory" 2>&1 | ${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console
-  mkdir -p ${WORKINGDIR} 2>&1 | ${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console
+    echo "Creating ${WORKINGDIR} directory" 2>&1 | ${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console
+    mkdir -p ${WORKINGDIR} 2>&1 | ${LOGGER} -i -t "${LOGTAG}" -s 2> /dev/console
 fi
+# This line performs the log magic
 exec > >(tee "${LOGFILE}" | "${LOGGER}" -i -t "${LOGTAG}" -s 2> /dev/console) 2>&1
 touch ${LOGFILE}
 ln -s -f ${LOGFILE} ${LOGLINK}
 cd ${WORKINGDIR}
-
 
 # Write out the parameters
 echo "Entering SystemPrep script -- ${__SCRIPTNAME}"
 echo "Writing SystemPrep Parameters to log file..."
 for param in "${SYSTEMPREPPARAMS[@]}"; do echo "   ${param}" ; done
 
-
 # Install root certs, if the root cert url is provided
 if [[ -n "${ROOT_CERT_URL}" ]]; then
-
     #######################################################
     # Are we EL-compatible and do we have 6.5+ behaviour?
     #######################################################
     GetMode() {
         UPDATETRUST="/usr/bin/update-ca-trust"
         CERTUTIL="/usr/bin/certutil"
-        if [ -x ${UPDATETRUST} ]
-        then
+        if [ -x ${UPDATETRUST} ]; then
             echo "6.5"
-        elif [ -x ${CERTUTIL} ]
-        then
+        elif [ -x ${CERTUTIL} ]; then
             echo "6.0"
         else
             echo "Cannot determine CA update-method. Aborting."
             exit 1
         fi
     }
-
     #########################################################
     # Try to fetch all CA .cer files from our root_cert_url
     #########################################################
     FetchCAs() {
-
         if [ $# -ne 2 ]; then
             echo "FetchCAs requires two parameters."
             echo "  \$1, 'url', is a url hosting the root CA certificates."
@@ -212,8 +203,7 @@ if [[ -n "${ROOT_CERT_URL}" ]]; then
         local TIMESTAMP=$(date -u +"%Y%m%d_%H%M_%S")
 
         # Create a working directory
-        if [ -d "${FETCH_CERT_DIR}" ]
-        then
+        if [ -d "${FETCH_CERT_DIR}" ]; then
             echo "'${FETCH_CERT_DIR}' already exists. Recreating for safety."
             mv "${FETCH_CERT_DIR}" "${FETCH_CERT_DIR}"-"${TIMESTAMP}".bak || \
             ( echo "Couldn't move '${FETCH_CERT_DIR}'. Aborting..." && exit 1 )
@@ -223,8 +213,7 @@ if [[ -n "${ROOT_CERT_URL}" ]]; then
         ( echo "Could not create '${FETCH_CERT_DIR}'. Aborting..." && exit 1 )
 
         # Make sure wget is available
-        if [ ! -x ${WGET} ]
-        then
+        if [ ! -x ${WGET} ]; then
             echo "The wget utility not found. Attempting to install..."
             yum -y install wget || \
             ( echo "Could not install 'wget', which is required to download the certs. Aborting..." && exit 1 )
@@ -235,12 +224,10 @@ if [[ -n "${ROOT_CERT_URL}" ]]; then
         ( echo "Could not download certs via 'wget'. Check the url. Quitting..." && \
           exit 1 )
     }
-
     ######################################
     # Update CA Trust
     ######################################
     UpdateTrust() {
-
         if [ $# -ne 2 ]; then
             echo "UpdateTrust requires two parameters."
             echo "  \$1, 'mode', is either '6.0' or '6.5', as determined by the 'GetMode' function."
@@ -267,8 +254,7 @@ if [[ -n "${ROOT_CERT_URL}" ]]; then
             ( echo "ERROR: Failed to update certs." && exit 1 )
         elif [[ "6.0" == "${MODE}" ]]; then
             CADIR="/etc/pki/IC-CAs"
-            if [ ! -d ${CADIR} ]
-            then
+            if [ ! -d ${CADIR} ]; then
                 install -d -m 0755 ${CADIR}
             fi
 
@@ -294,8 +280,7 @@ if [[ -n "${ROOT_CERT_URL}" ]]; then
     export AWS_CA_BUNDLE=/etc/pki/tls/certs/ca-bundle.crt
 fi
 
-
-# Install the aws cli, if a url to the install bundle is provided
+# Install the aws cli
 AWS="/usr/local/bin/aws"
 if [[ -n "${AWSCLI_URL}" ]]; then
     AWSCLI_FILENAME=$(echo ${AWSCLI_URL} | awk -F'/' '{ print ( $(NF) ) }')
@@ -303,8 +288,7 @@ if [[ -n "${AWSCLI_URL}" ]]; then
     cd ${WORKINGDIR}
     echo "Downloading aws cli -- ${AWSCLI_URL}"
     curl -L -O -s -S ${AWSCLI_URL} || \
-        wget --quiet ${AWSCLI_URL} || \
-            ( echo "Could not download file via 'curl' or 'wget'. Check the url and whether at least one of them is in the path. Quitting..." && exit 1 )
+            ( echo "Could not download file. Check the url and whether 'curl' is in the path. Quitting..." && exit 1 )
     hash unzip 2> /dev/null || \
         yum -y install unzip || \
             ( echo "Could not install unzip, which is required to install the awscli. Quitting..." && exit 1 )
@@ -330,8 +314,7 @@ if [[ "true" = ${SOURCEISS3BUCKET,,} ]]; then
 else
     echo "Downloading master script from web host -- ${SYSTEMPREPMASTERSCRIPTSOURCE}"
     curl -L -O -s -S ${SYSTEMPREPMASTERSCRIPTSOURCE} || \
-        wget --quiet ${SYSTEMPREPMASTERSCRIPTSOURCE} || \
-            ( echo "Could not download file via 'curl' or 'wget'. Check the url and whether at least one of them is in the path. Quitting..." && exit 1 )
+            ( echo "Could not download file. Check the url and whether 'curl' is in the path. Quitting..." && exit 1 )
 fi
 
 # Convert the parameter list to a string
@@ -374,14 +357,12 @@ python ${SCRIPTFULLPATH} ${PARAMSTRING} || \
 if [[ -n "${RSYSLOGFLAG}" || -n "${JOURNALDFLAG}" ]]; then
     echo "Sleeping 50 seconds to let logger catch up with the output of the python script..."
     sleep 50
-    # Restore prior rsyslog config
     if [[ -n "${RSYSLOGFLAG}" ]]; then
         echo "Re-storing previous rsyslog configuration"
         mv -f /etc/rsyslog.conf.bak /etc/rsyslog.conf
         echo "Restarting rsyslog..."
         service rsyslog restart
     fi
-    # Restore prior journald config
     if [[ -n "${JOURNALDFLAG}" ]]; then
         echo "Re-storing previous journald configuration"
         mv -f /etc/systemd/journald.conf.bak /etc/systemd/journald.conf
@@ -399,7 +380,6 @@ if [[ -n $error_result ]]; then
 else
     echo "SUCCESS: SystemPrep Master script completed successfully!"
     if [[ "true" == "${CLEANUP}" ]]; then
-        # Cleanup
         echo "Deleting the working directory -- ${WORKINGDIR}"
         rm -rf ${WORKINGDIR}
     fi
