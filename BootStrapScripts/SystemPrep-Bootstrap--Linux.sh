@@ -150,7 +150,7 @@ update_trust() {
         update-ca-trust extract && echo "Certs updated successfully." || \
         ( echo "ERROR: Failed to update certs." && exit 1 )
     elif [[ "6.0" == "${MODE}" ]]; then
-        CADIR="/etc/pki/IC-CAs"
+        CADIR="/etc/pki/custom-CAs"
         if [ ! -d ${CADIR} ]; then
             install -d -m 0755 ${CADIR}
         fi
