@@ -12,6 +12,19 @@ SYSTEMPREPMASTERSCRIPTSOURCE="${SYSTEMPREP_MASTER_URL:-https://s3.amazonaws.com/
 SALTCONTENTURL="${SYSTEMPREP_SALTCONTENT_URL:-https://systemprep-content.s3.amazonaws.com/linux/salt/salt-content.zip}"
 SOURCEISS3BUCKET="${SYSTEMPREP_USES3UTILS:-False}"
 
+# System variables
+__SCRIPTPATH=$(readlink -f ${0})
+__SCRIPTDIR=$(dirname ${__SCRIPTPATH})
+__SCRIPTNAME=$(basename ${__SCRIPTPATH})
+LOGGER=$(which logger)
+TIMESTAMP=$(date -u +"%Y%m%d_%H%M_%S")
+LOGDIR=/var/log
+LOGTAG=systemprep
+LOGFILE="${LOGDIR}/${LOGTAG}-${TIMESTAMP}.log"
+LOGLINK="${LOGDIR}/${LOGTAG}.log"
+WORKINGDIR=/usr/tmp/"${LOGTAG}"
+CLEANUP=true
+
 print_usage()
 {
     cat << EOT
@@ -170,7 +183,6 @@ update_trust() {
     fi
 }  # --- end of function update_trust  ---
 
-
 # Parse command-line parameters
 SHORTOPTS="e:ns:g:c:r:m:o:uh"
 LONGOPTS=(
@@ -194,7 +206,7 @@ eval set -- "${ARGS}"
 while [ true ]; do
     # When adding options to the case statement, also update print_usage(),
     # SHORTOPTS and LONGOPTS. If the option should be passed to the master
-    # script, also update SYSTEMPREPPARAMS, below, under System Variables.
+    # script, also update SYSTEMPREPPARAMS, below.
     # Make sure the final file size is less than 16,384 bytes.
     case "${1}" in
         -e|--environment)
@@ -228,18 +240,7 @@ while [ true ]; do
     shift
 done
 
-# System variables
-__SCRIPTPATH=$(readlink -f ${0})
-__SCRIPTDIR=$(dirname ${__SCRIPTPATH})
-__SCRIPTNAME=$(basename ${__SCRIPTPATH})
-LOGGER=$(which logger)
-TIMESTAMP=$(date -u +"%Y%m%d_%H%M_%S")
-LOGDIR=/var/log
-LOGTAG=systemprep
-LOGFILE="${LOGDIR}/${LOGTAG}-${TIMESTAMP}.log"
-LOGLINK="${LOGDIR}/${LOGTAG}.log"
-WORKINGDIR=/usr/tmp/"${LOGTAG}"
-CLEANUP=true
+# Setup params to pass to the master script
 SYSTEMPREPPARAMS=(
     "SaltStates=${SALTSTATES}"
     "SaltContentSource=${SALTCONTENTURL}"
