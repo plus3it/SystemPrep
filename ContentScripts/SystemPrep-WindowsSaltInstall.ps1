@@ -331,46 +331,47 @@ $MinionConfContent | foreach -Begin {
 }
 
 # Write custom grains to the salt configuration file
-if ( ($AshRole.tolower() -ne "none") -or ($EntEnv -ne $false) ) {
-    $CustomGrainsContent = @()
-    $CustomGrainsContent += "grains:"
+$CustomGrainsContent = @()
+$CustomGrainsContent += "grains:"
 
-    if ($AshRole.tolower() -ne "none") {
-        log -LogTag ${ScriptName} "Adding the Ash role to a grain in the salt configuration file"
-        $AshRoleCustomGrain = @()
-        $AshRoleCustomGrain += "  ash-windows:"
-        $AshRoleCustomGrain += "    role: ${AshRole}"
+if ($AshRole.tolower() -ne "none") {
+    log -LogTag ${ScriptName} "Adding the Ash role to a grain in the salt configuration file"
+    $AshRoleCustomGrain = @()
+    $AshRoleCustomGrain += "  ash-windows:"
+    $AshRoleCustomGrain += "    role: ${AshRole}"
+}
+if ($EntEnv -eq $true) {
+    # TODO: Get environment from EC2 metadata or tags
+    $EntEnv = 'true'
+} elseif ($EntEnv -eq $false) {
+    $EntEnv = 'false'
+}
+log -LogTag ${ScriptName} "Adding the Enterprise Environment to a grain in the salt configuration file"
+$SystemprepCustomGrain = @()
+$SystemprepCustomGrain += "  systemprep:"
+$SystemprepCustomGrain += "    enterprise_environment: $(${EntEnv}.tolower())"
+
+$CustomGrainsContent += $AshRoleCustomGrain
+$CustomGrainsContent += $SystemprepCustomGrain
+$CustomGrainsContent += ""
+
+# Regex strings to mark the beginning and end of the custom grains section
+$CustomGrainsBegin = "^#grains:|^grains:"
+$CustomGrainsEnd = "^$"
+
+# Find the custom grains section in the minion conf file and replace it with the new configuration in $CustomGrainsContent
+$MinionConfContent | foreach -Begin {
+    $n=0; $beginindex=$null; $endindex=$null
+} -Process {
+    if ($_ -match "$CustomGrainsBegin") {
+        $beginindex = $n
     }
-    if ($EntEnv -eq $true) {
-        # TODO: Get environment from EC2 metadata or tags
+    if ($beginindex -and -not $endindex -and $_ -match "$CustomGrainsEnd") {
+        $endindex = $n
     }
-    log -LogTag ${ScriptName} "Adding the Enterprise Environment to a grain in the salt configuration file"
-    $EntEnvCustomGrain = @()
-    $EntEnvCustomGrain += "  systemprep:"
-    $EntEnvCustomGrain += "    enterprise_environment: $(${EntEnv}.tolower())"
-
-    $CustomGrainsContent += $AshRoleCustomGrain
-    $CustomGrainsContent += $EntEnvCustomGrain
-    $CustomGrainsContent += ""
-
-    # Regex strings to mark the beginning and end of the custom grains section
-    $CustomGrainsBegin = "^#grains:|^grains:"
-    $CustomGrainsEnd = "^$"
-
-    # Find the custom grains section in the minion conf file and replace it with the new configuration in $CustomGrainsContent
-    $MinionConfContent | foreach -Begin {
-        $n=0; $beginindex=$null; $endindex=$null
-    } -Process {
-        if ($_ -match "$CustomGrainsBegin") {
-            $beginindex = $n
-        }
-        if ($beginindex -and -not $endindex -and $_ -match "$CustomGrainsEnd") {
-            $endindex = $n
-        }
-        $n++
-    } -End {
-        $MinionConfContent = $MinionConfContent[0..($beginindex-1)] + $CustomGrainsContent + $MinionConfContent[($endindex+1)..$MinionConfContent.Length]
-    }
+    $n++
+} -End {
+    $MinionConfContent = $MinionConfContent[0..($beginindex-1)] + $CustomGrainsContent + $MinionConfContent[($endindex+1)..$MinionConfContent.Length]
 }
 
 # Write the updated minion conf file to disk
