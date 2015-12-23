@@ -330,52 +330,22 @@ $MinionConfContent | foreach -Begin {
     $MinionConfContent = $MinionConfContent[0..($beginindex-1)] + $SaltPillarRootConf + $MinionConfContent[($endindex+1)..$MinionConfContent.Length]
 }
 
-# Write custom grains to the salt configuration file
-$CustomGrainsContent = @()
-$CustomGrainsContent += "grains:"
+# Write the updated minion conf file to disk
+$MinionConfContent | Set-Content $MinionConf
 
-if ($AshRole.tolower() -ne "none") {
-    log -LogTag ${ScriptName} "Adding the Ash role to a grain in the salt configuration file"
-    $AshRoleCustomGrain = @()
-    $AshRoleCustomGrain += "  ash-windows:"
-    $AshRoleCustomGrain += "    role: ${AshRole}"
-}
+# Write custom grains
 if ($EntEnv -eq $true) {
     # TODO: Get environment from EC2 metadata or tags
     $EntEnv = 'true'
 } elseif ($EntEnv -eq $false) {
     $EntEnv = 'false'
 }
-log -LogTag ${ScriptName} "Adding the Enterprise Environment to a grain in the salt configuration file"
-$SystemprepCustomGrain = @()
-$SystemprepCustomGrain += "  systemprep:"
-$SystemprepCustomGrain += "    enterprise_environment: $(${EntEnv}.tolower())"
-
-$CustomGrainsContent += $AshRoleCustomGrain
-$CustomGrainsContent += $SystemprepCustomGrain
-$CustomGrainsContent += ""
-
-# Regex strings to mark the beginning and end of the custom grains section
-$CustomGrainsBegin = "^#grains:|^grains:"
-$CustomGrainsEnd = "^$"
-
-# Find the custom grains section in the minion conf file and replace it with the new configuration in $CustomGrainsContent
-$MinionConfContent | foreach -Begin {
-    $n=0; $beginindex=$null; $endindex=$null
-} -Process {
-    if ($_ -match "$CustomGrainsBegin") {
-        $beginindex = $n
-    }
-    if ($beginindex -and -not $endindex -and $_ -match "$CustomGrainsEnd") {
-        $endindex = $n
-    }
-    $n++
-} -End {
-    $MinionConfContent = $MinionConfContent[0..($beginindex-1)] + $CustomGrainsContent + $MinionConfContent[($endindex+1)..$MinionConfContent.Length]
-}
-
-# Write the updated minion conf file to disk
-$MinionConfContent | Set-Content $MinionConf
+log -LogTag ${ScriptName} "Setting systemprep grain..."
+$SystemPrepGrain = "grains.setval systemprep `"{'enterprise_environment':'$(${EntEnv}.tolower())'}`""
+$SystemPrepGrainResult = Start-Process $MinionExe -ArgumentList "--local ${SystemPrepGrain}" -NoNewWindow -PassThru -Wait
+log -LogTag ${ScriptName} "Setting ash-windows grain..."
+$AshWindowsGrain = "grains.setval ash-windows `"{'role':'${AshRole}'}`""
+$AshWindowsGrainResult = Start-Process $MinionExe -ArgumentList "--local ${AshWindowsGrain}" -NoNewWindow -PassThru -Wait
 
 log -LogTag ${ScriptName} "Generating salt winrepo cachefile"
 $GenRepoResult = Start-Process $MinionExe -ArgumentList "--local winrepo.genrepo" -NoNewWindow -PassThru -Wait

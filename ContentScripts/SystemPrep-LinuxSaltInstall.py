@@ -348,14 +348,6 @@ def main(saltinstallmethod='git',
     saltpillarrootconf += '  base:\n',
     saltpillarrootconf += '    - {0}\n\n'.format(saltpillarroot),
 
-    customgrainsconf = []
-    if entenv == True:
-        # TODO: Get environment from EC2 metadata or tags
-        entenv = entenv
-    customgrainsconf += 'grains:\n',
-    customgrainsconf += '  systemprep:\n',
-    customgrainsconf += '    enterprise_environment: {0}\n\n'.format(entenv),
-
     #Backup the minionconf file
     shutil.copyfile(minionconf, '{0}.bak'.format(minionconf))
 
@@ -397,24 +389,6 @@ def main(saltinstallmethod='git',
     minionconflines = minionconflines[0:beginindex] + \
                       saltpillarrootconf + minionconflines[endindex + 1:]
 
-    if customgrainsconf:
-        # Find the custom grains section in the minion conf file
-        customgrainsbegin = '^#grains:|^grains:'
-        customgrainsend = '#$|^$'
-        beginindex = None
-        endindex = None
-        n = 0
-        for line in minionconflines:
-            if re.match(customgrainsbegin, line):
-                beginindex = n
-            if beginindex and not endindex and re.match(customgrainsend, line):
-                endindex = n
-            n += 1
-
-        #Update the custom grains section with the new configuration
-        minionconflines = minionconflines[0:beginindex] + \
-                          customgrainsconf + minionconflines[endindex + 1:]
-
     #Write the new configuration to minionconf
     try:
         with open(minionconf, 'w') as f:
@@ -424,6 +398,15 @@ def main(saltinstallmethod='git',
                           'Exception: {1}'.format(minionconf, exc))
     else:
         print('Saved the new minion configuration successfully.')
+
+    # Write custom grains
+    if entenv == True:
+        # TODO: Get environment from EC2 metadata or tags
+        entenv = entenv
+    print('Setting systemprep grain...')
+    systemprepgrainresult = os.system(
+        '{0} --local grains.setval systemprep \'{{"enterprise_environment":'
+        '"{1}"}}\''.format(saltcall, entenv))
 
     #Check whether we need to run salt-call
     if 'none' == saltstates.lower():
