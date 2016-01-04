@@ -408,7 +408,12 @@ def main(saltinstallmethod='git',
         '{0} --local grains.setval systemprep \'{{"enterprise_environment":'
         '"{1}"}}\''.format(saltcall, entenv))
 
-    #Check whether we need to run salt-call
+    # Sync custom modules
+    print('Syncing custom salt modules...')
+    systemprepsyncresult = os.system(
+        '{0} --local saltutil.sync_all'.format(saltcall))
+
+    # Check whether we need to run salt-call
     if 'none' == saltstates.lower():
         print('No States were specified. Will not apply any salt states.')
     else:
