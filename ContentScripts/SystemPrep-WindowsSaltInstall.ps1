@@ -347,6 +347,9 @@ log -LogTag ${ScriptName} "Setting ash-windows grain..."
 $AshWindowsGrain = "grains.setval ash-windows `"{'role':'${AshRole}'}`""
 $AshWindowsGrainResult = Start-Process $MinionExe -ArgumentList "--local ${AshWindowsGrain}" -NoNewWindow -PassThru -Wait
 
+log -LogTag ${ScriptName} "Syncing custom salt modules"
+$SyncAllResult = Start-Process $MinionExe -ArgumentList "--local saltutil.sync_all" -NoNewWindow -PassThru -Wait
+
 log -LogTag ${ScriptName} "Generating salt winrepo cachefile"
 $GenRepoResult = Start-Process $MinionExe -ArgumentList "--local winrepo.genrepo" -NoNewWindow -PassThru -Wait
 $RefreshDbResult = Start-Process $MinionExe -ArgumentList "--local pkg.refresh_db" -NoNewWindow -PassThru -Wait
