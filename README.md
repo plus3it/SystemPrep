@@ -298,14 +298,14 @@ operations. Optionally, the Salt *Content* script will also:
 - Execute one or more Salt states
 
 (Technically, there's one *Content* script for
-[Linux](SystemContent/Linux/Salt/SystemPrep-LinuxSaltInstall.py) and one for
-[Windows](SystemContent/Windows/Salt/SystemPrep-WindowsSaltInstall.ps1),
+[Linux](ContentScripts/SystemPrep-LinuxSaltInstall.py) and one for
+[Windows](ContentScripts/SystemPrep-WindowsSaltInstall.ps1),
 but they perform the same function for their respective OS.)
 
 **Included Content Scripts:**
 
-- [Linux Salt Install Content script](SystemContent/Linux/Salt/SystemPrep-LinuxSaltInstall.py)
-- [Windows Salt Install Content script](SystemContent/Windows/Salt/SystemPrep-WindowsSaltInstall.ps1)
+- [Linux Salt Install Content script](ContentScripts/SystemPrep-LinuxSaltInstall.py)
+- [Windows Salt Install Content script](ContentScripts/SystemPrep-WindowsSaltInstall.ps1)
 
 
 ## Included Use Cases
