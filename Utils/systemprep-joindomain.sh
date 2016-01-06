@@ -149,7 +149,14 @@ grant_ssh_login()
     local SSHCFG="/etc/ssh/sshd_config"
     if [[ $(grep -q "^AllowGroups" "${SSHCFG}")$? -ne 0 ]]
     then
-        printf '\nAllowGroups\n' >> "${SSHCFG}"
+        if [[ $(grep -q "^Match" "${SSHCFG}")$? -eq 0 ]]
+        then
+            # Insert AllowGroups before the Match section
+            sed -i 's/^Match.*/AllowGroups\n\n&/' "${SSHCFG}"
+        else
+            # Append AllowGroups to the end of the file
+            printf '\nAllowGroups\n' >> "${SSHCFG}"
+        fi
     fi
     if [[ $(grep -q "^AllowGroups.*${GROUP}" ${SSHCFG})$? -eq 0 ]]
     then
