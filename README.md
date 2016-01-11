@@ -368,15 +368,24 @@ SaltWorkingDir = "${SystemPrepWorkingDir}\SystemContent\Windows\Salt"
 SaltInstallerUrl = "https://url/to/salt-installer.zip"
 SaltContentUrl = "https://url/to/salt-content.zip"
 FormulasToInclude = @(
+                    "https://url/to/systemprep-formula-master.zip",
                     "https://url/to/ash-windows-formula-master.zip",
                     "https://url/to/dotnet4-formula-master.zip"
                     "https://url/to/emet-formula-master.zip",
                     "https://url/to/netbanner-formula-master.zip"
+                    "https://url/to/mcafee-agent-windows-formula-master.zip"
+                    "https://url/to/ntp-client-windows-formula-master.zip"
+                    "https://url/to/splunkforwarder-windows-formula-master.zip"
+                    "https://url/to/windows-update-agent-formula-master.zip"
+                    "https://url/to/join-domain-formula-master.zip"
+                    "https://url/to/scc-formula-master.zip"
                    )
 FormulaTerminationStrings = @( "-latest", "-master" )
 AshRole = "MemberServer"
-NetBannerLabel = "Unclass"
+EntEnv = $false
 SaltStates = "Highstate"
+SourceIsS3Bucket = $SourceIsS3Bucket
+AwsRegion = $AwsRegion
 ```
 
 There are several [provided Bootstrap scripts](BootStrapScripts), the
