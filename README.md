@@ -397,10 +397,12 @@ $SystemPrepMasterScriptUrl = 'https://url/to/SystemPrep-WindowsMaster.ps1'
 $SourceIsS3Bucket = $true
 $SystemPrepParams = @{
     AshRole = "MemberServer"
-    NetBannerLabel = "Unclass"
+    EntEnv = $false
     SaltStates = "Highstate"
+    SaltContentUrl = 'https://url/to/salt-content.zip'
     NoReboot = $false
     SourceIsS3Bucket = $SourceIsS3Bucket
+    AwsRegion = "us-east-1"
 }
 ```
 
@@ -428,16 +430,24 @@ other than those listed will revert to the system default:
   - `"DomainController"`
   - `"Workstation"`
 
-- `NetBannerLabel`: Applies the Netbanner settings associated with the
-specified label. See the [Netbanner Formula][7] for details.
-
+- `EntEnv`: Applies enterprise integration according to the environment in which the system is operating. This accepts a tri-state value:
+  - `"True"`:  Attempt to detect the environment automatically. WARNING: Currently this value is non-functional.
+  - `"False"`:  (Default) Do not set an environment. Any content that is dependent on the environment will not be available to this system.
+  - `<string>`:  Set the environment to the value of `"<string>"`. Note that uppercase values will be converted to lowercase.
+				  
 - `SaltStates`: Comma-separated list of Salt states to apply to the system.
 This parameter is passed through to the Salt Install *Content* script.
 `"Highstate"` is a special keyword that applies the [Salt Highstate][13].
 
+- `SaltContentUrl`: URL hosting an archive zip file of the salt content to apply to the system.
+  - `<string>`:  Default is `"https://url/to/salt-content.zip"`.
+	
 - `NoReboot`: Boolean parameter that controls whether the *Master* script will
 reboot the system upon completion of the script. Acceptable values are `$true`
 or `$false`.
+
+- `AwsRegion`: The region hosting the bucket containing the data. Option value is ignored unless `'-u|--use-s3-utils'` is set.
+  - `<string>`:  Default is `"us-east-1"`.
 
 #### Usage Details
 
