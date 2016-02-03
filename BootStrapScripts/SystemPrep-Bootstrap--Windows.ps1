@@ -13,6 +13,8 @@ Param(
     ,
     $EntEnv = $false
     ,
+    $OuPath = $false
+    ,
     [Bool]$SourceIsS3Bucket = $false
     ,
     [String]$AwsRegion = 'us-east-1'
@@ -34,6 +36,7 @@ $ErrorActionPreference = "Stop"
 $SystemPrepParams = @{
     AshRole = "${AshRole}"
     EntEnv = ${EntEnv}
+    OuPath = ${OuPath}
     SaltStates = "${SaltStates}"
     SaltContentUrl = "${SaltContentUrl}"
     NoReboot = ${NoReboot}

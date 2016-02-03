@@ -7,6 +7,9 @@ Param(
     [ValidateSet('None','Workstation','MemberServer','DomainController')]
     [String] $SystemRole
     ,
+    [Parameter(Mandatory=$false, Position=2, ValueFromPipeline=$false)]
+    $OuPath = $false
+    ,
     [Parameter(Mandatory=$false, ValueFromPipeline=$false)]
     [String] $BootstrapUrl = 'https://s3.amazonaws.com/systemprep/BootStrapScripts/SystemPrep-Bootstrap--Windows.ps1'
 )
@@ -81,7 +84,8 @@ END
     # Create hash table of parameters to pass to the bootstrapper
     $BootstrapParams = @{
         AshRole = "${SystemRole}"
-        EntEnv = "${Environment}"
+        EntEnv = ${Environment}
+        OuPath = ${OuPath}
         SaltStates = "None"
         NoReboot = $true
     }

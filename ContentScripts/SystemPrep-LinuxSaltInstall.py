@@ -176,6 +176,7 @@ def main(saltinstallmethod='git',
          salt_results_log=None,
          salt_debug_log=None,
          entenv='false',
+         oupath=None,
          sourceiss3bucket='false',
          **kwargs):
     """
@@ -217,6 +218,11 @@ def main(saltinstallmethod='git',
                    'false' does not set the custom grain
                    'true' TODO: detect the environment from EC2 metadata / tags
                    '*' set the custom grain to the `entenv` parameter value
+    :param oupath: str, controls whether to write a salt custom grain,
+                   join-domain:oupath. If set, and the salt-content.zip
+                   archive contains directives to join the domain, the
+                   join-domain formula will place the computer object in the
+                   OU specified by this grain.
     :param kwargs: dict, catch-all for other params that do not apply to this
                    content script
     :raise SystemError: error raised whenever an issue is encountered
@@ -244,6 +250,11 @@ def main(saltinstallmethod='git',
     print('    formulastoinclude = {0}'.format(formulastoinclude))
     print('    formulaterminationstrings = {0}'.format(formulaterminationstrings))
     print('    saltstates = {0}'.format(saltstates))
+    print('    salt_results_log = {0}'.format(salt_results_log))
+    print('    salt_debug_log = {0}'.format(salt_debug_log))
+    print('    sourceiss3bucket = {0}'.format(sourceiss3bucket))
+    print('    entenv = {0}'.format(entenv))
+    print('    oupath = {0}'.format(oupath))
     for key, value in kwargs.items():
         print('    {0} = {1}'.format(key, value))
 
@@ -403,10 +414,15 @@ def main(saltinstallmethod='git',
     if entenv == True:
         # TODO: Get environment from EC2 metadata or tags
         entenv = entenv
-    print('Setting systemprep grain...')
+    print('Setting grain `systemprep`...')
     systemprepgrainresult = os.system(
         '{0} --local grains.setval systemprep \'{{"enterprise_environment":'
         '"{1}"}}\''.format(saltcall, entenv))
+    if oupath:
+        print('Setting grain `join-domain`...')
+        joindomaingrainresult = os.system(
+            '{0} --local grains.setval "join-domain" \'{{"oupath":'
+            '"{1}"}}\''.format(saltcall, oupath))
 
     # Sync custom modules
     print('Syncing custom salt modules...')

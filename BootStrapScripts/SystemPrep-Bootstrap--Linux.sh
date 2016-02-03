@@ -3,6 +3,7 @@ set -e
 
 # Set default option values
 ENTENV="${SYSTEMPREP_ENVIRONMENT:-False}"
+OUPATH="${SYSTEMPREP_OUPATH}"
 NOREBOOT="${SYSTEMPREP_NOREBOOT:-False}"
 SALTSTATES="${SYSTEMPREP_SALTSTATES:-Highstate}"
 AWSREGION="${SYSTEMPREP_AWSREGION:-us-east-1}"
@@ -48,6 +49,10 @@ print_usage()
                   system.
         <string>: Set the environment to the value of "<string>". Note that
                   uppercase values will be converted to lowercase.
+  -p|--oupath|\$SYSTEMPREP_OUPATH
+      The OU in which to place the instance when joining the domain. If unset
+      or an empty string, the framework will use the value from the enterprise
+      environment pillar. Default is "".
   -n|--noreboot|\$SYSTEMPREP_NOREBOOT
       Prevent the system from rebooting upon successful application of the
       framework.
@@ -177,10 +182,11 @@ update_trust() {
 }  # --- end of function update_trust  ---
 
 # Parse command-line parameters
-SHORTOPTS="e:ns:g:c:r:m:o:uh"
+SHORTOPTS="e:p:ns:g:c:r:m:o:uh"
 LONGOPTS=(
-    "environment:,noreboot,saltstates:,region:,awscli-url:,root-cert-url:,"
-    "systemprep-master-url:,salt-content-url:,use-s3-utils,help")
+    "environment:,oupath:,noreboot,saltstates:,region:,awscli-url:,"
+    "root-cert-url:,systemprep-master-url:,salt-content-url:,use-s3-utils,"
+    "help")
 LONGOPTS_STRING=$(IFS=$''; echo "${LONGOPTS[*]}")
 ARGS=$(getopt \
     --options "${SHORTOPTS}" \
@@ -204,6 +210,8 @@ while [ true ]; do
     case "${1}" in
         -e|--environment)
             shift; ENTENV="${1}" ;;
+        -p|--oupath)
+            shift; OUPATH="${1}" ;;
         -n|--noreboot)
             NOREBOOT="True" ;;
         -s|--saltstates)
@@ -239,6 +247,7 @@ SYSTEMPREPPARAMS=(
     "SaltContentSource=${SALTCONTENTURL}"
     "NoReboot=${NOREBOOT}"
     "EntEnv=${ENTENV}"
+    "OuPath=${OUPATH}"
     "SourceIsS3Bucket=${SOURCEISS3BUCKET}"
     "AwsRegion=${AWSREGION}")
 
@@ -256,10 +265,8 @@ exec > >(tee "${LOGFILE}" | "${LOGGER}" -i -t "${LOGTAG}" -s 2> /dev/console) 2>
 ln -s -f ${LOGFILE} ${LOGLINK}
 cd ${WORKINGDIR}
 
-# Write out the parameters
+# Begin logging
 echo "Entering SystemPrep script -- ${__SCRIPTNAME}"
-echo "Writing SystemPrep Parameters to log file..."
-for param in "${SYSTEMPREPPARAMS[@]}"; do echo "   ${param}" ; done
 
 # Install root certs, if the root cert url is provided
 if [[ -n "${ROOT_CERT_URL}" ]]; then
@@ -339,10 +346,25 @@ if [[ -e /etc/systemd/journald.conf ]]; then
     systemctl restart systemd-journald.service
 fi
 
+# Write out the SystemPrep parameters
+echo "Writing SystemPrep Parameters to log file..."
+echo "   SaltStates=${SALTSTATES}"
+echo "   SaltContentSource=${SALTCONTENTURL}"
+echo "   NoReboot=${NOREBOOT}"
+echo "   OuPath=${OUPATH}"
+echo "   SourceIsS3Bucket=${SOURCEISS3BUCKET}"
+echo "   AwsRegion=${AWSREGION}"
+
 # Execute the master script
 echo "Running the SystemPrep master script -- ${SCRIPTFULLPATH}"
-python ${SCRIPTFULLPATH} ${PARAMSTRING} || \
-    error_result=$?  # Error, capture the exit code
+python ${SCRIPTFULLPATH} \
+    "SaltStates=${SALTSTATES}" \
+    "SaltContentSource=${SALTCONTENTURL}" \
+    "NoReboot=${NOREBOOT}" \
+    "OuPath=${OUPATH}" \
+    "SourceIsS3Bucket=${SOURCEISS3BUCKET}" \
+    "AwsRegion=${AWSREGION}" || \
+    error_result=$?  # If error, capture the exit code
 
 # Restore prior logging config
 if [[ -n "${RSYSLOGFLAG}" || -n "${JOURNALDFLAG}" ]]; then

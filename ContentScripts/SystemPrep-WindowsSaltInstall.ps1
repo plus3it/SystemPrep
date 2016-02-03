@@ -29,6 +29,9 @@ Param(
     $EntEnv = $false
     ,
     [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
+    $OuPath = $false
+    ,
+    [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
     [string] $SaltStates = "None"
     ,
     [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
@@ -69,10 +72,14 @@ Param(
                       #-- "DomainController" -- Ash-windows applies the "DomainController" security baseline
                       #-- "Workstation"      -- Ash-windows applies the "Workstation" security baseline
 
-#$EntEnv = $false #Determines whether to write a salt custom grain, systemprep:enterprise_environment. Parameter key:
+#$EntEnv = $false     #Determines whether to write a salt custom grain, systemprep:enterprise_environment. Parameter key:
                            #-- $false    -- Does not write the custom grain to the system
                            #-- $true     -- TODO: Attempt to detect the enterprise environment from EC2 metadata
                            #-- <string>  -- Sets the grain to the value of $EntEnv
+
+#$OuPath = $false     #Determines whether to write a salt custom grain, join-domain:oupath. If set, and the salt-content.zip
+                      #archive contains directives to join the domain, the join-domain formula will place the computer
+                      #object in the OU specified by this grain.
 
 #$SaltStates = "None" #Comma-separated list of salt states. Listed states will be applied to the system. Parameter key:
                       #-- "None"              -- Special keyword; will not apply any salt states
@@ -194,6 +201,7 @@ log -LogTag ${ScriptName} "FormulasToInclude = ${FormulasToInclude}"
 log -LogTag ${ScriptName} "FormulaTerminationStrings = ${FormulaTerminationStrings}"
 log -LogTag ${ScriptName} "AshRole = ${AshRole}"
 log -LogTag ${ScriptName} "EntEnv = ${EntEnv}"
+log -LogTag ${ScriptName} "OuPath = ${OuPath}"
 log -LogTag ${ScriptName} "SaltStates = ${SaltStates}"
 log -LogTag ${ScriptName} "SaltDebugLog = ${SaltDebugLog}"
 log -LogTag ${ScriptName} "SaltResultsLog = ${SaltResultsLog}"
@@ -346,6 +354,11 @@ $SystemPrepGrainResult = Start-Process $MinionExe -ArgumentList "--local ${Syste
 log -LogTag ${ScriptName} "Setting ash-windows grain..."
 $AshWindowsGrain = "grains.setval ash-windows `"{'role':'${AshRole}'}`""
 $AshWindowsGrainResult = Start-Process $MinionExe -ArgumentList "--local ${AshWindowsGrain}" -NoNewWindow -PassThru -Wait
+if ($OuPath) {
+    log -LogTag ${ScriptName} "Setting join-domain grain..."
+    $JoinDomainGrain = "grains.setval join-domain `"{'join-domain':'${OuPath}'}`""
+    $JoinDomainGrainResult = Start-Process $MinionExe -ArgumentList "--local ${JoinDomainGrain}" -NoNewWindow -PassThru -Wait
+}
 
 log -LogTag ${ScriptName} "Syncing custom salt modules"
 $SyncAllResult = Start-Process $MinionExe -ArgumentList "--local saltutil.sync_all" -NoNewWindow -PassThru -Wait
