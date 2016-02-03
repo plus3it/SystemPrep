@@ -59,6 +59,10 @@ print_usage()
                   uppercase values will be converted to lowercase.
 
   Options:
+  -p|--oupath|\$SYSTEMPREP_OUPATH
+      The OU in which to place the instance when joining the domain. If unset
+      or an empty string, the framework will use the value from the enterprise
+      environment pillar. Default is "".
   -u|--bootstrap-url|\$SYSTEMPREP_BOOTSTRAP_URL
       URL of the systemprep bootstrapper.
   -h|--help
@@ -78,12 +82,13 @@ lower()
 
 # Define default values
 SYSTEMPREP_ENV="${SYSTEMPREP_ENV}"
+OUPATH="${SYSTEMPREP_OUPATH}"
 BOOTSTRAP_URL="${SYSTEMPREP_BOOTSTRAP_URL:-https://systemprep.s3.amazonaws.com/BootStrapScripts/SystemPrep-Bootstrap--Linux.sh}"
 VERBOSE=
 
 # Parse command-line parameters
-SHORTOPTS="hve:u:"
-LONGOPTS="help,verbose,environment:,bootstrap-url:"
+SHORTOPTS="hve:u:p:"
+LONGOPTS="help,verbose,environment:,bootstrap-url:,oupath:"
 ARGS=$(getopt \
     --options "${SHORTOPTS}" \
     --longoptions "${LONGOPTS}" \
@@ -111,6 +116,10 @@ do
         -e|--environment)
             shift
             SYSTEMPREP_ENV=$(lower "${1}")
+            ;;
+        -p|--oupath)
+            shift
+            OUPATH="${1}"
             ;;
         -u|--bootstrap-url)
             shift
@@ -141,6 +150,7 @@ fi
 
 log -v "Printing parameters:"
 log -v "  environment:   ${SYSTEMPREP_ENV}"
+log -v "  oupath: ${OUPATH}"
 log -v "  bootstrap-url: ${BOOTSTRAP_URL}"
 
 
@@ -156,6 +166,7 @@ log "Using bootstrapper to update systemprep content..."
 curl -L --retry 3 --silent --show-error "${BOOTSTRAP_URL}" | \
     sed "{
         s/^ENTENV=.*/ENTENV=\"${SYSTEMPREP_ENV}\"/
+        s/^OUPATH=.*/OUPATH=\"${OUPATH}\"/
         s/^NOREBOOT=.*/NOREBOOT=\"True\"/
         s/^SALTSTATES=.*/SALTSTATES=\"None\"/
     }" | \
