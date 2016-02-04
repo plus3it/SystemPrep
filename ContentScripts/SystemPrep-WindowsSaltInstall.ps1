@@ -356,7 +356,7 @@ $AshWindowsGrain = "grains.setval ash-windows `"{'role':'${AshRole}'}`""
 $AshWindowsGrainResult = Start-Process $MinionExe -ArgumentList "--local ${AshWindowsGrain}" -NoNewWindow -PassThru -Wait
 if ($OuPath) {
     log -LogTag ${ScriptName} "Setting join-domain grain..."
-    $JoinDomainGrain = "grains.setval join-domain `"{'join-domain':'${OuPath}'}`""
+    $JoinDomainGrain = "grains.setval join-domain `"{'oupath':'${OuPath}'}`""
     $JoinDomainGrainResult = Start-Process $MinionExe -ArgumentList "--local ${JoinDomainGrain}" -NoNewWindow -PassThru -Wait
 }
 
