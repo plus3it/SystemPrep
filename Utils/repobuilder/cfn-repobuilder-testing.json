@@ -2,34 +2,34 @@
   "AWSTemplateFormatVersion" : "2010-09-09",
   "Description" : "Stage salt packages and dependencies to S3 bucket, and create yum package metadata and repo files",
   "Parameters" : {
-    "AmiIdAmzn201409" : {
+    "AmiIdAmzn201509" : {
       "Type" : "String",
-      "Default" : "ami-ee6e2a86",
-      "Description" : "Amazon Linux 2014.09 AMI to use, must be HVM (cfn script uses the t2.micro instance type)"
+      "Default" : "ami-60b6c60a",
+      "Description" : "Amazon Linux 2015.09 AMI to use, must be HVM (cfn script uses the t2.micro instance type)"
     },
     "AmiIdAmzn201503" : {
       "Type" : "String",
-      "Default" : "ami-1ecae776",
+      "Default" : "ami-0d4cfd66",
       "Description" : "Amazon Linux 2015.03 AMI to use, must be HVM (cfn script uses the t2.micro instance type)"
     },
     "AmiIdCentos6" : {
       "Type" : "String",
-      "Default" : "ami-cc7366a4",
+      "Default" : "ami-e8e2ab82",
       "Description" : "CentOS6 AMI to use, must be HVM (cfn script uses the t2.micro instance type)"
     },
     "AmiIdCentos7" : {
       "Type" : "String",
-      "Default" : "ami-96a818fe",
+      "Default" : "ami-61bbf104",
       "Description" : "Centos7 AMI to use, must be HVM (cfn script uses the t2.micro instance type)"
     },
     "AmiIdRhel6" : {
       "Type" : "String",
-      "Default" : "ami-b0fed2d8",
+      "Default" : "ami-85f1b8ef",
       "Description" : "RHEL6 AMI to use, must be HVM (cfn script uses the t2.micro instance type)"
     },
     "AmiIdRhel7" : {
       "Type" : "String",
-      "Default" : "ami-12663b7a",
+      "Default" : "ami-2051294a",
       "Description" : "RHEL7 AMI to use, must be HVM (cfn script uses the t2.micro instance type)"
     },
     "BucketName" : {
@@ -66,7 +66,7 @@
     }
   },
   "Resources" : {
-    "Ec2InstanceAmzn201409" : {
+    "Ec2InstanceAmzn201509" : {
       "Type" : "AWS::EC2::Instance",
       "CreationPolicy" : {
         "ResourceSignal" : {
@@ -75,11 +75,11 @@
         }
       },
       "Properties" : {
-        "ImageId" : { "Ref" : "AmiIdAmzn201409" },
+        "ImageId" : { "Ref" : "AmiIdAmzn201509" },
         "Tags" : [
           { 
             "Key" : "Name",
-            "Value" : "stagerpmpackages-amzn-2014.09-testing"
+            "Value" : "stagerpmpackages-amzn-2015.09-testing"
           },
           {
             "Key" : "Application",
@@ -113,7 +113,7 @@
           "hash cfn-signal 2> /dev/null || PATH=\"${PATH}:/usr/local/bin:/opt/aws/bin\"\n",
           "# Send cfn-signal with the result of the bootstrap script\n",
           "cfn-signal -e $result --stack ", { "Ref" : "AWS::StackName" },
-               "         --resource Ec2InstanceAmzn201409\n",
+               "         --resource Ec2InstanceAmzn201509\n",
           "shutdown -h +1 &\n"
         ]]}}
       }
@@ -439,7 +439,7 @@
         }
       },
       "DependsOn" : [ 
-        "Ec2InstanceAmzn201409",
+        "Ec2InstanceAmzn201509",
         "Ec2InstanceAmzn201503",
         "Ec2InstanceCentos6",
         "Ec2InstanceCentos7",
@@ -493,9 +493,9 @@
     }
   },
   "Outputs" : {
-    "InstanceIdAmzn201409" : {
-      "Value" : { "Ref" : "Ec2InstanceAmzn201409" },
-      "Description" : "Instance Id of amzn-2014.09 instance"
+    "InstanceIdAmzn201509" : {
+      "Value" : { "Ref" : "Ec2InstanceAmzn201509" },
+      "Description" : "Instance Id of amzn-2015.09 instance"
     },
     "InstanceIdAmzn201503" : {
       "Value" : { "Ref" : "Ec2InstanceAmzn201503" },
