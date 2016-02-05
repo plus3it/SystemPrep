@@ -141,7 +141,7 @@ $ScriptsToExecute = @(
                 SaltWorkingDir = "${SystemPrepWorkingDir}\Salt"
                 SaltDebugLog = "${SystemPrepLogDir}\salt.staterun.debug.log"
                 SaltResultsLog = "${SystemPrepLogDir}\salt.staterun.results.log"
-                SaltInstallerUrl = "https://s3.amazonaws.com/systemprep-repo/windows/salt/Salt-Minion-2015.8.1-AMD64-Setup.exe"
+                SaltInstallerUrl = "https://s3.amazonaws.com/systemprep-repo/windows/salt/Salt-Minion-2015.8.5-AMD64-Setup.exe"
                 SaltContentUrl = "https://s3.amazonaws.com/systemprep-content/windows/salt/salt-content.zip"
                 FormulasToInclude = @(
                     "https://s3.amazonaws.com/salt-formulas/systemprep-formula-master.zip",
