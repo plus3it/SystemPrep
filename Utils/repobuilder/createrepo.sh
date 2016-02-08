@@ -6,6 +6,7 @@ exec > >(logger -i -t "create_repo" -s 2> /dev/console) 2>&1
 BUCKETNAME=${1:-systemprep-repo}  # What bucket contains the packages?
 
 REPO_DIR="/root/${BUCKETNAME}"  # Where do we want to stage the repo?
+ARCHIVE_DIR="${REPO_DIR}/archives"  # Where are we keeping zip archives?
 PACKAGE_DIR="${REPO_DIR}/linux"  # Where are we staging the packages?
 YUM_FILE_DIR="${PACKAGE_DIR}/yum.repos"  # Where do we want to save the yum repo files?
 BUCKET_URL="s3://${BUCKETNAME}"  # What bucket contains the packages?
@@ -15,52 +16,71 @@ REPOS=(
     "AMZN"
     "CENTOS"
     "RHEL"
-    "EPEL6"
-    "EPEL7"
-    "SALT_EPEL6"
-    "SALT_EPEL7"
+    "SALT_EL6"
+    "SALT_EL7"
 )
 
-REPO_NAME_AMZN="${BUCKETNAME}-amzn-packages"
+REPO_NAME_AMZN="${BUCKETNAME}-amzn"
 REPO_BASEURL_AMZN="${BASE_URL}/amzn/latest/\$basearch/"
 REPO_GPGKEY_AMZN="${BASE_URL}/amzn/latest/\$basearch/RPM-GPG-KEY-amazon-ga"
 
-REPO_NAME_CENTOS="${BUCKETNAME}-centos-packages"
+REPO_NAME_CENTOS="${BUCKETNAME}-centos"
 REPO_BASEURL_CENTOS="${BASE_URL}/centos/\$releasever/\$basearch/"
 REPO_GPGKEY_CENTOS="${BASE_URL}/centos/\$releasever/\$basearch/RPM-GPG-KEY-CentOS-\$releasever"
 
-REPO_NAME_RHEL="${BUCKETNAME}-rhel-packages"
+REPO_NAME_RHEL="${BUCKETNAME}-rhel"
 REPO_BASEURL_RHEL="${BASE_URL}/rhel/\$releasever/\$basearch/"
 REPO_GPGKEY_RHEL="${BASE_URL}/rhel/\$releasever/\$basearch/RPM-GPG-KEY-redhat-release"
 
-REPO_NAME_EPEL6="${BUCKETNAME}-epel6-packages"
-REPO_BASEURL_EPEL6="${BASE_URL}/epel/6/\$basearch/"
-REPO_GPGKEY_EPEL6="${BASE_URL}/epel/6/\$basearch/RPM-GPG-KEY-EPEL-6"
+REPO_NAME_SALT_EL6="${BUCKETNAME}-salt-el6"
+REPO_BASEURL_SALT_EL6="${BASE_URL}/saltstack/salt/el6/\$basearch/"
+REPO_GPGKEY_SALT_EL6="${BASE_URL}/saltstack/salt/el6/\$basearch/SALTSTACK-GPG-KEY.pub"
 
-REPO_NAME_EPEL7="${BUCKETNAME}-epel7-packages"
-REPO_BASEURL_EPEL7="${BASE_URL}/epel/7/\$basearch/"
-REPO_GPGKEY_EPEL7="${BASE_URL}/epel/7/\$basearch/RPM-GPG-KEY-EPEL-7"
+REPO_NAME_SALT_EL7="${BUCKETNAME}-salt-el7"
+REPO_BASEURL_SALT_EL7="${BASE_URL}/saltstack/salt/el7/\$basearch/"
+REPO_GPGKEY_SALT_EL7="${BASE_URL}/saltstack/salt/el7/\$basearch/SALTSTACK-GPG-KEY.pub"
 
-REPO_NAME_SALT_EPEL6="${BUCKETNAME}-salt-epel6-packages"
-REPO_BASEURL_SALT_EPEL6="${BASE_URL}/saltstack/salt/epel-6/\$basearch/"
-REPO_GPGKEY_SALT_EPEL6="${BASE_URL}/saltstack/salt/epel-6/\$basearch/SALTSTACK-GPG-KEY.pub"
-
-REPO_NAME_SALT_EPEL7="${BUCKETNAME}-salt-epel7-packages"
-REPO_BASEURL_SALT_EPEL7="${BASE_URL}/saltstack/salt/epel-7/\$basearch/"
-REPO_GPGKEY_SALT_EPEL7="${BASE_URL}/saltstack/salt/epel-7/\$basearch/SALTSTACK-GPG-KEY.pub"
-
-BUILDERDEPS=(
-    "epel-release"
+BUILDER_DEPS=(
     "yum-utils"
     "createrepo"
 )
 
-EPEL6_RPM="https://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm"
-EPEL7_RPM="https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm"
 PIP_INSTALLER="https://bootstrap.pypa.io/get-pip.py"
+
+# Temporarily suppress rsyslog rate limiting
+if [[ -e /etc/rsyslog.conf ]]
+then
+    echo "Temporarily disabling rsyslog rate limiting"
+    RSYSLOGFLAG=1
+    # Replace or append the $SystemLogRateLimitInterval parameter
+    grep -q '^$SystemLogRateLimitInterval' /etc/rsyslog.conf && \
+        sed -i.bak -e \
+        's/^$SystemLogRateLimitInterval.*/$SystemLogRateLimitInterval 0/' \
+        /etc/rsyslog.conf || \
+        sed -i.bak "$ a\$SystemLogRateLimitInterval 0" /etc/rsyslog.conf
+    echo "Restarting rsyslog..."
+    service rsyslog restart
+fi
+# Temporarily suppress journald rate limiting
+if [[ -e /etc/systemd/journald.conf ]]
+then
+    echo "Temporarily disabling journald rate limiting"
+    JOURNALDFLAG=1
+    # Replace or append the RateLimitInterval parameter
+    grep -q '^RateLimitInterval' /etc/systemd/journald.conf && \
+        sed -i.bak -e \
+        "s/^RateLimitInterval.*/RateLimitInterval=0/" \
+        /etc/rsyslog.conf || \
+        sed -i.bak "$ a\RateLimitInterval=0" /etc/systemd/journald.conf
+    echo "Restarting systemd-journald..."
+    systemctl restart systemd-journald.service
+fi
 
 # Make sure the certificates have been updated
 yum -y upgrade ca-certificates
+
+# Make sure the epel repo is not present
+yum -y remove epel-release
 
 # Manage distribution-specific dependencies
 RELEASE=$(grep "release" /etc/system-release)
@@ -74,12 +94,8 @@ case "${RELEASE}" in
 "CentOS"*7*)
     ;;
 "Red Hat"*6*)
-    curl -O "${EPEL6_RPM}" && \
-    yum install epel-release-6-8.noarch.rpm -y
     ;;
 "Red Hat"*7*)
-    curl -O "${EPEL7_RPM}" && \
-    yum install epel-release-7-5.noarch.rpm -y
     ;;
 *)
     echo "Unsupported OS. Exiting"
@@ -88,8 +104,7 @@ case "${RELEASE}" in
 esac
 
 # Install packages required to create the repo
-BUILDERDEPS_STRING=$( IFS=$' '; echo "${BUILDERDEPS[*]}" )
-yum -y install ${BUILDERDEPS_STRING}
+yum -y install ${BUILDER_DEPS[@]}
 
 # Install pip
 curl ${PIP_INSTALLER} -o /tmp/get-pip.py
@@ -104,7 +119,7 @@ pip install --upgrade s3cmd
 hash s3cmd 2> /dev/null || PATH="${PATH}:/usr/local/bin"  # Make sure s3cmd is in path
 
 # Download the packages from the bucket
-mkdir -p "${PACKAGE_DIR}" "${YUM_FILE_DIR}"
+mkdir -p "${PACKAGE_DIR}" "${YUM_FILE_DIR}" "${ARCHIVE_DIR}"
 s3cmd sync "${BUCKET_URL}" "${REPO_DIR}"
 
 # Get a list of all directories containing a 'packages' directory
@@ -130,7 +145,7 @@ __print_repo_file() {
     printf "gpgcheck=1\n"
     printf "gpgkey=${gpgkey}\n"
     printf "enabled=1\n"
-	printf "skip_if_unavailable=1\n"
+    printf "skip_if_unavailable=1\n"
 }
 
 # Create the yum repo files
@@ -147,13 +162,37 @@ dir_basename="${PWD##*/}"
 datestamp=$(date -u +"%Y%m%d")
 
 # Create a delta zip archive, comparing new files to the last full zip archive
-lastfull=$(find ./archives -type f | grep -i -e "${dir_basename}-full-.*\.zip" | sort -r | head -1)
-zip -r "${lastfull}" . -DF --out "./archives/${dir_basename}-delta-${datestamp}.zip" -x "archives/${dir_basename}-*.zip"
+lastfull=$(find ${ARCHIVE_DIR} -type f | grep -i -e "${dir_basename}-full-.*\.zip" | sort -r | head -1)
+if [[ -n "${lastfull}" ]]
+then
+    zip -r "${lastfull}" . -DF --out "./archives/${dir_basename}-delta-${datestamp}.zip" -x "archives/${dir_basename}-*.zip"
+fi
 
 # Now create a zip with all the current files
 zip -r "./archives/${dir_basename}-full-${datestamp}.zip" . -x "archives/${dir_basename}-*.zip"
 
 # Sync the repo directory back to the S3 bucket
 s3cmd sync "${REPO_DIR}/" "${BUCKET_URL}" --delete-removed
+
+# Restore prior rsyslog config
+if [[ -n "${RSYSLOGFLAG}" ]]
+then
+    # Sleep to let the logger catch up with the output of the python script...
+    sleep 5
+    echo "Re-storing previous rsyslog configuration"
+    mv -f /etc/rsyslog.conf.bak /etc/rsyslog.conf
+    echo "Restarting rsyslog..."
+    service rsyslog restart
+fi
+# Restore prior journald config
+if [[ -n "${JOURNALDFLAG}" ]]
+then
+    # Sleep to let the logger catch up with the output of the python script...
+    sleep 5
+    echo "Re-storing previous journald configuration"
+    mv -f /etc/systemd/journald.conf.bak /etc/systemd/journald.conf
+    echo "Restarting systemd-journald..."
+    systemctl restart systemd-journald.service
+fi
 
 echo "Finished creating the repo!"
