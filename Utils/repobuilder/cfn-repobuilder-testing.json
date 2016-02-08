@@ -34,7 +34,7 @@
     },
     "BucketName" : {
       "Type" : "String",
-      "Default" : "systemprep-repo",
+      "Default" : "systemprep-repo-testing",
       "Description" : "Name of the S3 bucket that will host the systemprep packages and dependencies"
     },
     "InstanceType" : {
@@ -47,7 +47,7 @@
     "IamProfileName" : {
       "Type" : "String",
       "Description" : "Name of the IAM profile/role to assign to the instances.",
-      "Default" : "systemprep-repobuilder"
+      "Default" : "systemprep-repobuilder-testing"
     },
     "SecurityGroupId" : {
       "Type" : "AWS::EC2::SecurityGroup::Id",
