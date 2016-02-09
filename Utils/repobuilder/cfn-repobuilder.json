@@ -378,58 +378,6 @@
         ]]}}
       }
     },
-    "Ec2InstanceStagePipPackages" : {
-      "Type" : "AWS::EC2::Instance",
-      "CreationPolicy" : {
-        "ResourceSignal" : {
-          "Count" : "1",
-          "Timeout" : "PT15M"
-        }
-      },
-      "Properties" : {
-        "ImageId" : { "Ref" : "AmiIdAmzn201503" },
-        "Tags" : [
-          { 
-            "Key" : "Name",
-            "Value" : "stagepippackages"
-          },
-          {
-            "Key" : "Application",
-            "Value" : "systemprep-repobuilder"
-          }
-        ],
-        "InstanceType" : { "Ref" : "InstanceType" },
-        "IamInstanceProfile" : { "Ref" : "IamProfileName" },
-        "SecurityGroupIds" : [{ "Ref" : "SecurityGroupId" }],
-        "SubnetId" : { "Ref" : "SubnetId" },
-        "KeyName" : { "Ref" : "KeyName" },
-        "BlockDeviceMappings" : [
-          {
-            "DeviceName" : "/dev/xvda",
-            "Ebs" : { 
-                "VolumeType" : "gp2",
-                "DeleteOnTermination" : "true"
-            } 
-          }
-        ],
-        "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
-          "#!/bin/bash -v\n",
-          "curl https://raw.githubusercontent.com/plus3it/SystemPrep/master/Utils/repobuilder/stagepippackages.sh -o /tmp/bootstrap.sh\n",
-          "bash /tmp/bootstrap.sh ", { "Ref" : "BucketName" }, "\n",
-          "result=$?  # Store the exit code of the bootstrap script\n",
-          "echo result = $result\n",
-          "curl https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py\n",
-          "python /tmp/get-pip.py\n",
-          "hash pip 2> /dev/null || PATH=\"${PATH}:/usr/local/bin\"\n",
-          "pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n",
-          "hash cfn-signal 2> /dev/null || PATH=\"${PATH}:/usr/local/bin:/opt/aws/bin\"\n",
-          "# Send cfn-signal with the result of the bootstrap script\n",
-          "cfn-signal -e $result --stack ", { "Ref" : "AWS::StackName" },
-               "         --resource Ec2InstanceStagePipPackages\n",
-          "shutdown -h +1 &\n"
-        ]]}}
-      }
-    },
     "Ec2InstanceCreateRepo" : {
       "Type" : "AWS::EC2::Instance",
       "CreationPolicy" : {
@@ -444,8 +392,7 @@
         "Ec2InstanceCentos6",
         "Ec2InstanceCentos7",
         "Ec2InstanceRhel6",
-        "Ec2InstanceRhel7",
-        "Ec2InstanceStagePipPackages"
+        "Ec2InstanceRhel7"
       ],
       "Properties" : {
         "ImageId" : { "Ref" : "AmiIdAmzn201503" },
@@ -516,10 +463,6 @@
     "InstanceIdRhel7" : {
       "Value" : { "Ref" : "Ec2InstanceRhel7" },
       "Description" : "Instance Id of rhel7 instance"
-    },
-    "InstanceIdStagePipPackages" : {
-      "Value" : { "Ref" : "Ec2InstanceStagePipPackages" },
-      "Description" : "Instance Id of stagepippackages instance"
     },
     "InstanceIdCreateYumRepos" : {
       "Value" : { "Ref" : "Ec2InstanceCreateRepo" },
