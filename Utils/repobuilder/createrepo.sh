@@ -120,7 +120,8 @@ hash s3cmd 2> /dev/null || PATH="${PATH}:/usr/local/bin"  # Make sure s3cmd is i
 
 # Download the packages from the bucket
 mkdir -p "${PACKAGE_DIR}" "${YUM_FILE_DIR}" "${ARCHIVE_DIR}"
-s3cmd sync "${BUCKET_URL}" "${REPO_DIR}"
+s3cmd sync "${BUCKET_URL}/linux/" "${PACKAGE_DIR}/"
+s3cmd sync "${BUCKET_URL}/archives/" "${ARCHIVE_DIR}/"
 
 # Get a list of all directories containing a 'packages' directory
 package_dirs=$(find ${PACKAGE_DIR} -name 'packages' -printf '%h\n' | sort -u)
@@ -162,17 +163,18 @@ dir_basename="${PWD##*/}"
 datestamp=$(date -u +"%Y%m%d")
 
 # Create a delta zip archive, comparing new files to the last full zip archive
-lastfull=$(find ${ARCHIVE_DIR} -type f | grep -i -e "${dir_basename}-full-.*\.zip" | sort -r | head -1)
+lastfull=$(find ${ARCHIVE_DIR} -type f | grep -i -e "${dir_basename}-linux-full-.*\.zip" | sort -r | head -1)
 if [[ -n "${lastfull}" ]]
 then
-    zip -r "${lastfull}" . -DF --out "./archives/${dir_basename}-delta-${datestamp}.zip" -x "archives/${dir_basename}-*.zip"
+    zip -r "${lastfull}" . -DF --out "./archives/${dir_basename}-linux-delta-${datestamp}.zip" -x "archives/${dir_basename}-*.zip"
 fi
 
 # Now create a zip with all the current files
-zip -r "./archives/${dir_basename}-full-${datestamp}.zip" . -x "archives/${dir_basename}-*.zip"
+zip -r "./archives/${dir_basename}-linux-full-${datestamp}.zip" . -x "archives/${dir_basename}-*.zip"
 
 # Sync the repo directory back to the S3 bucket
-s3cmd sync "${REPO_DIR}/" "${BUCKET_URL}" --delete-removed
+s3cmd sync "${PACKAGE_DIR}/" "${BUCKET_URL}/linux/" --delete-removed --delete-after
+s3cmd sync "${ARCHIVE_DIR}/" "${BUCKET_URL}/archives/" --delete-removed --delete-after
 
 # Restore prior rsyslog config
 if [[ -n "${RSYSLOGFLAG}" ]]
