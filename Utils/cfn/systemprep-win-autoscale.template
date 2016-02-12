@@ -1,21 +1,26 @@
 {
     "AWSTemplateFormatVersion" : "2010-09-09",
-    "Description"              : "This template creates an Autoscaling Group and Launch Configuration that deploy Windows 2012 R2 instances with the SystemPrep bootstrapper, which applies the DISA STIG.",
-    "Parameters"               : {
-        "BootstrapURL" : {
+    "Description" : "This template creates an Autoscaling Group and Launch Configuration that deploy Windows 2012 R2 instances with the SystemPrep bootstrapper, which applies the DISA STIG.",
+    "Parameters" :
+    {
+        "BootstrapURL" :
+        {
             "Description" : "URL to the SystemPrep Bootstrapper",
-            "Type"        : "String",
-            "Default"     : "https://s3.amazonaws.com/systemprep/BootStrapScripts/SystemPrep-Bootstrap--Windows.ps1"
+            "Type" : "String",
+            "Default" : "https://s3.amazonaws.com/systemprep/BootStrapScripts/SystemPrep-Bootstrap--Windows.ps1"
         },
-        "KeyPairName" : {
+        "KeyPairName" :
+        {
             "Description" : "Public/private key pairs allow you to securely connect to your instance after it launches",
-            "Type"        : "AWS::EC2::KeyPair::KeyName"
+            "Type" : "AWS::EC2::KeyPair::KeyName"
         },
-        "InstanceType" : {
+        "InstanceType" :
+        {
             "Description" : "Amazon EC2 instance type",
-            "Type"        : "String",
-            "Default"     : "t2.micro",
-            "AllowedValues" : [
+            "Type" : "String",
+            "Default" : "t2.micro",
+            "AllowedValues" :
+            [
                 "t2.micro",
                 "t2.small",
                 "t2.medium",
@@ -25,103 +30,86 @@
                 "m4.xlarge"
             ]
         },
-        "MinSize" : { 
+        "MinSize" :
+        {
             "Description" : "Minimum number of instances in the Autoscaling Group",
-            "Type"        : "Number",
+            "Type" : "Number",
             "Default" : "1"
         },
-        "MaxSize" : { 
+        "MaxSize" :
+        {
             "Description" : "Maximum number of instances in the Autoscaling Group",
-            "Type"        : "Number",
+            "Type" : "Number",
             "Default" : "1"
         },
-        "DesiredCapacity" : { 
+        "DesiredCapacity" :
+        {
             "Description" : "Desired number of instances in the Autoscaling Group",
-            "Type"        : "Number",
+            "Type" : "Number",
             "Default" : "1"
         },
-        "SecurityGroupIds" : {
+        "SecurityGroupIds" :
+        {
             "Description" : "List of security groups to apply to the instance",
-            "Type"        : "List<AWS::EC2::SecurityGroup::Id>"
+            "Type" : "List<AWS::EC2::SecurityGroup::Id>"
         },
-        "SubnetIds" : {
+        "SubnetIds" :
+        {
             "Type" : "List<AWS::EC2::Subnet::Id>",
             "Description" : "List of subnets to associate to the Autoscaling Group"
         }
     },
-    "Mappings" : {
-        "AWSInstanceType2Arch" : {
-            "t2.micro" : {
-                "Arch" : "64"
-            },
-            "t2.small" : {
-                "Arch" : "64"
-            },
-            "t2.medium" : {
-                "Arch" : "64"
-            },
-            "c4.large" : {
-                "Arch" : "64"
-            },
-            "c4.xlarge" : {
-                "Arch" : "64"
-            },
-            "m4.large" : {
-                "Arch" : "64"
-            },
-            "m4.xlarge" : {
-                "Arch" : "64"
-            }
+    "Mappings" :
+    {
+        "AWSInstanceType2Arch" :
+        {
+            "t2.micro" : { "Arch" : "64" },
+            "t2.small" : { "Arch" : "64" },
+            "t2.medium" : { "Arch" : "64" },
+            "c4.large" : { "Arch" : "64" },
+            "c4.xlarge" : { "Arch" : "64" },
+            "m4.large" : { "Arch" : "64" },
+            "m4.xlarge" : { "Arch" : "64" }
         },
-        "AWSRegionArch2AMI" : {
-            "us-east-1" : {
-                "64" : "ami-cd9339a6"
-            },
-            "us-west-2" : {
-                "64" : "ami-4dbcb67d"
-            },
-            "us-west-1" : {
-                "64" : "ami-bf2dd3fb"
-            },
-            "eu-west-1" : {
-                "64" : "ami-1a92cf6d"
-            },
-            "eu-central-1" : {
-                "64" : "ami-86393e9b"
-            },
-            "ap-southeast-1" : {
-                "64" : "ami-12737d40"
-            },
-            "ap-northeast-1" : {
-                "64" : "ami-b4ce74b4"
-            },
-            "ap-southeast-2" : {
-                "64" : "ami-7ddb9847"
-            },
-            "sa-east-1" : {
-                "64" : "ami-89ff7794"
-            }
+        "AWSRegionArch2AMI" :
+        {
+            "us-east-1" : { "64" : "ami-cd9339a6" },
+            "us-west-2" : { "64" : "ami-4dbcb67d" },
+            "us-west-1" : { "64" : "ami-bf2dd3fb" },
+            "eu-west-1" : { "64" : "ami-1a92cf6d" },
+            "eu-central-1" : { "64" : "ami-86393e9b" },
+            "ap-southeast-1" : { "64" : "ami-12737d40" },
+            "ap-northeast-1" : { "64" : "ami-b4ce74b4" },
+            "ap-southeast-2" : { "64" : "ami-7ddb9847" },
+            "sa-east-1" : { "64" : "ami-89ff7794" }
         }
     },
-    "Resources" : {
-        "SystemPrepAutoScalingGroup" : {
+    "Resources" :
+    {
+        "SystemPrepAutoScalingGroup" :
+        {
             "Type" : "AWS::AutoScaling::AutoScalingGroup",
-            "CreationPolicy" : {
-                "ResourceSignal" : {
+            "CreationPolicy" :
+            {
+                "ResourceSignal" :
+                {
                     "Count" : "1",
                     "Timeout" : "PT20M"
                 }
             },
-            "Properties" : {
+            "Properties" :
+            {
                 "VPCZoneIdentifier" : { "Ref" : "SubnetIds" },
                 "LaunchConfigurationName" : { "Ref" : "SystemPrepLaunchConfig" },
                 "MinSize" : { "Ref" : "MinSize" },
                 "MaxSize" : { "Ref" : "MaxSize" },
                 "DesiredCapacity" : { "Ref" : "DesiredCapacity" },
-                "Tags" : [
+                "Tags" :
+                [
                     {
                         "Key" : "Name",
-                        "Value" : { "Fn::Join" : [ "", [
+                        "Value" :
+                        { "Fn::Join" : [ "", [
                             "SystemPrep-Windows-",
                             { "Ref" : "AWS::StackName" }
                         ] ] },
@@ -130,17 +118,22 @@
                 ]
             }
         },
-        "SystemPrepLaunchConfig" : {
+        "SystemPrepLaunchConfig" :
+        {
             "Type" : "AWS::AutoScaling::LaunchConfiguration",
-            "Properties" : {
-                "ImageId" : {
-                    "Fn::FindInMap" : [
+            "Properties" :
+            {
+                "ImageId" :
+                {
+                    "Fn::FindInMap" :
+                    [
                         "AWSRegionArch2AMI",
                         {
                             "Ref" : "AWS::Region"
                         },
                         {
-                            "Fn::FindInMap" : [
+                            "Fn::FindInMap" :
+                            [
                                 "AWSInstanceType2Arch",
                                 {
                                     "Ref" : "InstanceType"
@@ -150,27 +143,34 @@
                         }
                     ]
                 },
-                "InstanceType" : {
+                "InstanceType" :
+                {
                     "Ref" : "InstanceType"
                 },
                 "AssociatePublicIpAddress" : "true",
-                "BlockDeviceMappings" : [
+                "BlockDeviceMappings" :
+                [
                     {
                         "DeviceName" : "/dev/sda1",
-                        "Ebs"        : {
+                        "Ebs" :
+                        {
                             "VolumeType" : "gp2",
                             "DeleteOnTermination" : "true"
                         }
                     }
                 ],
-                "KeyName" : {
+                "KeyName" :
+                {
                     "Ref" : "KeyPairName"
                 },
-                "SecurityGroups" : { 
-                    "Ref" : "SecurityGroupIds" 
+                "SecurityGroups" :
+                {
+                    "Ref" : "SecurityGroupIds"
                 },
-                "UserData" : {
-                    "Fn::Base64" : { "Fn::Join" : [ "", [
+                "UserData" :
+                {
+                    "Fn::Base64" :
+                    { "Fn::Join" : [ "", [
                         "<powershell>", "\n",
 
                         "Invoke-WebRequest -URI \"",
