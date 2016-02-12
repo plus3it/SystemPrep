@@ -1,8 +1,24 @@
 {
     "AWSTemplateFormatVersion" : "2010-09-09",
-    "Description" : "This templates creates an Autoscaling Group and Launch Configuration that deploy RHEL6 instances with the SystemPrep bootstrapper, which applies the DISA STIG.",
+    "Description" : "This templates creates an Autoscaling Group and Launch Configuration that deploy Linux instances with the SystemPrep bootstrapper, which applies the DISA STIG.",
     "Parameters" :
     {
+        "AmiId" :
+        {
+            "Description" : "ID of the AMI to launch",
+            "Type" : "String"
+        },
+        "AmiDistro" :
+        {
+            "Description" : "Linux distro of the AMI",
+            "Type" : "String",
+            "AllowedValues" :
+            [
+                "AmazonLinux",
+                "RedHat",
+                "CentOS"
+            ]
+        },
         "BootstrapURL" :
         {
             "Description" : "URL to the SystemPrep Bootstrapper",
@@ -61,27 +77,11 @@
     },
     "Mappings" :
     {
-        "AWSInstanceType2Arch" :
+        "Distro2RootDevice" :
         {
-            "t2.micro" : { "Arch" : "64" },
-            "t2.small" : { "Arch" : "64" },
-            "t2.medium" : { "Arch" : "64" },
-            "c4.large" : { "Arch" : "64" },
-            "c4.xlarge" : { "Arch" : "64" },
-            "m4.large" : { "Arch" : "64" },
-            "m4.xlarge" : { "Arch" : "64" }
-        },
-        "AWSRegionArch2AMI" :
-        {
-            "us-east-1" : { "64" : "ami-0d28fe66" },
-            "us-west-2" : { "64" : "ami-75f3f145" },
-            "us-west-1" : { "64" : "ami-5b8a781f" },
-            "eu-west-1" : { "64" : "ami-78d29c0f" },
-            "eu-central-1" : { "64" : "ami-8e96ac93" },
-            "ap-southeast-1" : { "64" : "ami-faedeea8" },
-            "ap-northeast-1" : { "64" : "ami-78379d78" },
-            "ap-southeast-2" : { "64" : "ami-7f0d4b45" },
-            "sa-east-1" : { "64" : "ami-d1d35ccc" }
+            "AmazonLinux" : { "DeviceName" : "xvda" },
+            "RedHat" : { "DeviceName" : "sda1" },
+            "CentOS" : { "DeviceName" : "sda1" }
         }
     },
     "Resources" :
@@ -123,35 +123,23 @@
             "Type" : "AWS::AutoScaling::LaunchConfiguration",
             "Properties" :
             {
-                "ImageId" :
-                {
-                    "Fn::FindInMap" :
-                    [
-                        "AWSRegionArch2AMI",
-                        {
-                            "Ref" : "AWS::Region"
-                        },
-                        {
-                            "Fn::FindInMap" :
-                            [
-                                "AWSInstanceType2Arch",
-                                {
-                                    "Ref" : "InstanceType"
-                                },
-                                "Arch"
-                            ]
-                        }
-                    ]
-                },
-                "InstanceType" :
-                {
-                    "Ref" : "InstanceType"
-                },
+                "ImageId" : { "Ref" : "AmiId" },
+                "InstanceType" : { "Ref" : "InstanceType" },
                 "AssociatePublicIpAddress" : "true",
                 "BlockDeviceMappings" :
                 [
                     {
-                        "DeviceName" : "/dev/sda1",
+                        "DeviceName" :
+                        { "Fn::Join" : [ "", [
+                            "/dev/",
+                            { "Fn::FindInMap" :
+                                [
+                                    "Distro2RootDevice",
+                                    { "Ref" : "AmiDistro" },
+                                    "DeviceName"
+                                ]
+                            }
+                        ]]},
                         "Ebs" :
                         {
                             "VolumeType" : "gp2",

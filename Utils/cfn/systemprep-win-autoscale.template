@@ -1,8 +1,13 @@
 {
     "AWSTemplateFormatVersion" : "2010-09-09",
-    "Description" : "This template creates an Autoscaling Group and Launch Configuration that deploy Windows 2012 R2 instances with the SystemPrep bootstrapper, which applies the DISA STIG.",
+    "Description" : "This template creates an Autoscaling Group and Launch Configuration that deploys Windows instances with the SystemPrep bootstrapper, which applies the DISA STIG.",
     "Parameters" :
     {
+        "AmiId" :
+        {
+            "Description" : "ID of the AMI to launch",
+            "Type" : "String"
+        },
         "BootstrapURL" :
         {
             "Description" : "URL to the SystemPrep Bootstrapper",
@@ -123,30 +128,8 @@
             "Type" : "AWS::AutoScaling::LaunchConfiguration",
             "Properties" :
             {
-                "ImageId" :
-                {
-                    "Fn::FindInMap" :
-                    [
-                        "AWSRegionArch2AMI",
-                        {
-                            "Ref" : "AWS::Region"
-                        },
-                        {
-                            "Fn::FindInMap" :
-                            [
-                                "AWSInstanceType2Arch",
-                                {
-                                    "Ref" : "InstanceType"
-                                },
-                                "Arch"
-                            ]
-                        }
-                    ]
-                },
-                "InstanceType" :
-                {
-                    "Ref" : "InstanceType"
-                },
+                "ImageId" : { "Ref" : "AmiId" },
+                "InstanceType" : { "Ref" : "InstanceType" },
                 "AssociatePublicIpAddress" : "true",
                 "BlockDeviceMappings" :
                 [

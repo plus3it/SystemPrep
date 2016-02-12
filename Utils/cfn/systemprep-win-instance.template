@@ -1,8 +1,13 @@
 {
     "AWSTemplateFormatVersion" : "2010-09-09",
-    "Description" : "This template deploys a Windows 2012 R2 instance with the SystemPrep bootstrapper to apply the DISA STIG.",
+    "Description" : "This template deploys a Windows instance with the SystemPrep bootstrapper to apply the DISA STIG.",
     "Parameters" :
     {
+        "AmiId" :
+        {
+            "Description" : "ID of the AMI to launch",
+            "Type" : "String"
+        },
         "BootstrapURL" :
         {
             "Description" : "URL to the SystemPrep Bootstrapper",
@@ -81,30 +86,8 @@
             },
             "Properties" :
             {
-                "ImageId" :
-                {
-                    "Fn::FindInMap" :
-                    [
-                        "AWSRegionArch2AMI",
-                        {
-                            "Ref" : "AWS::Region"
-                        },
-                        {
-                            "Fn::FindInMap" :
-                            [
-                                "AWSInstanceType2Arch",
-                                {
-                                    "Ref" : "InstanceType"
-                                },
-                                "Arch"
-                            ]
-                        }
-                    ]
-                },
-                "InstanceType" :
-                {
-                    "Ref" : "InstanceType"
-                },
+                "ImageId" : { "Ref" : "AmiId" },
+                "InstanceType" : { "Ref" : "InstanceType" },
                 "Tags" :
                 [
                     {
