@@ -1,128 +1,247 @@
 {
     "AWSTemplateFormatVersion" : "2010-09-09",
-    "Description"              : "This templates creates an Autoscaling Group and Launch Configuration that deploy RHEL6 instances with the SystemPrep bootstrapper, which applies the DISA STIG.",
-    "Parameters"               : {
-        "BootstrapURL" : {
-            "Description" : "URL to the SystemPrep Bootstrapper",
-            "Type"        : "String",
-            "Default"     : "https://s3.amazonaws.com/systemprep/BootStrapScripts/SystemPrep-Bootstrap--Linux.sh"
+    "Description" : "This template creates an Autoscaling Group and Launch Configuration that deploy Linux instances with the SystemPrep bootstrapper, which applies the DISA STIG.",
+    "Parameters" :
+    {
+        "AmiId" :
+        {
+            "Description" : "ID of the AMI to launch",
+            "Type" : "String",
+            "AllowedPattern" : "^ami-[0-9a-z]{8}$|^ami-[0-9a-z]{17}$"
         },
-        "KeyPairName" : {
+        "AmiDistro" :
+        {
+            "Description" : "Linux distro of the AMI",
+            "Type" : "String",
+            "AllowedValues" :
+            [
+                "AmazonLinux",
+                "CentOS",
+                "RedHat"
+            ]
+        },
+        "AppScriptParams" :
+        {
+            "Description" : "Parameter string to pass to the application script. This parameter is ignored unless \"AppScriptUrl\" is provided",
+            "Type" : "String"
+        },
+        "AppScriptShell" :
+        {
+            "Description" : "Shell with which to execute the application script. This parameter is ignored unless \"AppScriptUrl\" is provided",
+            "Type" : "String",
+            "Default" : "bash",
+            "AllowedValues" :
+            [
+                "bash",
+                "python"
+            ]
+        },
+        "AppScriptUrl" :
+        {
+            "Description" : "URL to the application script. Leave blank to launch without an application script",
+            "Type" : "String",
+            "Default" : "",
+            "AllowedPattern" : "^$|^http://.*$|^https://.*$"
+        },
+        "KeyPairName" :
+        {
             "Description" : "Public/private key pairs allow you to securely connect to your instance after it launches",
-            "Type"        : "AWS::EC2::KeyPair::KeyName"
+            "Type" : "AWS::EC2::KeyPair::KeyName"
         },
-        "InstanceType" : {
+        "InstanceType" :
+        {
             "Description" : "Amazon EC2 instance type",
-            "Type"        : "String",
-            "Default"     : "t2.micro",
-            "AllowedValues" : [
+            "Type" : "String",
+            "Default" : "t2.micro",
+            "AllowedValues" :
+            [
                 "t2.micro",
                 "t2.small",
                 "t2.medium",
+                "t2.large",
                 "c4.large",
                 "c4.xlarge",
                 "m4.large",
                 "m4.xlarge"
             ]
         },
-        "MinSize" : { 
+        "MinSize" :
+        {
             "Description" : "Minimum number of instances in the Autoscaling Group",
-            "Type"        : "Number",
+            "Type" : "Number",
             "Default" : "1"
         },
-        "MaxSize" : { 
+        "MaxSize" :
+        {
             "Description" : "Maximum number of instances in the Autoscaling Group",
-            "Type"        : "Number",
-            "Default" : "1"
+            "Type" : "Number",
+            "Default" : "2"
         },
-        "DesiredCapacity" : { 
+        "DesiredCapacity" :
+        {
             "Description" : "Desired number of instances in the Autoscaling Group",
-            "Type"        : "Number",
+            "Type" : "Number",
             "Default" : "1"
         },
-        "SecurityGroupIds" : {
-            "Description" : "List of security groups to apply to the instance",
-            "Type"        : "List<AWS::EC2::SecurityGroup::Id>"
+        "NoPublicIp" :
+        {
+            "Description" : "Controls whether to assign the instance a public IP. Recommended to leave at \"true\" _unless_ launching in a public subnet",
+            "Type" : "String",
+            "Default" : "true",
+            "AllowedValues" :
+            [
+                "false",
+                "true"
+            ]
         },
-        "SubnetIds" : {
+        "NoReboot" :
+        {
+            "Description" : "Controls whether to reboot the instance as the last step of cfn-init execution",
+            "Type" : "String",
+            "Default" : "false",
+            "AllowedValues" :
+            [
+                "false",
+                "true"
+            ]
+        },
+        "NoUpdates" :
+        {
+            "Description" : "Controls whether to run yum update during a stack update (on the initial instance launch, SystemPrep _always_ installs updates)",
+            "Type" : "String",
+            "Default" : "false",
+            "AllowedValues" :
+            [
+                "false",
+                "true"
+            ]
+        },
+        "SecurityGroupIds" :
+        {
+            "Description" : "List of security groups to apply to the instance(s)",
+            "Type" : "List<AWS::EC2::SecurityGroup::Id>"
+        },
+        "SubnetIds" :
+        {
             "Type" : "List<AWS::EC2::Subnet::Id>",
             "Description" : "List of subnets to associate to the Autoscaling Group"
-        }
-    },
-    "Mappings" : {
-        "AWSInstanceType2Arch" : {
-            "t2.micro" : {
-                "Arch" : "64"
-            },
-            "t2.small" : {
-                "Arch" : "64"
-            },
-            "t2.medium" : {
-                "Arch" : "64"
-            },
-            "c4.large" : {
-                "Arch" : "64"
-            },
-            "c4.xlarge" : {
-                "Arch" : "64"
-            },
-            "m4.large" : {
-                "Arch" : "64"
-            },
-            "m4.xlarge" : {
-                "Arch" : "64"
-            }
         },
-        "AWSRegionArch2AMI" : {
-            "us-east-1" : {
-                "64" : "ami-0d28fe66"
-            },
-            "us-west-2" : {
-                "64" : "ami-75f3f145"
-            },
-            "us-west-1" : {
-                "64" : "ami-5b8a781f"
-            },
-            "eu-west-1" : {
-                "64" : "ami-78d29c0f"
-            },
-            "eu-central-1" : {
-                "64" : "ami-8e96ac93"
-            },
-            "ap-southeast-1" : {
-                "64" : "ami-faedeea8"
-            },
-            "ap-northeast-1" : {
-                "64" : "ami-78379d78"
-            },
-            "ap-southeast-2" : {
-                "64" : "ami-7f0d4b45"
-            },
-            "sa-east-1" : {
-                "64" : "ami-d1d35ccc"
-            }
+        "SystemPrepBootstrapUrl" :
+        {
+            "Description" : "URL to the SystemPrep Bootstrapper",
+            "Type" : "String",
+            "Default" : "https://s3.amazonaws.com/systemprep/BootStrapScripts/SystemPrep-Bootstrap--Linux.sh",
+            "AllowedPattern" : "^http://.*\\.sh$|^https://.*\\.sh$"
+        },
+        "SystemPrepEnvironment" :
+        {
+            "Description" : "Environment in which the instance is being deployed",
+            "Type" : "String",
+            "Default" : "false",
+            "AllowedValues" :
+            [
+                "false",
+                "dev",
+                "test",
+                "prod"
+            ]
+        },
+        "SystemPrepOuPath" :
+        {
+            "Description" : "DN of the OU to place the instance when joining a domain. If blank and \"SystemPrepEnvironment\" enforces a domain join, the instance will be placed in a default container. Leave blank if not joining a domain, or if \"SystemPrepEnvironment\" is \"false\"",
+            "Type" : "String",
+            "Default" : "",
+            "AllowedPattern" : "^$|^(OU=.+,)+(DC=.+)+$"
+        },
+        "ToggleCfnInitUpdate" :
+        {
+            "Description" : "A/B toggle that forces a change to instance metadata, triggering the cfn-init update sequence",
+            "Type" : "String",
+            "Default" : "A",
+            "AllowedValues" :
+            [
+                "A",
+                "B"
+            ]
+        },
+        "ToggleNewInstances" :
+        {
+            "Description" : "A/B toggle that forces a change to instance userdata, triggering new instances via the Autoscale update policy",
+            "Type" : "String",
+            "Default" : "A",
+            "AllowedValues" :
+            [
+                "A",
+                "B"
+            ]
         }
     },
-    "Resources" : {
-        "SystemPrepAutoScalingGroup" : {
+    "Conditions" :
+    {
+        "ExecuteAppScript" :
+        {
+            "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "AppScriptUrl" }, "" ] } ]
+        },
+        "UseOuPath" :
+        {
+            "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "SystemPrepOuPath" }, "" ] } ]
+        },
+        "InstallUpdates" :
+        {
+            "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "NoUpdates" }, "true" ] } ]
+        },
+        "Reboot" :
+        {
+            "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "NoReboot" }, "true" ] } ]
+        },
+        "AssignPublicIp" :
+        {
+            "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "NoPublicIp" }, "true" ] } ]
+        }
+    },
+    "Mappings" :
+    {
+        "Distro2RootDevice" :
+        {
+            "AmazonLinux" : { "DeviceName" : "xvda" },
+            "RedHat" : { "DeviceName" : "sda1" },
+            "CentOS" : { "DeviceName" : "sda1" }
+        }
+    },
+    "Resources" :
+    {
+        "SystemPrepAutoScalingGroup" :
+        {
             "Type" : "AWS::AutoScaling::AutoScalingGroup",
-            "CreationPolicy" : {
-                "ResourceSignal" : {
-                    "Count" : "1",
-                    "Timeout" : "PT20M"
+            "UpdatePolicy" : {
+                "AutoScalingRollingUpdate" : {
+                    "MinInstancesInService" : "1",
+                    "MaxBatchSize" : "2",
+                    "WaitOnResourceSignals" : "true",
+                    "PauseTime" : "PT30M"
                 }
             },
-            "Properties" : {
+            "CreationPolicy" :
+            {
+                "ResourceSignal" :
+                {
+                    "Count" : { "Ref" : "DesiredCapacity" },
+                    "Timeout" : "PT30M"
+                }
+            },
+            "Properties" :
+            {
                 "VPCZoneIdentifier" : { "Ref" : "SubnetIds" },
                 "LaunchConfigurationName" : { "Ref" : "SystemPrepLaunchConfig" },
                 "MinSize" : { "Ref" : "MinSize" },
                 "MaxSize" : { "Ref" : "MaxSize" },
                 "DesiredCapacity" : { "Ref" : "DesiredCapacity" },
-                "Tags" : [
+                "Tags" :
+                [
                     {
                         "Key" : "Name",
-                        "Value" : { "Fn::Join" : [ "", [
-                            "SystemPrep-Linux-",
+                        "Value" :
+                        { "Fn::Join" : [ "", [
                             { "Ref" : "AWS::StackName" }
                         ] ] },
                         "PropagateAtLaunch" : "true"
@@ -130,76 +249,357 @@
                 ]
             }
         },
-        "SystemPrepLaunchConfig" : {
+        "SystemPrepLaunchConfig" :
+        {
             "Type" : "AWS::AutoScaling::LaunchConfiguration",
-            "Properties" : {
-                "ImageId" : {
-                    "Fn::FindInMap" : [
-                        "AWSRegionArch2AMI",
+            "Metadata" : {
+                "ToggleCfnInitUpdate" : { "Ref" : "ToggleCfnInitUpdate" },
+                "AWS::CloudFormation::Init" :
+                {
+                    "configSets" :
+                    {
+                        "launch" :
+                        [
+                            "setup",
+                            "systemprep-launch",
+                            {
+                                "Fn::If" :
+                                [
+                                    "ExecuteAppScript",
+                                    "make-app",
+                                    { "Ref" : "AWS::NoValue" }
+                                ]
+                            },
+                            "finalize",
+                            {
+                                "Fn::If" :
+                                [
+                                    "Reboot",
+                                    "reboot",
+                                    { "Ref" : "AWS::NoValue" }
+                                ]
+                            }
+                        ],
+                        "update" :
+                        [
+                            "setup",
+                            {
+                                "Fn::If" :
+                                [
+                                    "InstallUpdates",
+                                    "install-updates",
+                                    { "Ref" : "AWS::NoValue" }
+                                ]
+                            },
+                            "systemprep-update",
+                            {
+                                "Fn::If" :
+                                [
+                                    "ExecuteAppScript",
+                                    "make-app",
+                                    { "Ref" : "AWS::NoValue" }
+                                ]
+                            },
+                            "finalize",
+                            {
+                                "Fn::If" :
+                                [
+                                    "Reboot",
+                                    "reboot",
+                                    { "Ref" : "AWS::NoValue" }
+                                ]
+                            }
+                        ]
+                    },
+                    "setup" :
+                    {
+                        "files" :
                         {
-                            "Ref" : "AWS::Region"
+                            "/etc/cfn/cfn-hup.conf" :
+                            {
+                                "content" :
+                                { "Fn::Join" : ["", [
+                                    "[main]\n",
+                                    "stack=", { "Ref" : "AWS::StackId" }, "\n",
+                                    "region=", { "Ref" : "AWS::Region" }, "\n",
+                                    "interval=1", "\n",
+                                    "verbose=true", "\n"
+                                ]]},
+                                "mode"    : "000400",
+                                "owner"   : "root",
+                                "group"   : "root"
+                            },
+                            "/etc/cfn/hooks.d/cfn-auto-reloader.conf" :
+                            {
+                                "content" :
+                                { "Fn::Join" : ["", [
+                                    "[cfn-auto-reloader-hook]\n",
+                                    "triggers=post.update\n",
+                                    "path=Resources.SystemPrepLaunchConfig.Metadata\n",
+                                    "action=/opt/aws/bin/cfn-init -v -c update",
+                                    " --stack ", { "Ref" : "AWS::StackName" },
+                                    " --resource SystemPrepLaunchConfig",
+                                    " --region ", { "Ref" : "AWS::Region" }, "\n",
+                                    "runas=root\n"
+                                ]]},
+                                "mode" : "000400",
+                                "owner" : "root",
+                                "group" : "root"
+                            },
+                            "/etc/cfn/scripts/systemprep-bootstrapper.sh" :
+                            {
+                                "source" : { "Ref" : "SystemPrepBootstrapUrl" },
+                                "mode" : "000700",
+                                "owner" : "root",
+                                "group" : "root"
+                            }
                         },
+                        "services" :
                         {
-                            "Fn::FindInMap" : [
-                                "AWSInstanceType2Arch",
+                            "sysvinit" :
+                            {
+                                "cfn-hup" :
                                 {
-                                    "Ref" : "InstanceType"
-                                },
-                                "Arch"
-                            ]
+                                    "enabled" : "true",
+                                    "ensureRunning" : "true",
+                                    "files" :
+                                    [
+                                        "/etc/cfn/cfn-hup.conf",
+                                        "/etc/cfn/hooks.d/cfn-auto-reloader.conf"
+                                    ]
+                                }
+                            }
                         }
+                    },
+                    "install-updates" :
+                    {
+                        "commands" :
+                        {
+                            "10-install-updates" :
+                            {
+                                "command" : "yum -y update"
+                            }
+                        }
+                    },
+                    "systemprep-launch" :
+                    {
+                        "commands" :
+                        {
+                            "10-systemprep-launch" :
+                            {
+                                "command" :
+                                { "Fn::Join" : [ "", [
+                                    "bash /etc/cfn/scripts/systemprep-bootstrapper.sh",
+                                    " --noreboot",
+                                    " --environment ",
+                                    { "Ref" : "SystemPrepEnvironment" },
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "UseOuPath",
+                                            { "Fn::Join" : [ "", [
+                                                " --oupath \"",
+                                                { "Ref" : "SystemPrepOuPath" },
+                                                "\""
+                                            ]]},
+                                            ""
+                                        ]
+                                    }
+                                ]]}
+                            }
+                        }
+                    },
+                    "systemprep-update" :
+                    {
+                        "commands" :
+                        {
+                            "10-systemprep-update" :
+                            {
+                                "command" :
+                                { "Fn::Join" : [ "", [
+                                    "bash /etc/cfn/scripts/systemprep-bootstrapper.sh",
+                                    " --saltstates None",
+                                    " --noreboot",
+                                    " --environment ",
+                                    { "Ref" : "SystemPrepEnvironment" },
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "UseOuPath",
+                                            { "Fn::Join" : [ "", [
+                                                " --oupath \"",
+                                                { "Ref" : "SystemPrepOuPath" },
+                                                "\""
+                                            ]]},
+                                            ""
+                                        ]
+                                    }
+                                ]]}
+                            }
+                        }
+                    },
+                    "make-app" :
+                    {
+                        "files" :
+                        {
+                            "/etc/cfn/scripts/make-app" :
+                            {
+                                "source" : { "Ref" : "AppScriptUrl" },
+                                "mode" : "000700",
+                                "owner" : "root",
+                                "group" : "root"
+                            }
+                        },
+                        "commands" :
+                        {
+                            "10-make-app" :
+                            {
+                                "command" :
+                                { "Fn::Join" : [ "", [
+                                    { "Ref" : "AppScriptShell" },
+                                    " /etc/cfn/scripts/make-app ",
+                                    { "Ref" : "AppScriptParams" }
+                                ]]}
+                            }
+                        }
+                    },
+                    "finalize" :
+                    {
+                        "commands" :
+                        {
+                            "10-signal-success" :
+                            {
+                                "command" :
+                                { "Fn::Join" : [ "", [
+                                    "/opt/aws/bin/cfn-signal -e 0",
+                                    " --stack ", { "Ref" : "AWS::StackName" },
+                                    " --resource SystemPrepAutoScalingGroup",
+                                    " --region ", { "Ref" : "AWS::Region"}, "\n"
+                                ]]},
+                                "ignoreErrors" : "true"
+                            }
+                        }
+                    },
+                    "reboot" :
+                    {
+                        "commands" :
+                        {
+                            "10-reboot" :
+                            {
+                                "command" : "shutdown -r +1 &"
+                            }
+                        }
+                    }
+                }
+            },
+            "Properties" :
+            {
+                "ImageId" : { "Ref" : "AmiId" },
+                "InstanceType" : { "Ref" : "InstanceType" },
+                "AssociatePublicIpAddress" :
+                {
+                    "Fn::If" :
+                    [
+                        "AssignPublicIp",
+                        "true",
+                        "false"
                     ]
                 },
-                "InstanceType" : {
-                    "Ref" : "InstanceType"
-                },
-                "AssociatePublicIpAddress" : "true",
-                "BlockDeviceMappings" : [
+                "BlockDeviceMappings" :
+                [
                     {
-                        "DeviceName" : "/dev/sda1",
-                        "Ebs"        : {
-							"VolumeType" : "gp2",
+                        "DeviceName" :
+                        { "Fn::Join" : [ "", [
+                            "/dev/",
+                            { "Fn::FindInMap" :
+                                [
+                                    "Distro2RootDevice",
+                                    { "Ref" : "AmiDistro" },
+                                    "DeviceName"
+                                ]
+                            }
+                        ]]},
+                        "Ebs" :
+                        {
+                            "VolumeType" : "gp2",
                             "DeleteOnTermination" : "true"
                         }
                     }
                 ],
-                "KeyName" : {
+                "KeyName" :
+                {
                     "Ref" : "KeyPairName"
                 },
-                "SecurityGroups" : { 
-                    "Ref" : "SecurityGroupIds" 
+                "SecurityGroups" :
+                {
+                    "Ref" : "SecurityGroupIds"
                 },
-                "UserData" : {
-                    "Fn::Base64" : { "Fn::Join" : [ "", [
-                        "#!/bin/bash -x\n",
+                "UserData" :
+                {
+                    "Fn::Base64" :
+                    { "Fn::Join" : [ "", [
+                        "#!/bin/bash -xe\n\n",
 
+                        "# CFN LaunchConfig Update Toggle: ",
+                        { "Ref" : "ToggleNewInstances" },
+                        "\n\n",
+
+                        "# Get pip\n",
                         "curl --silent --show-error --retry 5 -L ",
                         "https://bootstrap.pypa.io/get-pip.py",
-                        " | python", "\n",
+                        " | python", "\n\n",
 
+                        "# Add pip to path\n",
                         "hash pip 2> /dev/null || ",
-                        "PATH=\"${PATH}:/usr/local/bin\"", "\n",
+                        "PATH=\"${PATH}:/usr/local/bin\"", "\n\n",
 
-                        "pip install ",
-                        "https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz",
-                        "\n",
+                        "# Upgrade setuptools\n",
+                        "pip install --upgrade setuptools\n\n",
 
+                        "# Fix python urllib3 warnings\n",
+                        "yum -y install gcc python-devel libffi-devel openssl-devel\n",
+                        "pip install pyopenssl ndg-httpsclient pyasn1\n\n",
+
+                        "# Get cfn utils\n",
+                        "pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n\n",
+
+                        "# Remove gcc now that it is no longer needed\n",
+                        "yum -y remove gcc --setopt=clean_requirements_on_remove=1\n\n",
+
+                        "# Fixup cfn utils\n",
+                        "INITDIR=$(find -L /opt/aws/apitools/cfn-init/init -name redhat ",
+                        "2> /dev/null || echo /usr/init/redhat)\n",
+                        "chmod 775 ${INITDIR}/cfn-hup\n",
+                        "ln -f -s ${INITDIR}/cfn-hup /etc/rc.d/init.d/cfn-hup\n",
+                        "chkconfig --add cfn-hup\n",
+                        "chkconfig cfn-hup on\n",
+                        "mkdir -p /opt/aws/bin\n",
+                        "BINDIR=$(find -L /opt/aws/apitools/cfn-init -name bin ",
+                        "2> /dev/null || echo /usr/bin)\n",
+                        "for SCRIPT in cfn-elect-cmd-leader cfn-get-metadata cfn-hup ",
+                        "cfn-init cfn-send-cmd-event cfn-send-cmd-result cfn-signal\n",
+                        "do\n",
+                        "    ln -s ${BINDIR}/${SCRIPT} /opt/aws/bin/${SCRIPT} 2> /dev/null || ",
+                        "    echo Skipped symbolic link, /opt/aws/bin/${SCRIPT} already exists\n",
+                        "done\n\n",
+
+                        "# Add cfn-signal to path\n",
                         "hash cfn-signal 2> /dev/null || ",
                         "PATH=\"${PATH}:/usr/local/bin:/opt/aws/bin\"",
-                        "\n",
+                        "\n\n",
 
-                        "curl --silent --show-error --retry 5 -L ",
-                        {
-                            "Ref" : "BootstrapURL"
-                        },
-                        " | bash", "\n",
-
-                        "result=$?", "\n",
-
-                        "cfn-signal -e $result ",
+                        "# Execute cfn-init\n",
+                        "/opt/aws/bin/cfn-init -v -c launch",
                         " --stack ", { "Ref" : "AWS::StackName" },
-                        " --resource SystemPrepAutoScalingGroup ",
-                        " --region ", { "Ref" : "AWS::Region"}, "\n"
+                        " --resource SystemPrepLaunchConfig",
+                        " --region ", { "Ref" : "AWS::Region" }, " ||",
+                        " ( echo 'ERROR: cfn-init failed! Aborting!';",
+                        " /opt/aws/bin/cfn-signal -e 1",
+                        "  --stack ", { "Ref" : "AWS::StackName" },
+                        "  --resource SystemPrepAutoScalingGroup",
+                        "  --region ", { "Ref" : "AWS::Region"}, ";",
+                        " exit 1",
+                        " )\n\n"
                     ] ] }
                 }
             }

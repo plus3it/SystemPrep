@@ -1,187 +1,492 @@
 {
     "AWSTemplateFormatVersion" : "2010-09-09",
-    "Description"              : "This template deploys a Windows 2012 R2 instance with the SystemPrep bootstrapper to apply the DISA STIG.",
-    "Parameters"               : {
-        "BootstrapURL" : {
-            "Description" : "URL to the SystemPrep Bootstrapper",
-            "Type"        : "String",
-            "Default"     : "https://s3.amazonaws.com/systemprep/BootStrapScripts/SystemPrep-Bootstrap--Windows.ps1"
+    "Description" : "This template deploys a Windows instance with the SystemPrep bootstrapper to apply the DISA STIG.",
+    "Parameters" :
+    {
+        "AmiId" :
+        {
+            "Description" : "ID of the AMI to launch",
+            "Type" : "String",
+            "AllowedPattern" : "^ami-[0-9a-z]{8}$|^ami-[0-9a-z]{17}$"
         },
-        "KeyPairName" : {
+        "AppScriptParams" :
+        {
+            "Description" : "Parameter string to pass to the application script. This parameter is ignored unless \"AppScriptUrl\" is provided",
+            "Type" : "String"
+        },
+        "AppScriptShell" :
+        {
+            "Description" : "Shell with which to execute the application script. This parameter is ignored unless \"AppScriptUrl\" is provided",
+            "Type" : "String",
+            "Default" : "powershell",
+            "AllowedValues" :
+            [
+                "cmd",
+                "powershell"
+            ]
+        },
+        "AppScriptUrl" :
+        {
+            "Description" : "URL to the application script. Leave blank to launch without an application script",
+            "Type" : "String",
+            "Default" : "",
+            "AllowedPattern" : "^$|^http://.*$|^https://.*$"
+        },
+        "KeyPairName" :
+        {
             "Description" : "Public/private key pairs allow you to securely connect to your instance after it launches",
-            "Type"        : "AWS::EC2::KeyPair::KeyName"
+            "Type" : "AWS::EC2::KeyPair::KeyName"
         },
-        "InstanceType" : {
+        "InstanceType" :
+        {
             "Description" : "Amazon EC2 instance type",
-            "Type"        : "String",
-            "Default"     : "t2.micro",
-            "AllowedValues" : [
+            "Type" : "String",
+            "Default" : "t2.micro",
+            "AllowedValues" :
+            [
                 "t2.micro",
                 "t2.small",
                 "t2.medium",
+                "t2.large",
                 "c4.large",
                 "c4.xlarge",
                 "m4.large",
                 "m4.xlarge"
             ]
         },
-        "SecurityGroupIds" : {
+        "NoPublicIp" :
+        {
+            "Description" : "Controls whether to assign the instance a public IP. Recommended to leave at \"true\" _unless_ launching in a public subnet",
+            "Type" : "String",
+            "Default" : "true",
+            "AllowedValues" :
+            [
+                "false",
+                "true"
+            ]
+        },
+        "NoReboot" :
+        {
+            "Description" : "Controls whether to reboot the instance as the last step of cfn-init execution",
+            "Type" : "String",
+            "Default" : "false",
+            "AllowedValues" :
+            [
+                "false",
+                "true"
+            ]
+        },
+        "SecurityGroupIds" :
+        {
             "Description" : "List of security groups to apply to the instance",
-            "Type"        : "List<AWS::EC2::SecurityGroup::Id>"
+            "Type" : "List<AWS::EC2::SecurityGroup::Id>"
         },
-            "SubnetId" : {
-              "Type" : "AWS::EC2::Subnet::Id",
-              "Description" : "ID of the subnet to assign to the instance"
+        "SubnetId" :
+        {
+          "Type" : "AWS::EC2::Subnet::Id",
+          "Description" : "ID of the subnet to assign to the instance"
+        },
+        "SystemPrepBootstrapUrl" :
+        {
+            "Description" : "URL to the SystemPrep Bootstrapper",
+            "Type" : "String",
+            "Default" : "https://s3.amazonaws.com/systemprep/BootStrapScripts/SystemPrep-Bootstrap--Windows.ps1",
+            "AllowedPattern" : "^http://.*\\.ps1$|^https://.*\\.ps1$"
+        },
+        "SystemPrepEnvironment" :
+        {
+            "Description" : "Environment in which the instance is being deployed",
+            "Type" : "String",
+            "Default" : "$false",
+            "AllowedValues" :
+            [
+                "$false",
+                "dev",
+                "test",
+                "prod"
+            ]
+        },
+        "SystemPrepOuPath" :
+        {
+            "Description" : "DN of the OU to place the instance when joining a domain. If blank and \"SystemPrepEnvironment\" enforces a domain join, the instance will be placed in a default container. Leave blank if not joining a domain, or if \"SystemPrepEnvironment\" is \"$false\"",
+            "Type" : "String",
+            "Default" : "",
+            "AllowedPattern" : "^$|^(OU=.+,)+(DC=.+)+$"
+        },
+        "ToggleCfnInitUpdate" :
+        {
+            "Description" : "A/B toggle that forces a change to instance metadata, triggering the cfn-init update sequence",
+            "Type" : "String",
+            "Default" : "A",
+            "AllowedValues" :
+            [
+                "A",
+                "B"
+            ]
         }
     },
-    "Mappings" : {
-        "AWSInstanceType2Arch" : {
-            "t2.micro" : {
-                "Arch" : "64"
-            },
-            "t2.small" : {
-                "Arch" : "64"
-            },
-            "t2.medium" : {
-                "Arch" : "64"
-            },
-            "c4.large" : {
-                "Arch" : "64"
-            },
-            "c4.xlarge" : {
-                "Arch" : "64"
-            },
-            "m4.large" : {
-                "Arch" : "64"
-            },
-            "m4.xlarge" : {
-                "Arch" : "64"
-            }
+    "Conditions" :
+    {
+        "ExecuteAppScript" :
+        {
+            "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "AppScriptUrl" }, "" ] } ]
         },
-        "AWSRegionArch2AMI" : {
-            "us-east-1" : {
-                "64" : "ami-cd9339a6"
+        "UseOuPath" :
+        {
+            "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "SystemPrepOuPath" }, "" ] } ]
+        },
+        "Reboot" :
+        {
+            "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "NoReboot" }, "true" ] } ]
+        },
+        "AssignPublicIp" :
+        {
+            "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "NoPublicIp" }, "true" ] } ]
+        }
+    },
+    "Mappings" :
+    {
+        "ShellCommandMap" :
+        {
+            "powershell" :
+            {
+                "command" : "powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass"
             },
-            "us-west-2" : {
-                "64" : "ami-4dbcb67d"
-            },
-            "us-west-1" : {
-                "64" : "ami-bf2dd3fb"
-            },
-            "eu-west-1" : {
-                "64" : "ami-1a92cf6d"
-            },
-            "eu-central-1" : {
-                "64" : "ami-86393e9b"
-            },
-            "ap-southeast-1" : {
-                "64" : "ami-12737d40"
-            },
-            "ap-northeast-1" : {
-                "64" : "ami-b4ce74b4"
-            },
-            "ap-southeast-2" : {
-                "64" : "ami-7ddb9847"
-            },
-            "sa-east-1" : {
-                "64" : "ami-89ff7794"
+            "cmd" :
+            {
+                "command" : "cmd.exe"
             }
         }
     },
-    "Resources" : {
-        "SystemPrepInstance" : {
+    "Resources" :
+    {
+        "SystemPrepInstance" :
+        {
             "Type" : "AWS::EC2::Instance",
-            "CreationPolicy" : {
-                "ResourceSignal" : {
+            "CreationPolicy" :
+            {
+                "ResourceSignal" :
+                {
                     "Count" : "1",
-                    "Timeout" : "PT20M"
+                    "Timeout" : "PT60M"
                 }
             },
-            "Properties" : {
-                "ImageId" : {
-                    "Fn::FindInMap" : [
-                        "AWSRegionArch2AMI",
+            "Metadata" : {
+                "ToggleCfnInitUpdate" : { "Ref" : "ToggleCfnInitUpdate" },
+                "AWS::CloudFormation::Init" :
+                {
+                    "configSets" :
+                    {
+                        "launch" :
+                        [
+                            "setup",
+                            "systemprep-launch",
+                            {
+                                "Fn::If" :
+                                [
+                                    "ExecuteAppScript",
+                                    "make-app",
+                                    { "Ref" : "AWS::NoValue" }
+                                ]
+                            },
+                            {
+                                "Fn::If" :
+                                [
+                                    "Reboot",
+                                    "reboot",
+                                    { "Ref" : "AWS::NoValue" }
+                                ]
+                            },
+                            "finalize"
+                        ],
+                        "update" :
+                        [
+                            "setup",
+                            "systemprep-update",
+                            {
+                                "Fn::If" :
+                                [
+                                    "ExecuteAppScript",
+                                    "make-app",
+                                    { "Ref" : "AWS::NoValue" }
+                                ]
+                            },
+                            {
+                                "Fn::If" :
+                                [
+                                    "Reboot",
+                                    "reboot",
+                                    { "Ref" : "AWS::NoValue" }
+                                ]
+                            },
+                            "finalize"
+                        ]
+                    },
+                    "setup" :
+                    {
+                        "files" :
                         {
-                            "Ref" : "AWS::Region"
+                            "c:\\cfn\\cfn-hup.conf" :
+                            {
+                                "content" :
+                                { "Fn::Join" : ["", [
+                                    "[main]\n",
+                                    "stack=", { "Ref" : "AWS::StackId" }, "\n",
+                                    "region=", { "Ref" : "AWS::Region" }, "\n",
+                                    "interval=1", "\n",
+                                    "verbose=true", "\n"
+                                ]]}
+                            },
+                            "c:\\cfn\\hooks.d\\cfn-auto-reloader.conf" :
+                            {
+                                "content" :
+                                { "Fn::Join" : ["", [
+                                    "[cfn-auto-reloader-hook]\n",
+                                    "triggers=post.update\n",
+                                    "path=Resources.SystemPrepInstance.Metadata\n",
+                                    "action=cfn-init.exe -v -c update",
+                                    " --stack ", { "Ref" : "AWS::StackName" },
+                                    " --resource SystemPrepInstance",
+                                    " --region ", { "Ref" : "AWS::Region" }, "\n"
+                                ]]}
+                            },
+                            "c:\\cfn\\scripts\\systemprep-bootstrapper.ps1" :
+                            {
+                                "source" : { "Ref" : "SystemPrepBootstrapUrl" }
+                            }
                         },
+                        "services" :
                         {
-                            "Fn::FindInMap" : [
-                                "AWSInstanceType2Arch",
+                            "windows" :
+                            {
+                                "cfn-hup" :
                                 {
-                                    "Ref" : "InstanceType"
-                                },
-                                "Arch"
-                            ]
+                                    "enabled" : "true",
+                                    "ensureRunning" : "true",
+                                    "files" :
+                                    [
+                                        "c:\\cfn\\cfn-hup.conf",
+                                        "c:\\cfn\\hooks.d\\cfn-auto-reloader.conf"
+                                    ]
+                                }
+                            }
                         }
-                    ]
-                },
-                "InstanceType" : {
-                    "Ref" : "InstanceType"
-                },
-                "Tags" : [
+                    },
+                    "systemprep-launch" :
+                    {
+                        "commands" :
+                        {
+                            "10-systemprep-launch" :
+                            {
+                                "command" :
+                                { "Fn::Join" : [ "", [
+                                    { "Fn::FindInMap" :
+                                        [
+                                            "ShellCommandMap",
+                                            "powershell",
+                                            "command"
+                                        ]
+                                    },
+                                    " c:\\cfn\\scripts\\systemprep-bootstrapper.ps1",
+                                    " -NoReboot \"$true\"",
+                                    " -EntEnv \"",
+                                    { "Ref" : "SystemPrepEnvironment" },
+                                    "\"",
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "UseOuPath",
+                                            { "Fn::Join" : [ "", [
+                                                " -OuPath \"",
+                                                { "Ref" : "SystemPrepOuPath" },
+                                                "\""
+                                            ]]},
+                                            ""
+                                        ]
+                                    }
+                                ]]},
+                                "waitAfterCompletion" : "0"
+                            }
+                        }
+                    },
+                    "systemprep-update" :
+                    {
+                        "commands" :
+                        {
+                            "10-systemprep-update" :
+                            {
+                                "command" :
+                                { "Fn::Join" : [ "", [
+                                    { "Fn::FindInMap" :
+                                        [
+                                            "ShellCommandMap",
+                                            "powershell",
+                                            "command"
+                                        ]
+                                    },
+                                    " c:\\cfn\\scripts\\systemprep-bootstrapper.ps1",
+                                    " -SaltStates None",
+                                    " -NoReboot \"$true\"",
+                                    " -EntEnv \"",
+                                    { "Ref" : "SystemPrepEnvironment" },
+                                    "\"",
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "UseOuPath",
+                                            { "Fn::Join" : [ "", [
+                                                " -OuPath \"",
+                                                { "Ref" : "SystemPrepOuPath" },
+                                                "\""
+                                            ]]},
+                                            ""
+                                        ]
+                                    }
+                                ]]},
+                                "waitAfterCompletion" : "0"
+                            }
+                        }
+                    },
+                    "make-app" :
+                    {
+                        "files" :
+                        {
+                            "c:\\cfn\\scripts\\make-app" :
+                            {
+                                "source" : { "Ref" : "AppScriptUrl" }
+                            }
+                        },
+                        "commands" :
+                        {
+                            "10-make-app" :
+                            {
+                                "command" :
+                                { "Fn::Join" : [ "", [
+                                    { "Fn::FindInMap" :
+                                        [
+                                            "ShellCommandMap",
+                                            { "Ref" : "AppScriptShell" },
+                                            "command"
+                                        ]
+                                    },
+                                    " c:\\cfn\\scripts\\make-app ",
+                                    { "Ref" : "AppScriptParams" }
+                                ]]},
+                                "waitAfterCompletion" : "0"
+                            }
+                        }
+                    },
+                    "reboot" :
+                    {
+                        "commands" :
+                        {
+                            "10-reboot" :
+                            {
+                                "command" : "powershell.exe \"Restart-Computer -Force -Verbose\"",
+                                "waitAfterCompletion" : "forever"
+                            }
+                        }
+                    },
+                    "finalize" :
+                    {
+                        "commands" :
+                        {
+                            "10-signal-success" :
+                            {
+                                "command" :
+                                { "Fn::Join" : [ "", [
+                                    "cfn-signal.exe -e 0",
+                                    " --stack ", { "Ref" : "AWS::StackName" },
+                                    " --resource SystemPrepInstance",
+                                    " --region ", { "Ref" : "AWS::Region"}, "\n"
+                                ]]},
+                                "ignoreErrors" : "true",
+                                "waitAfterCompletion" : "0"
+                            }
+                        }
+                    }
+                }
+            },
+            "Properties" :
+            {
+                "ImageId" : { "Ref" : "AmiId" },
+                "InstanceType" : { "Ref" : "InstanceType" },
+                "Tags" :
+                [
                     {
                         "Key" : "Name",
-                        "Value" : { "Fn::Join" : [ "", [
-                            "SystemPrep-Windows-",
+                        "Value" :
+                        { "Fn::Join" : [ "", [
                             { "Ref" : "AWS::StackName" }
                         ]]}
                     }
                 ],
-                "BlockDeviceMappings" : [
+                "BlockDeviceMappings" :
+                [
                     {
                         "DeviceName" : "/dev/sda1",
-                        "Ebs"        : {
+                        "Ebs" :
+                        {
                             "VolumeType" : "gp2",
                             "DeleteOnTermination" : "true"
                         }
                     }
                 ],
-                "KeyName" : {
+                "KeyName" :
+                {
                     "Ref" : "KeyPairName"
                 },
-                "SecurityGroupIds" : {
-                    "Ref" : "SecurityGroupIds"
-                },
-                "SubnetId" : {
-                    "Ref" : "SubnetId"
-                },
-                "UserData" : {
-                    "Fn::Base64" : { "Fn::Join" : [ "", [
-                        "<powershell>", "\n",
-
-                        "Invoke-WebRequest -URI \"",
+                "NetworkInterfaces":
+                [
+                    {
+                        "DeviceIndex" : "0",
+                        "AssociatePublicIpAddress" :
                         {
-                            "Ref" : "BootstrapURL"
+                            "Fn::If" :
+                            [
+                                "AssignPublicIp",
+                                "true",
+                                "false"
+                            ]
                         },
-                        "\" -OutFile .\\bootstrap.ps1", "\n",
+                        "GroupSet" : { "Ref": "SecurityGroupIds" },
+                        "SubnetId": { "Ref" : "SubnetId" }
+                    }
+                ],
+                "UserData" :
+                {
+                    "Fn::Base64" :
+                    { "Fn::Join" : [ "", [
+                        "<script>", "\n",
 
-                        "try { ", "\n",
-                        "  .\\bootstrap.ps1", "\n",
-                        "  cfn-signal.exe -e 0 ",
-                        "   --stack ", { "Ref" : "AWS::StackName" },
-                        "   --resource SystemPrepInstance ",
-                        "   --region ", { "Ref" : "AWS::Region" }, "\n",
-                        "}", "\n",
+                        "cfn-init.exe -v -c launch",
+                        " --stack ", { "Ref" : "AWS::StackName" },
+                        " --resource SystemPrepInstance ",
+                        " --region ", { "Ref" : "AWS::Region" }, "\n",
 
-                        "catch { ", "\n",
-                        "  cfn-signal.exe -e 1 ",
-                        "   --stack ", { "Ref" : "AWS::StackName" },
-                        "   --resource SystemPrepInstance ",
-                        "   --region ", { "Ref" : "AWS::Region" }, "\n",
-                        "  throw", "\n",
-                        "}", "\n",
+                        "if %ERRORLEVEL% equ 0 goto success\n\n",
 
-                        "</powershell>"
+                        ":error\n",
+                        "cfn-signal.exe -e 1",
+                        " --stack ", { "Ref" : "AWS::StackName" },
+                        " --resource SystemPrepInstance ",
+                        " --region ", { "Ref" : "AWS::Region" }, "\n",
+                        "echo \"ERROR: cfn-init failed! Aborting!\"", "\n",
+                        "exit /b 1\n\n",
+
+                        ":success\n",
+
+                        "</script>"
                     ] ] }
                 }
             }
         }
     },
-    "Outputs" : {
-        "SystemPrepInstanceId" : {
-            "Value" : {
-                "Ref" : "SystemPrepInstance"
-            },
+    "Outputs" :
+    {
+        "SystemPrepInstanceId" :
+        {
+            "Value" : { "Ref" : "SystemPrepInstance" },
             "Description" : "Instance ID"
         }
     }
