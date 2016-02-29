@@ -200,7 +200,7 @@ and look around.
 
 ### Cloudformation Templates
 
-We also provide some AWS Cloudformation templates that are integrated with the
+We also provide AWS Cloudformation templates that are integrated with the
 SystemPrep framework. Feel free to use them as quick start examples to get a
 feel for the framework, or as reference examples for building your own
 templates.
@@ -213,6 +213,43 @@ templates.
 (Utils/cfn/systemprep-win-instance.template)
 - [Deploy an Autoscaling Group of one or more Windows 2012 R2 instances]
 (Utils/cfn/systemprep-win-autoscale.template)
+
+These CloudFormation templates support a handful of additional parameters
+intended to offer a simple option for application lifecycle management and
+sustainment.
+
+- Use the parameter `SystemPrepEnvironment` to specify the environment in
+which the instance is deploying and take advantage of any custom SystemPrep
+integrations with enterprise services. Leave this parameter at the default
+value of `false` to apply only the common SystemPrep hardening formulas.
+- Use the parameter `SystemPrepOuPath` to specify the full DN of the OU in
+which to place the instance. Used only when the environment specified includes
+a domain join task. If blank and `SystemPrepEnvironment` enforces a domain
+join, the instance will be placed in a default container. Leave blank if not
+joining a domain, or if `SystemPrepEnvironment` is `false`.
+- Three parameters support the ability to execute a script specified by the
+application owner. Use cases for this script include installing an application,
+managing application configuration, updating application versions, or really
+whatever else you can think of: `AppScriptUrl`, `AppScriptShell`, and
+`AppScriptParams`.
+- The templates all use AWS resource metadata and the [CloudFormation
+Init utilities][16] to execute tasks during a stack launch or a stack update.
+  - Use the parameter `ToggleCfnInitUpdate` during a stack update to force a
+  change to metadata, resulting in the execution of the 'update' tasks.
+  - Use the parameter `ToggleNewInstances` (**Autoscale only**) to deploy new
+  instances during a stack update (by changing the userdata, which triggers
+  the UpdatePolicy on the AutoScale group and initiates a RollingUpdate).
+- Control whether the instance reboots after executing the cfn-init tasks
+using the parameter `NoReboot`.
+- Control whether to assign a public IP to the instance(s) using the parameter
+`NoPublicIp`. Recommend leaving the value at the default `true` _unless_
+launching in a public subnet. If launching into a public subnet, then it is
+required to set this to `false` or the instance will not have the necessary
+network connectivity outside the VPC.
+- (**Linux only**) Control whether to install patches with `yum -y update`
+during a stack update with the parameter `NoUpdates`. (**NOTE**: This
+parameter controls _only_ the stack update behaviour. During a stack launch,
+the SystemPrep ash-linux formula _always_ installs patches.)
 
 
 # Messy Details
@@ -525,3 +562,4 @@ via a combination of Microsoft WDS, MDT, and ADK.
 [13]: http://docs.saltstack.com/en/latest/ref/states/highstate.html
 [14]: ../../../dotnet4-formula
 [15]: http://docs.aws.amazon.com/AmazonS3/latest/dev/VirtualHosting.html
+[16]: http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-init.html
