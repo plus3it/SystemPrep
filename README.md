@@ -82,7 +82,8 @@ shell.
     ```
     userdata="https://s3.amazonaws.com/systemprep/BootStrapScripts/SystemPrep-Bootstrap--Linux.sh"
     region="us-east-1"
-    ami="ami-0d28fe66"
+    amipattern="RHEL-6.7_HVM_GA-*-x86_64-1-Hourly2-GP2"
+    ami=$(aws ec2 describe-images --region $region --filters Name="name",Values="$amipattern" --query 'Images[0].ImageId' --out text)
 
     aws ec2 run-instances \
     --image-id $ami \
@@ -100,7 +101,8 @@ or security group, repeat steps 1 through 4 as needed.
     ```
     userdata="https://s3.amazonaws.com/systemprep/BootStrapScripts/SystemPrep-Bootstrap-EC2-Windows.txt"
     region="us-east-1"
-    ami=$(aws ec2 describe-images --region $region --filters Name="name",Values="Windows_Server-2012-R2_RTM-English-64Bit-Base-*" --query 'Images[0].ImageId' --out text)
+    amipattern="Windows_Server-2012-R2_RTM-English-64Bit-Base-*"
+    ami=$(aws ec2 describe-images --region $region --filters Name="name",Values="$amipattern" --query 'Images[0].ImageId' --out text)
 
     aws ec2 run-instances \
     --image-id $ami \
@@ -160,7 +162,8 @@ PowerShell window.
     $userdata_uri="https://s3.amazonaws.com/systemprep/BootStrapScripts/SystemPrep-Bootstrap--Linux.sh"
     $userdata=[System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -URI $userdata_uri).Content)
     $region="us-east-1"
-    $ami="ami-0d28fe66"
+    $amipattern="RHEL-6.7_HVM_GA-*-x86_64-1-Hourly2-GP2"
+    $ami=$((Get-EC2ImageByName -Region $region -Names "$amipattern")[0].ImageId)
 
     New-EC2Instance -Region $region `
     -ImageId $ami `
@@ -178,7 +181,8 @@ or security group, repeat steps 1 through 4 as needed.
     $userdata_uri="https://s3.amazonaws.com/systemprep/BootStrapScripts/SystemPrep-Bootstrap-EC2-Windows.txt"
     $userdata=(Invoke-WebRequest -URI $userdata_uri).Content
     $region="us-east-1"
-    $ami=$((Get-EC2ImageByName -Region $region -Names "Windows_Server-2012-R2_RTM-English-64Bit-Base-*")[0].ImageId)
+    $amipattern="Windows_Server-2012-R2_RTM-English-64Bit-Base-*"
+    $ami=$((Get-EC2ImageByName -Region $region -Names "$amipattern")[0].ImageId)
 
     New-EC2Instance -Region $region `
     -ImageId $ami `
