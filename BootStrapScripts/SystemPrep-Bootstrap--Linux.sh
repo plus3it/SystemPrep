@@ -351,6 +351,7 @@ echo "Writing SystemPrep Parameters to log file..."
 echo "   SaltStates=${SALTSTATES}"
 echo "   SaltContentSource=${SALTCONTENTURL}"
 echo "   NoReboot=${NOREBOOT}"
+echo "   EntEnv=${ENTENV}"
 echo "   OuPath=${OUPATH}"
 echo "   SourceIsS3Bucket=${SOURCEISS3BUCKET}"
 echo "   AwsRegion=${AWSREGION}"
@@ -361,6 +362,7 @@ python ${SCRIPTFULLPATH} \
     "SaltStates=${SALTSTATES}" \
     "SaltContentSource=${SALTCONTENTURL}" \
     "NoReboot=${NOREBOOT}" \
+    "EntEnv=${ENTENV}" \
     "OuPath=${OUPATH}" \
     "SourceIsS3Bucket=${SOURCEISS3BUCKET}" \
     "AwsRegion=${AWSREGION}" || \
