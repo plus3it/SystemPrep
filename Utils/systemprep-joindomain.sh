@@ -205,7 +205,7 @@ revoke_sudo()
     local SUDOFILE="/etc/sudoers.d/group_${GROUP}"
     if [[ -f "${SUDOFILE}" ]]
     then
-        rm -rf "${SUDOFILE}" || return 1
+        rm -f "${SUDOFILE}" || return 1
         log "Changed: revoked sudo access from '${GROUP}'"
     else
         log "No change: '${GROUP}' has no sudo access"
