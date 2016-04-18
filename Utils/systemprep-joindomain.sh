@@ -192,7 +192,7 @@ grant_sudo_root()
     then
         log "No change: '${GROUP}' already has sudo access"
     else
-        printf '%%%s\t\ALL=(root)\tNOPASSWD:ALL\n' "${GROUP}" > "${SUDOFILE}" \
+        printf '%%%s\tALL=(root)\tNOPASSWD:ALL\n' "${GROUP}" > "${SUDOFILE}" \
             || return 1
         log "Changed: granted sudo access to '${GROUP}'"
     fi
