@@ -48,7 +48,7 @@ print_usage()
   Usage: ${__SCRIPTNAME} [required] [options]
 
   Required:
-  -e|--environment|\$SYSTEMPREP_ENV
+  -e|--environment|\$SYSTEMPREP_ENVIRONMENT
       The environment in which the system is operating. This is parameter
       accepts a tri-state value:
         "true":   Attempt to detect the environment automatically. WARNING:
@@ -81,7 +81,7 @@ lower()
 
 
 # Define default values
-SYSTEMPREP_ENV="${SYSTEMPREP_ENV}"
+SYSTEMPREP_ENVIRONMENT="${SYSTEMPREP_ENVIRONMENT}"
 OUPATH="${SYSTEMPREP_OUPATH}"
 BOOTSTRAP_URL="${SYSTEMPREP_BOOTSTRAP_URL:-https://systemprep.s3.amazonaws.com/BootStrapScripts/SystemPrep-Bootstrap--Linux.sh}"
 VERBOSE=
@@ -115,7 +115,7 @@ do
             ;;
         -e|--environment)
             shift
-            SYSTEMPREP_ENV=$(lower "${1}")
+            SYSTEMPREP_ENVIRONMENT=$(lower "${1}")
             ;;
         -p|--oupath)
             shift
@@ -142,14 +142,14 @@ done
 
 
 # Validate parameters
-if [ -z "${SYSTEMPREP_ENV}" ]
+if [ -z "${SYSTEMPREP_ENVIRONMENT}" ]
 then
     print_usage
     die "ERROR: Mandatory parameter (-e|--environment) was not specified."
 fi
 
 log -v "Printing parameters:"
-log -v "  environment:   ${SYSTEMPREP_ENV}"
+log -v "  environment:   ${SYSTEMPREP_ENVIRONMENT}"
 log -v "  oupath: ${OUPATH}"
 log -v "  bootstrap-url: ${BOOTSTRAP_URL}"
 
@@ -165,7 +165,7 @@ fi
 log "Using bootstrapper to update systemprep content..."
 curl -L --retry 3 --silent --show-error "${BOOTSTRAP_URL}" | \
     sed "{
-        s/^ENTENV=.*/ENTENV=\"${SYSTEMPREP_ENV}\"/
+        s/^ENTENV=.*/ENTENV=\"${SYSTEMPREP_ENVIRONMENT}\"/
         s/^OUPATH=.*/OUPATH=\"${OUPATH}\"/
         s/^NOREBOOT=.*/NOREBOOT=\"True\"/
         s/^SALTSTATES=.*/SALTSTATES=\"None\"/
