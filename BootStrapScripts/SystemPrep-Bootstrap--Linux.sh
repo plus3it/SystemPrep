@@ -39,7 +39,7 @@ print_usage()
   Usage: ${__SCRIPTNAME} [options]
 
   Options:
-  -e|--environment|\$SYSTEMPREP_ENV
+  -e|--environment|\$SYSTEMPREP_ENVIRONMENT
       The environment in which the system is operating. This is parameter
       accepts a tri-state value:
         "True":   Attempt to detect the environment automatically. WARNING:
