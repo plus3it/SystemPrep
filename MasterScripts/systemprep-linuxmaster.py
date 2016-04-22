@@ -265,7 +265,13 @@ def main(noreboot='false', **kwargs):
     Master Script that calls content scripts to be deployed when provisioning systems
     """
 
-    scriptname = __file__
+    # NOTE: Using __file__ may freeze if trying to build an executable, e.g. via py2exe.
+    # NOTE: Using __file__ does not work if running from IDLE/interpreter.
+    # NOTE: __file__ may return relative path as opposed to an absolute path, so include os.path.abspath.
+    if '__file__' in dir():
+        scriptname = os.path.abspath(__file__)
+    else:
+        scriptname = os.path.abspath(sys.argv[0])
 
     #Check special parameter types
     noreboot = 'true' == noreboot.lower()
