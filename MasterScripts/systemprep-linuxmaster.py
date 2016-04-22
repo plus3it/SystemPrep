@@ -268,7 +268,7 @@ def main(noreboot='false', **kwargs):
     # NOTE: Using __file__ may freeze if trying to build an executable, e.g. via py2exe.
     # NOTE: Using __file__ does not work if running from IDLE/interpreter.
     # NOTE: __file__ may return relative path as opposed to an absolute path, so include os.path.abspath.
-	scriptname = ''
+    scriptname = ''
     if '__file__' in dir():
         scriptname = os.path.abspath(__file__)
     else:
