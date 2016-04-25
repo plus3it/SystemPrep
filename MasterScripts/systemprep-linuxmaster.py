@@ -164,7 +164,7 @@ Returns a dictionary of OS platform-specific parameters.
         systemdrive = os.environ['SYSTEMDRIVE']
         tempdir = os.environ['TEMP']
         a['pathseparator'] = '\\'
-        a['readyfile'] = '\system-is-ready'.format(systemdrive)
+        a['readyfile'] = '{0}\system-is-ready'.format(systemdrive)
         a['restart'] = '{0}\system32\shutdown.exe/r /t 30 /d p:2:4 /c "SystemPrep complete. Rebooting computer."'.format(systemroot)
     else:
         #TODO: Update `except` logic
