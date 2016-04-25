@@ -260,9 +260,9 @@ def cleanup(workingdir):
     return True
 
 
-def main(noreboot='false', **kwargs):
+def main(noreboot = 'false', **kwargs):
     """
-    Master Script that calls content scripts to be deployed when provisioning systems
+    Master script that calls content scripts to be deployed when provisioning systems
     """
 
     # NOTE: Using __file__ may freeze if trying to build an executable, e.g. via py2exe.
@@ -274,7 +274,7 @@ def main(noreboot='false', **kwargs):
     else:
         scriptname = os.path.abspath(sys.argv[0])
 
-    #Check special parameter types
+    # Check special parameter types
     noreboot = 'true' == noreboot.lower()
     sourceiss3bucket = 'true' == kwargs.get('sourceiss3bucket', 'false').lower()
 
@@ -323,11 +323,20 @@ def main(noreboot='false', **kwargs):
     print('{0} complete!'.format(scriptname))
     print('-' * 80)
 
-
 if "__main__" == __name__:
-    #convert command line parameters of the form `param=value` to a dict
-    kwargs = dict(x.split('=', 1) for x in sys.argv[1:])
-    #Convert parameter keys to lowercase, parameter values are unmodified
-    kwargs = dict((k.lower(), v) for k, v in kwargs.items())
+    # Convert command line parameters of the form `param=value` to a dictionary.
+    # NOTE: Keys are stored in lowercase format.
+    kwargs = {}
+    for x in sys.argv[1:]:
+        if '=' in x:
+            [key, value] = x.split('=', 1)
+            kwargs[key.lower()] = value
+        else:
+            message = 'Encountered a parameter that does not have = in it.'
+            raise SystemError(message)
 
+    # NOTE: We are unpacking kwargs to obtain the noreboot parameter for the main
+    # definition.  The rest are packed back into kwargs.
+    # TODO: This is not necessary and consumes a minor overhead. I would just pass along the dictionary.
+    # However, since we will be moving to using argparse, this will become obsolete.
     main(**kwargs)
