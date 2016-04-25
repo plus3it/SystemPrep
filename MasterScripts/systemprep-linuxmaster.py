@@ -325,9 +325,16 @@ def main(noreboot='false', **kwargs):
 
 
 if "__main__" == __name__:
-    #convert command line parameters of the form `param=value` to a dict
-    kwargs = dict(x.split('=', 1) for x in sys.argv[1:])
-    #Convert parameter keys to lowercase, parameter values are unmodified
-    kwargs = dict((k.lower(), v) for k, v in kwargs.items())
+    # Convert command line parameters of the form `param=value` to a dict
+    # If CL param does not contain '=', store param as a key with None value
+    # NOTE: Do we prefer this program to raise error if there is a CL param with no '=' in it?
+    # NOTE: Keys are store in lowercase format.
+    kwargs = {}
+    for x in sys.argv[1:]:
+        if '=' in x:
+            [key, value] = x.split('=', 1)
+            kwargs[key.lower()] = value
+        else:
+            kwargs[x] = None
 
     main(**kwargs)
