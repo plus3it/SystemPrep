@@ -324,10 +324,8 @@ def main(noreboot = 'false', **kwargs):
     print('-' * 80)
 
 if "__main__" == __name__:
-    # Convert command line parameters of the form `param=value` to a dict
-    # If CL param does not contain '=', store param as a key with None value
-    # NOTE: Do we prefer this program to raise error if there is a CL param with no '=' in it?
-    # NOTE: Keys are store in lowercase format.
+    # Convert command line parameters of the form `param=value` to a dictionary.
+    # NOTE: Keys are stored in lowercase format.
     kwargs = {}
     for x in sys.argv[1:]:
         if '=' in x:
