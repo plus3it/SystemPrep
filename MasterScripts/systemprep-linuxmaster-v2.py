@@ -1,11 +1,8 @@
 #!/usr/bin/env python
+
 import argparse
+import boto, urllib2
 import os, platform, shutil, subprocess
-
-import urllib2
-import boto
-
-from boto.exception import BotoClientError
 
 class SystemPrep:
     params = None
@@ -268,7 +265,7 @@ class SystemPrep:
                 bucket = conn.get_bucket(bucket_name)
                 key = bucket.get_key(key_name)
                 key.get_contents_to_filename(filename=filename)
-            except (NameError, BotoClientError):
+            except (NameError, boto.BotoClientError):
                 try:
                     bucket_name = url.split('/')[2].split('.')[0]
                     key_name = '/'.join(url.split('/')[3:])
