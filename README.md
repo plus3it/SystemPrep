@@ -1,4 +1,4 @@
-[![license](https://img.shields.io/github/license/plus3it/systemprep.svg)](./LICENSE)
+[![license](https://img.shields.io/pypi/l/spyder.svg)](./LICENSE)
 [![Build Status](https://travis-ci.org/plus3it/SystemPrep.svg)](https://travis-ci.org/plus3it/SystemPrep)
 
 # SystemPrep
