@@ -74,11 +74,9 @@ class SystemPrep:
             print paramstring
             if 'Linux' in self.params['system']:
                 fullcommand = 'python {0} {1}'.format(fullfilepath, paramstring)
-                result = subprocess.call(['python', fullfilepath, paramstring])
             else:
                 powershell = 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe '
                 fullcommand = powershell + ' {0} {1}'.format(fullfilepath, paramstring)
-                result = subprocess.call([powershell, fullfilepath, paramstring])
             print fullcommand
             if result is not 0:
                 message = 'Encountered an unrecoverable error executing a ' \
@@ -93,7 +91,6 @@ class SystemPrep:
             print('Detected `noreboot` switch. System will not be rebooted.')
         else:
             print('Reboot scheduled. System will reboot after the script exits.')
-            subprocess.call([self.system_params['restart']])
 
         print('{0} complete!'.format(self.params['prog']))
         print('-' * 80)
