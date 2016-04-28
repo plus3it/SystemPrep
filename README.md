@@ -163,7 +163,7 @@ PowerShell window.
     $userdata=[System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -URI $userdata_uri).Content)
     $region="us-east-1"
     $amipattern="RHEL-6.7_HVM_GA-*-x86_64-1-Hourly2-GP2"
-    $ami=$((Get-EC2ImageByName -Region $region -Names "$amipattern")[0].ImageId)
+    $ami=$((Get-EC2Image -Region $region -Filters @{ Name = "name"; Values = "$amipattern" })[0].ImageId)
 
     New-EC2Instance -Region $region `
     -ImageId $ami `
