@@ -128,8 +128,6 @@ class SystemPrep:
 
         # Create SystemPrep directories
         try:
-            if not os.path.exists('/var/run'):
-                os.makedirs('/var/run')
             if not os.path.exists(params['logdir']):
                 os.makedirs(params['logdir'])
             if not os.path.exists(params['workingdir']):
@@ -268,7 +266,7 @@ class SystemPrep:
                 bucket = conn.get_bucket(bucket_name)
                 key = bucket.get_key(key_name)
                 key.get_contents_to_filename(filename=filename)
-            except (NameError, boto.BotoClientError):
+            except (NameError, boto.exception.BotoClientError):
                 try:
                     bucket_name = url.split('/')[2].split('.')[0]
                     key_name = '/'.join(url.split('/')[3:])
