@@ -74,11 +74,12 @@ class SystemPrep:
             print paramstring
             if 'Linux' in self.params['system']:
                 fullcommand = 'python {0} {1}'.format(fullfilepath, paramstring)
+                result = subprocess.call(['python', fullfilepath, paramstring])
             else:
-                fullcommand = 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe ' \
-                              '{0} {1}'.format(fullfilepath, paramstring)
+                powershell = 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe '
+                fullcommand = powershell + ' {0} {1}'.format(fullfilepath, paramstring)
+                result = subprocess.call([powershell, fullfilepath, paramstring])
             print fullcommand
-            result = subprocess.call(fullcommand)
             if result is not 0:
                 message = 'Encountered an unrecoverable error executing a ' \
                           'content script. Exiting with failure.\n' \
@@ -92,7 +93,7 @@ class SystemPrep:
             print('Detected `noreboot` switch. System will not be rebooted.')
         else:
             print('Reboot scheduled. System will reboot after the script exits.')
-            subprocess.call(self.system_params['restart'])
+            subprocess.call([self.system_params['restart']])
 
         print('{0} complete!'.format(self.params['prog']))
         print('-' * 80)
@@ -107,7 +108,7 @@ class SystemPrep:
             systemdrive = '/var'
             params['pathseparator'] = '/'
             params['prepdir'] = '{0}/systemprep'.format(systemdrive)
-            params['readyfile'] = '{0}/system-is-ready'.format(params['prepdir'])
+            params['readyfile'] = '{0}/run/system-is-ready'.format(systemdrive)
             params['logdir'] = '{0}/logs'.format(params['prepdir'])
             params['workingdir'] = '{0}/workingfiles'.format(params['prepdir'])
             params['restart'] = 'shutdown -r +1 &'
@@ -127,14 +128,16 @@ class SystemPrep:
 
         # Create SystemPrep directories
         try:
+            if not os.path.exists('/var/run'):
+                os.makedirs('/var/run')
             if not os.path.exists(params['logdir']):
                 os.makedirs(params['logdir'])
             if not os.path.exists(params['workingdir']):
                 os.makedirs(params['workingdir'])
         except Exception as exc:
             # TODO: Update `except` logic
-            raise SystemError('Could not create workingdir in {0}.\n'
-                              'Exception: {1}'.format(params['workingdir'], exc))
+            raise SystemError('Could not create a directory in {0}.\n'
+                              'Exception: {1}'.format(params['prepdir'], exc))
         self.system_params = params
 
     def get_scripts_to_execute(self, workingdir):
