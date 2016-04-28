@@ -106,9 +106,9 @@ class SystemPrep:
         if 'Linux' in self.params['system']:
             systemdrive = '/var'
             params['pathseparator'] = '/'
-            params['prepdir'] = '{0}/systemprep'.format(systemdrive)
-            params['readyfile'] = '{0}/run/system-is-ready'.format(systemdrive)
-            params['logdir'] = '{0}/logs'.format(params['prepdir'])
+            params['prepdir'] = '/usr/tmp/systemprep'.format(systemdrive)
+            params['readyfile'] = '/var/run/system-is-ready'
+            params['logdir'] = '/var/log'
             params['workingdir'] = '{0}/workingfiles'.format(params['prepdir'])
             params['restart'] = 'shutdown -r +1 &'
         elif 'Windows' in self.params['system']:
