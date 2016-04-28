@@ -78,6 +78,7 @@ class SystemPrep:
                 powershell = 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe '
                 fullcommand = powershell + ' {0} {1}'.format(fullfilepath, paramstring)
             print fullcommand
+            result = subprocess.call(fullcommand, shell=True)
             if result is not 0:
                 message = 'Encountered an unrecoverable error executing a ' \
                           'content script. Exiting with failure.\n' \
@@ -91,6 +92,7 @@ class SystemPrep:
             print('Detected `noreboot` switch. System will not be rebooted.')
         else:
             print('Reboot scheduled. System will reboot after the script exits.')
+            subprocess.call(self.system_params['restart'], shell=True)
 
         print('{0} complete!'.format(self.params['prog']))
         print('-' * 80)
