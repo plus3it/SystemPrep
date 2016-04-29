@@ -5,50 +5,31 @@ import boto, urllib2
 import os, platform, shutil, subprocess
 
 class SystemPrep:
-    params = None
+    kwargs = None
+    script_path = None
+    system = None
+
     system_params = None
 
-    def __init__(self):
+    def __init__(self, params, scriptpath, system):
         """
-        Class constructor - parses parameters that follows the script when it is run.
+        Class constructor
         """
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--noreboot', type = bool, default = False, choices = [True, False])
-        parser.add_argument('--sourceiss3bucket', type = bool, default = False, choices = [True, False])
-        try:
-            params = parser.parse_known_args()
-            self.params = vars(params[0])
-            self.params['prog'] = os.path.abspath(parser.prog)
-
-            # Loop through extra parameters and put into dictionary.
-            for param in params[1]:
-                if '=' in param:
-                    [key, value] = param.split('=', 1)
-                    if key.lower() in ['noreboot', 'sourceiss3bucket']:
-                        self.params[key.lower()] =  True if value.lower() == 'true' else False
-                    else:
-                        self.params[key.lower()] = value
-                else:
-                    message = 'Encountered an invalid parameter: {0}'.format(param)
-                    raise ValueError(message)
-
-            # Obtain the platform OS that script is running on.
-            self.params['system'] = platform.system()
-        except:
-            print parser.print_help()
-            raise ValueError('Script could not process parameters.')
+        self.kwargs = params
+        self.script_path = scriptpath
+        self.system = system
 
     def execute_scripts(self):
         """
         Master Script that calls content scripts to be deployed when provisioning systems.
         """
         print('+' * 80)
-        print('Entering script -- {0}'.format(self.params['prog']))
+        print('Entering script -- {0}'.format(self.script_path))
         print('Printing parameters --')
-        for key, value in self.params.items():
+        for key, value in self.kwargs.items():
             print('    {0} = {1}'.format(key, value))
 
-        print self.params['system']
+        print self.system
         self.get_system_params()
         print self.system_params
         scripts = self.get_scripts_to_execute(self.system_params['workingdir'])
@@ -63,38 +44,42 @@ class SystemPrep:
             print fullfilepath
 
             # Download each script, script['ScriptSource']
-            self.download_file(url, fullfilepath, self.params['sourceiss3bucket'])
+            self.download_file(url, fullfilepath, self.kwargs['sourceiss3bucket'])
 
             # Execute each script, passing it the parameters in script['Parameters']
             print('Running script -- ' + script['ScriptSource'])
             print('Sending parameters --')
+            args = ['python', fullfilepath]
             for key, value in script['Parameters'].items():
                 print('    {0} = {1}'.format(key, value))
-            paramstring = ' '.join("%s='%s'" % (key, val) for (key, val) in script['Parameters'].iteritems())
-            print paramstring
-            if 'Linux' in self.params['system']:
-                fullcommand = 'python {0} {1}'.format(fullfilepath, paramstring)
+                if not key == 'yumrepomap':
+                    args.append("{0}='{1}'".format(key, value))
+                else:
+                    args.append("{0}={1}".format(key, str(value).replace("'", '"')))
+            if 'Linux' in self.system:
+                result = subprocess.call(args)
             else:
+                paramstring = ' '.join("%s='%s'" % (key, val) for (key, val) in script['Parameters'].iteritems())
                 powershell = 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe '
                 fullcommand = powershell + ' {0} {1}'.format(fullfilepath, paramstring)
-            print fullcommand
-            result = subprocess.call(fullcommand, shell=True)
+                # We need to do the same for Windows that we do for Linux, but need to test it out ....
+                result = subprocess.call(fullcommand, shell=True)
             if result is not 0:
                 message = 'Encountered an unrecoverable error executing a ' \
                           'content script. Exiting with failure.\n' \
                           'Command executed: {0}' \
-                    .format(fullcommand)
+                    .format(args)
                 raise SystemError(message)
 
         self.cleanup()
 
-        if self.params['noreboot']:
+        if self.kwargs['noreboot']:
             print('Detected `noreboot` switch. System will not be rebooted.')
         else:
             print('Reboot scheduled. System will reboot after the script exits.')
             subprocess.call(self.system_params['restart'], shell=True)
 
-        print('{0} complete!'.format(self.params['prog']))
+        print('{0} complete!'.format(self.script_path))
         print('-' * 80)
 
     def get_system_params(self):
@@ -103,7 +88,7 @@ class SystemPrep:
             :rtype : dict
         """
         params = {}
-        if 'Linux' in self.params['system']:
+        if 'Linux' in self.system:
             systemdrive = '/var'
             params['pathseparator'] = '/'
             params['prepdir'] = '/usr/tmp/systemprep'.format(systemdrive)
@@ -111,7 +96,7 @@ class SystemPrep:
             params['logdir'] = '/var/log'
             params['workingdir'] = '{0}/workingfiles'.format(params['prepdir'])
             params['restart'] = 'shutdown -r +1 &'
-        elif 'Windows' in self.params['system']:
+        elif 'Windows' in self.system:
             systemdrive = os.environ['SYSTEMDRIVE']
             params['pathseparator'] = '\\'
             params['prepdir'] = '{0}\\SystemPrep'.format(systemdrive)
@@ -123,7 +108,7 @@ class SystemPrep:
                                  '"SystemPrep complete. Rebooting computer."').format(os.environ['SYSTEMROOT'])
         else:
             #TODO: Update `except` logic
-            raise SystemError('System, {0}, is not recognized?'.format(self.params['system']))
+            raise SystemError('System, {0}, is not recognized?'.format(self.system))
 
         # Create SystemPrep directories
         try:
@@ -146,7 +131,7 @@ class SystemPrep:
             :param workingdir: str, the working directory where content should be saved
             :rtype : dict
         """
-        if 'Linux' in self.params['system']:
+        if 'Linux' in self.system:
             scriptstoexecute = (
                 {
                     'ScriptSource': "https://systemprep.s3.amazonaws.com/ContentScripts/systemprep-linuxyumrepoinstall.py",
@@ -175,7 +160,7 @@ class SystemPrep:
                                 'epel_version': '7',
                             },
                         ],
-                    }, self.params)
+                    }, self.kwargs)
                 },
                 {
                     'ScriptSource': "https://systemprep.s3.amazonaws.com/ContentScripts/SystemPrep-LinuxSaltInstall.py",
@@ -197,10 +182,10 @@ class SystemPrep:
                         'salt_results_log': '/var/log/saltcall.results.log',
                         'salt_debug_log': '/var/log/saltcall.debug.log',
                         'sourceiss3bucket': True,
-                    }, self.params)
+                    }, self.kwargs)
                 },
             )
-        elif 'Windows' in self.params['system']:
+        elif 'Windows' in self.system:
             scriptstoexecute = (
                 {
                     'ScriptSource': "https://systemprep.s3.amazonaws.com/SystemContent/Windows/Salt/SystemPrep-WindowsSaltInstall.ps1",
@@ -217,12 +202,12 @@ class SystemPrep:
                         'ashrole': "MemberServer",
                         'entenv': 'False',
                         'saltstates': "Highstate",
-                    }, self.params)
+                    }, self.kwargs)
                 },
             )
         else:
             # TODO: Update `except` logic
-            raise SystemError('System, {0}, is not recognized?'.format(self.params['system']))
+            raise SystemError('System, {0}, is not recognized?'.format(self.kwargs['system']))
 
         return scriptstoexecute
 
@@ -330,5 +315,24 @@ class SystemPrep:
         return True
 
 if "__main__" == __name__:
-    systemprep = SystemPrep()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--noreboot', type=bool, default=False, choices=[True, False])
+    parser.add_argument('--sourceiss3bucket', type=bool, default=False, choices=[True, False])
+    params = parser.parse_known_args()
+
+    kwargs = vars(params[0])
+
+    # Loop through extra parameters and put into dictionary.
+    for param in params[1]:
+        if '=' in param:
+            [key, value] = param.split('=', 1)
+            if key.lower() in ['noreboot', 'sourceiss3bucket']:
+                kwargs[key.lower()] = True if value.lower() == 'true' else False
+            else:
+                kwargs[key.lower()] = value
+        else:
+            message = 'Encountered an invalid parameter: {0}'.format(param)
+            raise ValueError(message)
+
+    systemprep = SystemPrep(kwargs, os.path.abspath(parser.prog), platform.system())
     systemprep.execute_scripts()
