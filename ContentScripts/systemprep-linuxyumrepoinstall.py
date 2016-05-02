@@ -123,7 +123,6 @@ def main(yumrepomap=None,
     print('{0} complete!'.format(scriptname))
     print('-' * 80)
 
-
  def _convert_string_to_list_of_dicts(fixme):
      # First, remove any parentheses or brackets
      fixed = fixme.translate(None, '()[]')
@@ -139,7 +138,6 @@ def main(yumrepomap=None,
      fixed = [dict((k.strip(), v.strip()) for k, v in x.items()) for x in fixed]
      return fixed
 
-
 if __name__ == "__main__":
     # Convert command line parameters of the form `param=value` to a dict
     kwargs = dict(x.split('=', 1) for x in sys.argv[1:])
@@ -148,5 +146,5 @@ if __name__ == "__main__":
 
     # Need to convert a formatted string to a list of dicts,
     kwargs['yumrepomap'] = _convert_string_to_list_of_dicts(  
-                                kwargs.get('yumrepomap', '')) 
+                                kwargs.get('yumrepomap', ''))
     main(**kwargs)
