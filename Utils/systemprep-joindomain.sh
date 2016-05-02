@@ -34,6 +34,7 @@ IFS="${DELIM}" read -r -a REVOKED_SSH_GROUPS \
     <<< "${SYSTEMPREP_REVOKED_SSH_GROUPS}"
 IFS="${DELIM}" read -r -a REVOKED_SUDO_GROUPS \
     <<< "${SYSTEMPREP_REVOKED_SUDO_GROUPS}"
+SALT_LOG_LEVEL="-l info"
 
 
 # Define helper functions
@@ -274,6 +275,7 @@ do
             ;;
         -v|--verbose)
             VERBOSE="true"
+            SALT_LOG_LEVEL="-l debug"
             ;;
         -h|--help)
             print_usage
@@ -297,7 +299,8 @@ JOIN_STATUS=$(/opt/pbis/bin/pbis-status 2> /dev/null | \
                 awk '/^[[:space:]]+Status:/{print $2}' )
 
 log "Executing the join-domain formula..."
-salt-call --local --retcode-passthrough state.sls join-domain || \
+salt-call --local --retcode-passthrough ${SALT_LOG_LEVEL} state.sls \
+    join-domain || \
     die "Error running the join-domain formula"
 
 log "Completed the join-domain formula"
