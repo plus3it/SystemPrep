@@ -52,10 +52,7 @@ class SystemPrep:
             args = ['python', fullfilepath]
             for key, value in script['Parameters'].items():
                 print('    {0} = {1}'.format(key, value))
-                if not key == 'yumrepomap':
-                    args.append("{0}='{1}'".format(key, value))
-                else:
-                    args.append("{0}={1}".format(key, str(value).replace("'", '"')))
+                args.append("{0}={1}".format(key, str(value).replace("'", '"')))
             if 'Linux' in self.system:
                 result = subprocess.call(args)
             else:
