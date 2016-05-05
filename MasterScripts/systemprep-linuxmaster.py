@@ -86,9 +86,8 @@ class SystemPrep:
         """
         params = {}
         if 'Linux' in self.system:
-            systemdrive = '/var'
             params['pathseparator'] = '/'
-            params['prepdir'] = '/usr/tmp/systemprep'.format(systemdrive)
+            params['prepdir'] = '/usr/tmp/systemprep'
             params['readyfile'] = '/var/run/system-is-ready'
             params['logdir'] = '/var/log'
             params['workingdir'] = '{0}/workingfiles'.format(params['prepdir'])
