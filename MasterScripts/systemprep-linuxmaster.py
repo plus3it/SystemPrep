@@ -4,7 +4,8 @@ import argparse
 import boto, urllib2
 import os, platform, shutil, subprocess
 
-class SystemPrep:
+
+class SystemPrep(object):
     kwargs = None
     script_path = None
     system = None
@@ -103,7 +104,7 @@ class SystemPrep:
                                  '/r /t 30 /d p:2:4 /c '
                                  '"SystemPrep complete. Rebooting computer."').format(os.environ['SYSTEMROOT'])
         else:
-            #TODO: Update `except` logic
+            # TODO: Update `except` logic
             raise SystemError('System, {0}, is not recognized?'.format(self.system))
 
         # Create SystemPrep directories
@@ -228,7 +229,7 @@ class SystemPrep:
 
         return a
 
-    def download_file(self, url, filename, sourceiss3bucket = False):
+    def download_file(self, url, filename, sourceiss3bucket=False):
         """
         Download the file from `url` and save it locally under `filename`.
             :rtype : bool
@@ -309,6 +310,7 @@ class SystemPrep:
         print('Exiting cleanup routine...')
         print('-+' * 40)
         return True
+
 
 if "__main__" == __name__:
     parser = argparse.ArgumentParser()
