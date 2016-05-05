@@ -8,6 +8,7 @@ import tarfile
 import zipfile
 import re
 import boto
+import json
 
 from boto.exception import BotoClientError
 from boto.exception import S3ResponseError
@@ -483,16 +484,8 @@ if __name__ == "__main__":
     #Convert parameter keys to lowercase, parameter values are unmodified
     kwargs = dict((k.lower(), v) for k, v in kwargs.items())
 
-    #Need to convert comma-delimited strings strings to lists,
-    #where the strings may have parentheses or brackets
-    #First, remove any parentheses or brackets
-    #Then, split the string on the comma to convert to a list,
-    #and remove empty strings with filter
-    if 'formulastoinclude' in kwargs:
-        kwargs['formulastoinclude'] = kwargs['formulastoinclude'].translate(None, '()[]')
-        kwargs['formulastoinclude'] = filter(None, kwargs['formulastoinclude'].split(','))
-    if 'formulaterminationstrings' in kwargs:
-        kwargs['formulaterminationstrings'] = kwargs['formulaterminationstrings'].translate(None, '()[]')
-        kwargs['formulaterminationstrings'] = filter(None, kwargs['formulaterminationstrings'].split(','))
+    # Convert string to list of strings
+    kwargs['formulastoinclude'] = json.loads(kwargs['formulastoinclude'])
+    kwargs['formulaterminationstrings'] = json.loads(kwargs['formulaterminationstrings'])
 
     main(**kwargs)
