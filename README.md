@@ -50,14 +50,14 @@ or these commands will not work.
 
 1. Find the name of the key-pair you want to associate with the instance.
 
-    ```
+    ```bash
     aws ec2 describe-key-pairs
     ```
 
 2. From the output, identify the key-pair to use, and note the value in the
 `KeyName` field. Save the value in a variable named `key`.
 
-    ```
+    ```bash
     key="<KeyName>"
     ```
 
@@ -66,21 +66,21 @@ of this Quick Start, you probably want to use a security group that allows
 inbound port 22 (for a Linux instance), or inbound port 3389 (for a Windows
 instance).
 
-    ```
+    ```bash
     aws ec2 describe-security-groups
     ```
 
 4. From the output, identify the security group to use, and note the value in
 the `GroupId` field. Save the value in a variable named `sg`.
 
-    ```
+    ```bash
     sg="<GroupId>"
     ```
 
 5. Launch the Linux instance by pasting the code-block below into the bash
 shell.
 
-    ```
+    ```bash
     userdata="https://s3.amazonaws.com/systemprep/BootStrapScripts/SystemPrep-Bootstrap--Linux.sh"
     region="us-east-1"
     amipattern="RHEL-6.7_HVM_GA-*-x86_64-1-Hourly2-GP2"
@@ -99,7 +99,7 @@ shell.
 6. Next we will launch a Windows instance. If you would like to change the key-pair
 or security group, repeat steps 1 through 4 as needed.
 
-    ```
+    ```bash
     userdata="https://s3.amazonaws.com/systemprep/BootStrapScripts/SystemPrep-Bootstrap-EC2-Windows.txt"
     region="us-east-1"
     amipattern="Windows_Server-2012-R2_RTM-English-64Bit-Base-*"
@@ -129,14 +129,14 @@ configured, or these commands will not work.
 1. Open a PowerShell windows and find the name of the key-pair you want to
 associate with the instance.
 
-    ```
+    ```powershell
     Get-EC2KeyPair
     ```
 
 2. From the output, identify the key-pair to use, and note the value in the
 `KeyName` field. Save the value in a variable named `key`.
 
-    ```
+    ```powershell
     $key="<KeyName>"
     ```
 
@@ -145,21 +145,21 @@ of this Quick Start, you probably want to use a security group that allows
 inbound port 22 (for a Linux instance), or inbound port 3389 (for a Windows
 instance).
 
-    ```
+    ```powershell
     Get-EC2SecurityGroup
     ```
 
 4. From the output, identify the security group to use, and note the value in
 the `GroupId` field. Save the value in a variable named `sg`.
 
-    ```
+    ```powershell
     $sg="<GroupId>"
     ```
 
 5. Launch the Linux instance by pasting the code-block below into the
 PowerShell window.
 
-    ```
+    ```powershell
     $userdata_uri="https://s3.amazonaws.com/systemprep/BootStrapScripts/SystemPrep-Bootstrap--Linux.sh"
     $userdata=[System.Text.Encoding]::UTF8.GetString((Invoke-WebRequest -URI $userdata_uri).Content)
     $region="us-east-1"
@@ -178,7 +178,7 @@ PowerShell window.
 6. Next we will launch a Windows instance. If you would like to change the key-pair
 or security group, repeat steps 1 through 4 as needed.
 
-    ```
+    ```powershell
     $userdata_uri="https://s3.amazonaws.com/systemprep/BootStrapScripts/SystemPrep-Bootstrap-EC2-Windows.txt"
     $userdata=(Invoke-WebRequest -URI $userdata_uri).Content
     $region="us-east-1"
@@ -404,30 +404,33 @@ environment.**
 
 <b>*Master* Script Parameters for the Salt *Content* Script (Windows)</b>:
 
-```
-ScriptUrl  = "https://url/to/SystemPrep-WindowsSaltInstall.ps1"
-SaltWorkingDir = "${SystemPrepWorkingDir}\SystemContent\Windows\Salt"
-SaltInstallerUrl = "https://url/to/salt-installer.zip"
-SaltContentUrl = "https://url/to/salt-content.zip"
-FormulasToInclude = @(
+```powershell
+$ScriptUrl  = "https://url/to/SystemPrep-WindowsSaltInstall.ps1"
+$SaltWorkingDir = "${SystemPrepWorkingDir}\SystemContent\Windows\Salt"
+$SaltInstallerUrl = "https://url/to/salt-installer.zip"
+$SaltContentUrl = "https://url/to/salt-content.zip"
+$FormulasToInclude = @(
                     "https://url/to/systemprep-formula-master.zip",
                     "https://url/to/ash-windows-formula-master.zip",
                     "https://url/to/dotnet4-formula-master.zip"
                     "https://url/to/emet-formula-master.zip",
-                    "https://url/to/netbanner-formula-master.zip"
-                    "https://url/to/mcafee-agent-windows-formula-master.zip"
-                    "https://url/to/ntp-client-windows-formula-master.zip"
-                    "https://url/to/splunkforwarder-windows-formula-master.zip"
-                    "https://url/to/windows-update-agent-formula-master.zip"
-                    "https://url/to/join-domain-formula-master.zip"
-                    "https://url/to/scc-formula-master.zip"
+                    "https://url/to/netbanner-formula-master.zip",
+                    "https://url/to/mcafee-agent-windows-formula-master.zip",
+                    "https://url/to/ntp-client-windows-formula-master.zip",
+                    "https://url/to/splunkforwarder-windows-formula-master.zip",
+                    "https://url/to/windows-update-agent-formula-master.zip",
+                    "https://url/to/join-domain-formula-master.zip",
+                    "https://url/to/scc-formula-master.zip",
+                    "https://url/to/name-computer-formula-master.zip"
                    )
-FormulaTerminationStrings = @( "-latest", "-master" )
-AshRole = "MemberServer"
-EntEnv = $false
-SaltStates = "Highstate"
-SourceIsS3Bucket = $SourceIsS3Bucket
-AwsRegion = $AwsRegion
+$FormulaTerminationStrings = @( "-latest", "-master" )
+$AshRole = "MemberServer"
+$EntEnv = $false
+$OuPath = $false
+$ComputerName = $false
+$SaltStates = "Highstate"
+$SourceIsS3Bucket = $SourceIsS3Bucket
+$AwsRegion = $AwsRegion
 ```
 
 There are several [provided Bootstrap scripts](BootStrapScripts), the
@@ -443,16 +446,20 @@ the system being provisioned.**
 
 <b>*Bootstrap* Script Parameters for the *Master* Script (Windows)</b>:
 
-```
+```powershell
+$EntEnv = $false
+$OuPath = $false
+$ComputerName = $false
 $SystemPrepMasterScriptUrl = 'https://url/to/SystemPrep-WindowsMaster.ps1'
-$SourceIsS3Bucket = $true
 $SystemPrepParams = @{
     AshRole = "MemberServer"
-    EntEnv = $false
+    EntEnv = $EntEnv
+    OuPath = $OuPath
+    ComputerName = $ComputerName
     SaltStates = "Highstate"
     SaltContentUrl = 'https://url/to/salt-content.zip'
     NoReboot = $false
-    SourceIsS3Bucket = $SourceIsS3Bucket
+    SourceIsS3Bucket = $false
     AwsRegion = "us-east-1"
 }
 ```
@@ -461,11 +468,11 @@ $SystemPrepParams = @{
 must be accessible to the system when it runs the *Bootstrap* script.
 
 - `SourceIsS3Bucket`: The **SystemPrep** framework supports using an S3 bucket
-to host all files. If an S3 bucket is the source, set this parameter to `$true`
-(the default). Otherwise, set it to `$false`. Note that **ALL** files must be
-hosted in an S3 bucket (though they could be in different buckets). Also, the
-EC2 instance must have an IAM role that grants it the `GetObject` privilege to
-access objects in the bucket.
+to host all files. If an S3 bucket is the source, set this parameter to
+`$true`. Otherwise, set it to `$false` (the default). Note that **ALL** files
+must be hosted in an S3 bucket (though they could be in different buckets).
+Also, the EC2 instance must have an IAM role that grants it the `GetObject`
+privilege to access objects in the bucket.
 
   The bucket URL format must use the path-style syntax:
   - `https://<s3endpoint>/<bucketname>/path/to/file`
@@ -482,17 +489,25 @@ other than those listed will revert to the system default:
   - `"Workstation"`
 
 - `EntEnv`: Applies enterprise integration according to the environment in which the system is operating. This accepts a tri-state value:
-  - `"True"`:  Attempt to detect the environment automatically. WARNING: Currently this value is non-functional.
-  - `"False"`:  (Default) Do not set an environment. Any content that is dependent on the environment will not be available to this system.
+  - `$true`:  Attempt to detect the environment automatically. WARNING: Currently this value is non-functional.
+  - `$false`:  (Default) Do not set an environment. Any content that is dependent on the environment will not be available to this system.
   - `<string>`:  Set the environment to the value of `"<string>"`. Note that uppercase values will be converted to lowercase.
-				  
+
+- `OuPath`: Set a grain used by the join-domain formula to determine which OU to use when joining the system to a domain. If not joining a domain, you can still set this parameter but the grain is ignored.
+  - `$false`: (Default) Do not set the OU Path grain.
+  - `<string>`: Full DN of the OU to place the system. i.e. `"OU=SuperCoolApp,DC=example,DC=com"`
+
+- `ComputerName`: Set a grain used by the name-computer formula to set the hostname of the system.
+  - `$false`: (Default) Do no set the ComputerName grain.
+  - `<string>`: Hostname to apply to the system. i.e. `"SuperSystem"`
+
 - `SaltStates`: Comma-separated list of Salt states to apply to the system.
 This parameter is passed through to the Salt Install *Content* script.
 `"Highstate"` is a special keyword that applies the [Salt Highstate][13].
 
 - `SaltContentUrl`: URL hosting an archive zip file of the salt content to apply to the system.
   - `<string>`:  Default is `"https://url/to/salt-content.zip"`.
-	
+
 - `NoReboot`: Boolean parameter that controls whether the *Master* script will
 reboot the system upon completion of the script. Acceptable values are `$true`
 or `$false`.
