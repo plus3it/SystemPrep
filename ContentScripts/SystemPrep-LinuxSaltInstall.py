@@ -177,6 +177,7 @@ def main(saltinstallmethod='git',
          salt_debug_log=None,
          entenv='false',
          oupath=None,
+         computername=None,
          sourceiss3bucket='false',
          **kwargs):
     """
@@ -223,6 +224,10 @@ def main(saltinstallmethod='git',
                    archive contains directives to join the domain, the
                    join-domain formula will place the computer object in the
                    OU specified by this grain.
+    :param computername: str, controls whether to write a salt custom grain,
+                   name-computer:computername. If set, and the salt-content.zip
+                   archive contains directives to name the computer, the
+                   name-computer formula apply the computername.
     :param kwargs: dict, catch-all for other params that do not apply to this
                    content script
     :raise SystemError: error raised whenever an issue is encountered
@@ -255,6 +260,7 @@ def main(saltinstallmethod='git',
     print('    sourceiss3bucket = {0}'.format(sourceiss3bucket))
     print('    entenv = {0}'.format(entenv))
     print('    oupath = {0}'.format(oupath))
+    print('    computername = {0}'.format(computername))
     for key, value in kwargs.items():
         print('    {0} = {1}'.format(key, value))
 
@@ -423,6 +429,11 @@ def main(saltinstallmethod='git',
         joindomaingrainresult = os.system(
             '{0} --local grains.setval "join-domain" \'{{"oupath":'
             '"{1}"}}\''.format(saltcall, oupath))
+    if computername:
+        print('Setting grain `name-computer`...')
+        namecomputergrainresult = os.system(
+            '{0} --local grains.setval "name-computer" \'{{"computername":'
+            '"{1}"}}\''.format(saltcall, computername))
 
     # Sync custom modules
     print('Syncing custom salt modules...')

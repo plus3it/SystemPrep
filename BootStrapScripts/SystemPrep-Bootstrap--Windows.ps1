@@ -15,6 +15,8 @@ Param(
     ,
     $OuPath = $false
     ,
+    $ComputerName = $false
+    ,
     [Bool]$SourceIsS3Bucket = $false
     ,
     [String]$AwsRegion = 'us-east-1'
@@ -37,6 +39,7 @@ $SystemPrepParams = @{
     AshRole = "${AshRole}"
     EntEnv = ${EntEnv}
     OuPath = ${OuPath}
+    ComputerName = ${ComputerName}
     SaltStates = "${SaltStates}"
     SaltContentUrl = "${SaltContentUrl}"
     NoReboot = ${NoReboot}

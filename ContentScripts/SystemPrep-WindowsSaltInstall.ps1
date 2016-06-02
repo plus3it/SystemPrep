@@ -32,6 +32,9 @@ Param(
     $OuPath = $false
     ,
     [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
+    $ComputerName = $false
+    ,
+    [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
     [string] $SaltStates = "None"
     ,
     [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
@@ -80,6 +83,9 @@ Param(
 #$OuPath = $false     #Determines whether to write a salt custom grain, join-domain:oupath. If set, and the salt-content.zip
                       #archive contains directives to join the domain, the join-domain formula will place the computer
                       #object in the OU specified by this grain.
+
+#$ComputerName = $false  #Determines whether to write a salt custom grain, name-computer:computer. If set, and the salt-content.zip
+                         #archive contains directives to name the computer, the name-computer formula will set the computername.
 
 #$SaltStates = "None" #Comma-separated list of salt states. Listed states will be applied to the system. Parameter key:
                       #-- "None"              -- Special keyword; will not apply any salt states
@@ -202,6 +208,7 @@ log -LogTag ${ScriptName} "FormulaTerminationStrings = ${FormulaTerminationStrin
 log -LogTag ${ScriptName} "AshRole = ${AshRole}"
 log -LogTag ${ScriptName} "EntEnv = ${EntEnv}"
 log -LogTag ${ScriptName} "OuPath = ${OuPath}"
+log -LogTag ${ScriptName} "ComputerName = ${ComputerName}"
 log -LogTag ${ScriptName} "SaltStates = ${SaltStates}"
 log -LogTag ${ScriptName} "SaltDebugLog = ${SaltDebugLog}"
 log -LogTag ${ScriptName} "SaltResultsLog = ${SaltResultsLog}"
@@ -358,6 +365,11 @@ if ($OuPath) {
     log -LogTag ${ScriptName} "Setting join-domain grain..."
     $JoinDomainGrain = "grains.setval join-domain `"{'oupath':'${OuPath}'}`""
     $JoinDomainGrainResult = Start-Process $MinionExe -ArgumentList "--local ${JoinDomainGrain}" -NoNewWindow -PassThru -Wait
+}
+if ($ComputerName) {
+    log -LogTag ${ScriptName} "Setting name-computer grain..."
+    $NameComputerGrain = "grains.setval name-computer `"{'computername':'${ComputerName}'}`""
+    $NameComputerGrainResult = Start-Process $MinionExe -ArgumentList "--local ${NameComputerGrain}" -NoNewWindow -PassThru -Wait
 }
 
 log -LogTag ${ScriptName} "Syncing custom salt modules"

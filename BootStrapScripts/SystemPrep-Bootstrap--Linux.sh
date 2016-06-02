@@ -4,6 +4,7 @@ set -e
 # Set default option values
 ENTENV="${SYSTEMPREP_ENVIRONMENT:-False}"
 OUPATH="${SYSTEMPREP_OUPATH}"
+COMPUTERNAME="${SYSTEMPREP_COMPUTERNAME}"
 NOREBOOT="${SYSTEMPREP_NOREBOOT:-False}"
 SALTSTATES="${SYSTEMPREP_SALTSTATES:-Highstate}"
 AWSREGION="${SYSTEMPREP_AWSREGION:-us-east-1}"
@@ -53,6 +54,8 @@ print_usage()
       The OU in which to place the instance when joining the domain. If unset
       or an empty string, the framework will use the value from the enterprise
       environment pillar. Default is "".
+  -t|--computername|\SYSTEMPREP_COMPUTERNAME
+      The computername/hostname to apply to the system.
   -n|--noreboot|\$SYSTEMPREP_NOREBOOT
       Prevent the system from rebooting upon successful application of the
       framework.
@@ -182,11 +185,11 @@ update_trust() {
 }  # --- end of function update_trust  ---
 
 # Parse command-line parameters
-SHORTOPTS="e:p:ns:g:c:r:m:o:uh"
+SHORTOPTS="e:p:ns:g:c:r:m:o:t:uh"
 LONGOPTS=(
     "environment:,oupath:,noreboot,saltstates:,region:,awscli-url:,"
     "root-cert-url:,systemprep-master-url:,salt-content-url:,use-s3-utils,"
-    "help")
+    "computername:,help")
 LONGOPTS_STRING=$(IFS=$''; echo "${LONGOPTS[*]}")
 ARGS=$(getopt \
     --options "${SHORTOPTS}" \
@@ -205,13 +208,15 @@ eval set -- "${ARGS}"
 while [ true ]; do
     # When adding options to the case statement, also update print_usage(),
     # SHORTOPTS and LONGOPTS. If the option should be passed to the master
-    # script, also update SYSTEMPREPPARAMS, below.
+    # script, also update the params passed to the master script, below.
     # Make sure the final file size is less than 16,384 bytes.
     case "${1}" in
         -e|--environment)
             shift; ENTENV="${1}" ;;
         -p|--oupath)
             shift; OUPATH="${1}" ;;
+        -t|--computername)
+            shift; COMPUTERNAME="${1}" ;;
         -n|--noreboot)
             NOREBOOT="True" ;;
         -s|--saltstates)
@@ -240,16 +245,6 @@ while [ true ]; do
     esac
     shift
 done
-
-# Setup params to pass to the master script
-SYSTEMPREPPARAMS=(
-    "SaltStates=${SALTSTATES}"
-    "SaltContentSource=${SALTCONTENTURL}"
-    "NoReboot=${NOREBOOT}"
-    "EntEnv=${ENTENV}"
-    "OuPath=${OUPATH}"
-    "SourceIsS3Bucket=${SOURCEISS3BUCKET}"
-    "AwsRegion=${AWSREGION}")
 
 # Setup logging
 if [[ ! -d ${LOGDIR} ]]; then
@@ -315,10 +310,6 @@ else
             ( echo "Could not download file. Check the url and whether 'curl' is in the path. Quitting..." && exit 1 )
 fi
 
-# Convert the parameter list to a string
-# The string will be converted to a python dictionary by the master script
-PARAMSTRING=$( IFS=$' '; echo "${SYSTEMPREPPARAMS[*]}" )
-
 # Temporarily suppress rsyslog rate limiting
 if [[ -e /etc/rsyslog.conf ]]; then
     echo "Temporarily disabling rsyslog rate limiting"
@@ -353,6 +344,7 @@ echo "   SaltContentSource=${SALTCONTENTURL}"
 echo "   NoReboot=${NOREBOOT}"
 echo "   EntEnv=${ENTENV}"
 echo "   OuPath=${OUPATH}"
+echo "   ComputerName=${COMPUTERNAME}"
 echo "   SourceIsS3Bucket=${SOURCEISS3BUCKET}"
 echo "   AwsRegion=${AWSREGION}"
 
@@ -364,6 +356,7 @@ python ${SCRIPTFULLPATH} \
     "NoReboot=${NOREBOOT}" \
     "EntEnv=${ENTENV}" \
     "OuPath=${OUPATH}" \
+    "ComputerName=${COMPUTERNAME}" \
     "SourceIsS3Bucket=${SOURCEISS3BUCKET}" \
     "AwsRegion=${AWSREGION}" || \
     error_result=$?  # If error, capture the exit code
