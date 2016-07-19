@@ -32,6 +32,12 @@ Param(
     $OuPath = $false
     ,
     [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
+    $AdminGroups = $false
+    ,
+    [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
+    $AdminUsers = $false
+    ,
+    [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
     $ComputerName = $false
     ,
     [Parameter(Mandatory=$false,ValueFromPipeLine=$false,ValueFromPipeLineByPropertyName=$false)]
@@ -83,6 +89,14 @@ Param(
 #$OuPath = $false     #Determines whether to write a salt custom grain, join-domain:oupath. If set, and the salt-content.zip
                       #archive contains directives to join the domain, the join-domain formula will place the computer
                       #object in the OU specified by this grain.
+
+#$AdminGroups = $false  #Colon-separated string of domain groups. Controls whether to write a salt custom grain,
+                        #join-domain:admin_groups. If set, and the salt-content.zip archive contains directives to join the
+                        #domain, the join-domain formula will grant local admin privileges to these domain groups.
+
+#$AdminUsers = $false  #Colon-separated string of domain users. Controls whether to write a salt custom grain,
+                        #join-domain:admin_users. If set, and the salt-content.zip archive contains directives to join the
+                        #domain, the join-domain formula will grant local admin privileges to these domain users.
 
 #$ComputerName = $false  #Determines whether to write a salt custom grain, name-computer:computer. If set, and the salt-content.zip
                          #archive contains directives to name the computer, the name-computer formula will set the computername.
@@ -361,9 +375,21 @@ $SystemPrepGrainResult = Start-Process $MinionExe -ArgumentList "--local ${Syste
 log -LogTag ${ScriptName} "Setting ash-windows grain..."
 $AshWindowsGrain = "grains.setval ash-windows `"{'role':'${AshRole}'}`""
 $AshWindowsGrainResult = Start-Process $MinionExe -ArgumentList "--local ${AshWindowsGrain}" -NoNewWindow -PassThru -Wait
-if ($OuPath) {
+if ($OuPath -or $AdminGroups -or $AdminUsers) {
     log -LogTag ${ScriptName} "Setting join-domain grain..."
-    $JoinDomainGrain = "grains.setval join-domain `"{'oupath':'${OuPath}'}`""
+    $Grain = @()
+    if ($OuPath) {
+        $Grain += "'oupath':'${OuPath}'"
+    }
+    if ($AdminGroups) {
+        $AdminGroups = @($AdminGroups.split(':'))
+        $Grain += "'admin_groups':[$(($AdminGroups | % { "'$_'" }) -join ',')]"
+    }
+    if ($AdminUsers){
+        $AdminUsers = @($AdminUsers.split(':'))
+        $Grain += "'admin_users':[$(($AdminUsers | % { "'$_'" }) -join ',')]"
+    }
+    $JoinDomainGrain = "grains.setval join-domain `"{$($Grain -join ',')}`""
     $JoinDomainGrainResult = Start-Process $MinionExe -ArgumentList "--local ${JoinDomainGrain}" -NoNewWindow -PassThru -Wait
 }
 if ($ComputerName) {
