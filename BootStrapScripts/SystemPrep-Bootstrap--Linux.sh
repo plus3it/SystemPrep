@@ -5,6 +5,8 @@ set -e
 ENTENV="${SYSTEMPREP_ENVIRONMENT:-False}"
 OUPATH="${SYSTEMPREP_OUPATH}"
 COMPUTERNAME="${SYSTEMPREP_COMPUTERNAME}"
+ADMINGROUPS="${SYSTEMPREP_ADMINGROUPS}"
+ADMINUSERS="${SYSTEMPREP_ADMINUSERS}"
 NOREBOOT="${SYSTEMPREP_NOREBOOT:-False}"
 SALTSTATES="${SYSTEMPREP_SALTSTATES:-Highstate}"
 AWSREGION="${SYSTEMPREP_AWSREGION:-us-east-1}"
@@ -56,6 +58,12 @@ print_usage()
       environment pillar. Default is "".
   -t|--computername|\SYSTEMPREP_COMPUTERNAME
       The computername/hostname to apply to the system.
+  -a|--adminusers|\SYSTEMPREP_ADMINUSERS
+      A colon separated list of domain users to grant admin rights on the
+      system.
+  -A|--admingroups|\SYSTEMPREP_ADMINGROUPS
+      A colon separated list of domain groups to grant admin rights on the
+      system.
   -n|--noreboot|\$SYSTEMPREP_NOREBOOT
       Prevent the system from rebooting upon successful application of the
       framework.
@@ -99,8 +107,6 @@ get_mode() {
     CERTUTIL="/usr/bin/certutil"
     if [ -x ${UPDATETRUST} ]; then
         echo "6.5"
-    elif [ -x ${CERTUTIL} ]; then
-        echo "6.0"
     else
         echo "Cannot determine CA update-method. Aborting."
         exit 1
@@ -148,7 +154,7 @@ fetch_ca_certs() {
 update_trust() {
     if [ $# -ne 2 ]; then
         echo "update_trust requires two parameters."
-        echo "  \$1, 'mode', is either '6.0' or '6.5', as determined by the 'GetMode' function."
+        echo "  \$1, 'mode', determined by the 'GetMode' function."
         echo "  \$2, 'cert_dir', is a directory that contains the root certificates."
         exit 1
     fi
@@ -165,31 +171,18 @@ update_trust() {
         echo "Extracting root certificates..."
         update-ca-trust extract && echo "Certs updated successfully." || \
         ( echo "ERROR: Failed to update certs." && exit 1 )
-    elif [[ "6.0" == "${MODE}" ]]; then
-        CADIR="/etc/pki/custom-CAs"
-        if [ ! -d ${CADIR} ]; then
-            install -d -m 0755 ${CADIR}
-        fi
-        echo "Copying certs to ${CADIR}..."
-        ( cd "${UPDATE_CERT_DIR}" ; find . -print | cpio -vpud "${CADIR}" )
-        for ADDCER in $(find ${CADIR} -type f -name "*.cer" -o -name "*.CER")
-        do
-            echo "Adding \"${ADDCER}\" to system CA trust-list"
-            ${CERTUTIL} -A -t u,u,u -d . -i "${ADDCER}" || \
-            ( echo "ERROR: Failed to update certs." && exit 1 )
-        done
     else
-        echo "Unknown 'mode'. 'mode' must be '6.5' or '6.0'."
+        echo "Unknown 'mode'."
         exit 1
     fi
 }  # --- end of function update_trust  ---
 
 # Parse command-line parameters
-SHORTOPTS="e:p:ns:g:c:r:m:o:t:uh"
+SHORTOPTS="a:A:e:p:ns:g:c:r:m:o:t:uh"
 LONGOPTS=(
     "environment:,oupath:,noreboot,saltstates:,region:,awscli-url:,"
     "root-cert-url:,systemprep-master-url:,salt-content-url:,use-s3-utils,"
-    "computername:,help")
+    "computername:,admingroups:,adminusers:,help")
 LONGOPTS_STRING=$(IFS=$''; echo "${LONGOPTS[*]}")
 ARGS=$(getopt \
     --options "${SHORTOPTS}" \
@@ -217,6 +210,10 @@ while [ true ]; do
             shift; OUPATH="${1}" ;;
         -t|--computername)
             shift; COMPUTERNAME="${1}" ;;
+        -a|--adminusers)
+            shift; ADMINUSERS="${1}" ;;
+        -A|--admingroups)
+            shift; ADMINGROUPS="${1}" ;;
         -n|--noreboot)
             NOREBOOT="True" ;;
         -s|--saltstates)
@@ -345,6 +342,8 @@ echo "   NoReboot=${NOREBOOT}"
 echo "   EntEnv=${ENTENV}"
 echo "   OuPath=${OUPATH}"
 echo "   ComputerName=${COMPUTERNAME}"
+echo "   AdminGroups=${ADMINGROUPS}"
+echo "   AdminUsers=${ADMINUSERS}"
 echo "   SourceIsS3Bucket=${SOURCEISS3BUCKET}"
 echo "   AwsRegion=${AWSREGION}"
 
@@ -357,6 +356,8 @@ python ${SCRIPTFULLPATH} \
     "EntEnv=${ENTENV}" \
     "OuPath=${OUPATH}" \
     "ComputerName=${COMPUTERNAME}" \
+    "AdminGroups=${ADMINGROUPS}" \
+    "AdminUsers=${ADMINUSERS}" \
     "SourceIsS3Bucket=${SOURCEISS3BUCKET}" \
     "AwsRegion=${AWSREGION}" || \
     error_result=$?  # If error, capture the exit code

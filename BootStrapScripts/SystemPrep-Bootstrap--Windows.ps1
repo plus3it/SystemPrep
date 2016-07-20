@@ -17,6 +17,10 @@ Param(
     ,
     $ComputerName = $false
     ,
+    $AdminGroups = $false
+    ,
+    $AdminUsers = $false
+    ,
     [Bool]$SourceIsS3Bucket = $false
     ,
     [String]$AwsRegion = 'us-east-1'
@@ -40,6 +44,8 @@ $SystemPrepParams = @{
     EntEnv = ${EntEnv}
     OuPath = ${OuPath}
     ComputerName = ${ComputerName}
+    AdminGroups = ${AdminGroups}
+    AdminUsers = ${AdminUsers}
     SaltStates = "${SaltStates}"
     SaltContentUrl = "${SaltContentUrl}"
     NoReboot = ${NoReboot}

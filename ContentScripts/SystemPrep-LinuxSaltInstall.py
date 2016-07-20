@@ -178,6 +178,8 @@ def main(saltinstallmethod='git',
          entenv='false',
          oupath=None,
          computername=None,
+         admingroups=None,
+         adminusers=None,
          sourceiss3bucket='false',
          **kwargs):
     """
@@ -224,6 +226,18 @@ def main(saltinstallmethod='git',
                    archive contains directives to join the domain, the
                    join-domain formula will place the computer object in the
                    OU specified by this grain.
+    :param admingroups: str, colon-separated string of domain groups. controls
+                   whether to write a salt custom grain,
+                   join-domain:admin_groups. If set, and the salt-content.zip
+                   archive contains directives to join the domain, the
+                   join-domain formula will grant these domain groups login and
+                   sudo privileges.
+    :param adminusers: str, colon-separated string of domain users. controls
+                   whether to write a salt custom grain,
+                   join-domain:admin_users. If set, and the salt-content.zip
+                   archive contains directives to join the domain, the
+                   join-domain formula will grant these domain users login and
+                   sudo privileges.
     :param computername: str, controls whether to write a salt custom grain,
                    name-computer:computername. If set, and the salt-content.zip
                    archive contains directives to name the computer, the
@@ -243,6 +257,9 @@ def main(saltinstallmethod='git',
     # Handle entenv tri-state
     entenv = True if 'true' == entenv.lower() else False if 'false' == \
         entenv.lower() else entenv.lower()
+    # Convert admingroups and adminusers to lists
+    admingroups = admingroups.split(':') if admingroups else None
+    adminusers = adminusers.split(':') if admingroups else None
 
     print('+' * 80)
     print('Entering script -- ' + scriptname)
@@ -421,19 +438,28 @@ def main(saltinstallmethod='git',
         # TODO: Get environment from EC2 metadata or tags
         entenv = entenv
     print('Setting grain `systemprep`...')
+    grain = { "enterprise_environment": entenv }
     systemprepgrainresult = os.system(
-        '{0} --local grains.setval systemprep \'{{"enterprise_environment":'
-        '"{1}"}}\''.format(saltcall, entenv))
-    if oupath:
+        '{0} --local grains.setval systemprep \'{1}\''
+        .format(saltcall, grain))
+    if oupath or admingroups or adminusers:
         print('Setting grain `join-domain`...')
+        grain = {}
+        if oupath:
+            grain['oupath'] = oupath
+        if admingroups:
+            grain['admin_groups'] = admingroups
+        if adminusers:
+            grain['admin_users'] = adminusers
         joindomaingrainresult = os.system(
-            '{0} --local grains.setval "join-domain" \'{{"oupath":'
-            '"{1}"}}\''.format(saltcall, oupath))
+            '{0} --local grains.setval "join-domain" \'{1}\''
+            .format(saltcall, grain))
     if computername:
         print('Setting grain `name-computer`...')
+        grain = { 'computername': computername }
         namecomputergrainresult = os.system(
-            '{0} --local grains.setval "name-computer" \'{{"computername":'
-            '"{1}"}}\''.format(saltcall, computername))
+            '{0} --local grains.setval "name-computer" \'{1}\''
+            .format(saltcall, grain))
 
     # Sync custom modules
     print('Syncing custom salt modules...')
