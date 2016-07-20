@@ -271,21 +271,20 @@ if [[ -n "${ROOT_CERT_URL}" ]]; then
 fi
 
 # Install the aws cli
-AWS="/usr/local/bin/aws"
-if [[ -n "${AWSCLI_URL}" ]]; then
+AWS="/usr/bin/aws"
+if [[ -n "${AWSCLI_URL}" && ! -x "${AWS}" ]]; then
     AWSCLI_FILENAME=$(echo ${AWSCLI_URL} | awk -F'/' '{ print ( $(NF) ) }')
     AWSCLI_FULLPATH=${WORKINGDIR}/${AWSCLI_FILENAME}
     cd ${WORKINGDIR}
     echo "Downloading aws cli -- ${AWSCLI_URL}"
     curl -L -O -s -S ${AWSCLI_URL} || \
-            ( echo "Could not download file. Check the url and whether 'curl' is in the path. Quitting..." && exit 1 )
-    hash unzip 2> /dev/null || \
-        yum -y install unzip || \
-            ( echo "Could not install unzip, which is required to install the awscli. Quitting..." && exit 1 )
+        ( echo "Could not download file. Check the url and whether 'curl' is in the path. Quitting..." && exit 1 )
+    hash unzip 2> /dev/null || yum -y install unzip || \
+        ( echo "Could not install unzip, which is required to install the awscli. Quitting..." && exit 1 )
     echo "Unzipping aws cli -- ${AWSCLI_FULLPATH}"
     unzip -o $AWSCLI_FULLPATH || ( echo "Could not unzip file. Quitting..." && exit 1 )
     echo "Installing aws cli -- ${WORKINGDIR}/awscli-bundle/install"
-    python ${WORKINGDIR}/awscli-bundle/install -i /opt/awscli -b $AWS || \
+    python ${WORKINGDIR}/awscli-bundle/install -i /opt/aws/cli -b $AWS || \
         ( echo "Could not install awscli. Quitting..." && exit 1 )
 fi
 
@@ -294,12 +293,13 @@ SCRIPTFILENAME=$(echo ${SYSTEMPREPMASTERSCRIPTSOURCE} | awk -F'/' '{ print ( $(N
 SCRIPTFULLPATH=${WORKINGDIR}/${SCRIPTFILENAME}
 if [[ "true" = ${SOURCEISS3BUCKET,,} ]]; then
     echo "Downloading master script from S3 bucket using AWS Tools -- ${SYSTEMPREPMASTERSCRIPTSOURCE}"
+    export AWS_DEFAULT_REGION=${AWSREGION}
     BUCKET=$(echo ${SYSTEMPREPMASTERSCRIPTSOURCE} | awk -F'.' '{ print substr($1,9)}' OFS="/")
     KEY=$(echo ${SYSTEMPREPMASTERSCRIPTSOURCE} | awk -F'/' '{$1=$2=$3=""; print substr($0,4)}' OFS="/")
-    $AWS s3 cp s3://${BUCKET}/${KEY} ${SCRIPTFULLPATH} --region ${AWSREGION} || \
+    $AWS s3 cp s3://${BUCKET}/${KEY} ${SCRIPTFULLPATH} || \
         ( BUCKET=$(echo ${SYSTEMPREPMASTERSCRIPTSOURCE} | awk -F'/' '{ print $4 }' OFS="/") ; \
           KEY=$(echo ${SYSTEMPREPMASTERSCRIPTSOURCE} | awk -F'/' '{$1=$2=$3=$4=""; print substr($0,5)}' OFS="/") ; \
-          $AWS s3 cp s3://${BUCKET}/${KEY} ${SCRIPTFULLPATH} --region ${AWSREGION} ) || \
+          $AWS s3 cp s3://${BUCKET}/${KEY} ${SCRIPTFULLPATH} ) || \
               ( echo "Could not download file using AWS Tools. Check the url, and the instance role. Quitting..." && exit 1 )
 else
     echo "Downloading master script from web host -- ${SYSTEMPREPMASTERSCRIPTSOURCE}"
