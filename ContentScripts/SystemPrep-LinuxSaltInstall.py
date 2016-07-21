@@ -259,7 +259,7 @@ def main(saltinstallmethod='git',
         entenv.lower() else entenv.lower()
     # Convert admingroups and adminusers to lists
     admingroups = admingroups.split(':') if admingroups else None
-    adminusers = adminusers.split(':') if admingroups else None
+    adminusers = adminusers.split(':') if adminusers else None
 
     print('+' * 80)
     print('Entering script -- ' + scriptname)
@@ -278,6 +278,8 @@ def main(saltinstallmethod='git',
     print('    entenv = {0}'.format(entenv))
     print('    oupath = {0}'.format(oupath))
     print('    computername = {0}'.format(computername))
+    print('    admingroups = {0}'.format(admingroups))
+    print('    adminusers = {0}'.format(adminusers))
     for key, value in kwargs.items():
         print('    {0} = {1}'.format(key, value))
 
