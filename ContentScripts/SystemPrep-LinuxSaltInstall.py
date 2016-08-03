@@ -118,8 +118,10 @@ def extract_contents(filepath,
                          'extractor is found'.format(filepath))
 
     if createdirfromfilename:
-        to_directory = os.sep.join((to_directory,
-                                           '.'.join(filepath.split(os.sep)[-1].split('.')[:-1])))
+        to_directory = os.sep.join((
+            to_directory,
+            '.'.join(filepath.split(os.sep)[-1].split('.')[:-1])
+        ))
     try:
         os.makedirs(to_directory)
     except OSError:
@@ -270,7 +272,8 @@ def main(saltinstallmethod='git',
     print('    saltversion = {0}'.format(saltversion))
     print('    saltcontentsource = {0}'.format(saltcontentsource))
     print('    formulastoinclude = {0}'.format(formulastoinclude))
-    print('    formulaterminationstrings = {0}'.format(formulaterminationstrings))
+    print('    formulaterminationstrings = {0}'
+          .format(formulaterminationstrings))
     print('    saltstates = {0}'.format(saltstates))
     print('    salt_results_log = {0}'.format(salt_results_log))
     print('    salt_debug_log = {0}'.format(salt_debug_log))
@@ -296,33 +299,36 @@ def main(saltinstallmethod='git',
     saltpillarroot = os.sep.join((saltsrv, 'pillar'))
     saltbaseenv = os.sep.join((saltfileroot, 'base'))
     workingdir = create_working_dir('/usr/tmp/', 'saltinstall-')
-    salt_results_logfile = salt_results_log or os.sep.join((workingdir,
-                                'saltcall.results.log'))
-    salt_debug_logfile = salt_debug_log or os.sep.join((workingdir,
-                                'saltcall.debug.log'))
-    saltcall_arguments = '--out yaml --out-file {0} --return local --log-file ' \
-                         '{1} --log-file-level debug' \
+    salt_results_logfile = salt_results_log or os.sep.join((
+        workingdir,
+        'saltcall.results.log'))
+    salt_debug_logfile = salt_debug_log or os.sep.join((
+        workingdir,
+        'saltcall.debug.log'))
+    saltcall_arguments = '--out yaml --out-file {0} --return local ' \
+                         '--log-file {1} --log-file-level debug' \
                          .format(salt_results_logfile, salt_debug_logfile)
 
-    #Install salt via yum or git
+    # Install salt via yum or git
     if 'yum' == saltinstallmethod.lower():
         # Install salt-minion and dependencies for selinux python modules
         # TODO: Install salt version specified by `saltversion`
-        install_result = os.system('yum -y install {0}'.format(' '.join(yum_pkgs)))
+        install_result = os.system(
+            'yum -y install {0}'.format(' '.join(yum_pkgs)))
         print('Return code of yum install: {0}'.format(install_result))
     elif 'git' == saltinstallmethod.lower():
         # Check required params for the `git` install method
         if not saltbootstrapsource:
             error_message = 'Detected `git` as the install method, but the ' \
-                            'required parameter `saltbootstrapsource` was not ' \
-                            'provided.'
+                            'required parameter `saltbootstrapsource` was ' \
+                            'not provided.'
             raise SystemError(error_message)
         if not saltgitrepo:
             error_message = 'Detected `git` as the install method, but the ' \
                             'required parameter `saltgitrepo` was not ' \
                             'provided.'
             raise SystemError(error_message)
-        #Download the salt bootstrap installer and install salt
+        # Download the salt bootstrap installer and install salt
         saltbootstrapfilename = saltbootstrapsource.split('/')[-1]
         saltbootstrapfile = '/'.join((workingdir, saltbootstrapfilename))
         download_file(saltbootstrapsource, saltbootstrapfile)
@@ -335,7 +341,7 @@ def main(saltinstallmethod='git',
         raise SystemError('Unrecognized `saltinstallmethod`! Must set '
                           '`saltinstallmethod` to either "git" or "yum".')
 
-    #Create directories for salt content and formulas
+    # Create directories for salt content and formulas
     for saltdir in [saltfileroot, saltbaseenv, saltformularoot]:
         try:
             os.makedirs(saltdir)
@@ -343,7 +349,7 @@ def main(saltinstallmethod='git',
             if not os.path.isdir(saltdir):
                 raise
 
-    #Download and extract the salt content specified by saltcontentsource
+    # Download and extract the salt content specified by saltcontentsource
     if saltcontentsource:
         saltcontentfilename = saltcontentsource.split('/')[-1]
         saltcontentfile = os.sep.join((workingdir, saltcontentfilename))
@@ -351,7 +357,7 @@ def main(saltinstallmethod='git',
         extract_contents(filepath=saltcontentfile,
                          to_directory=saltsrv)
 
-    #Download and extract any salt formulas specified in formulastoinclude
+    # Download and extract any salt formulas specified in formulastoinclude
     saltformulaconf = []
     for formulasource in formulastoinclude:
         formulafilename = formulasource.split('/')[-1]
@@ -370,7 +376,7 @@ def main(saltinstallmethod='git',
                 formuladir = newformuladir
         saltformulaconf += '    - {0}\n'.format(formuladir),
 
-    #Create a list that contains the new file_roots configuration
+    # Create a list that contains the new file_roots configuration
     saltfilerootconf = []
     saltfilerootconf += 'file_roots:\n',
     saltfilerootconf += '  base:\n',
@@ -378,20 +384,20 @@ def main(saltinstallmethod='git',
     saltfilerootconf += saltformulaconf
     saltfilerootconf += '\n',
 
-    #Create a list that contains the new pillar_roots configuration
+    # Create a list that contains the new pillar_roots configuration
     saltpillarrootconf = []
     saltpillarrootconf += 'pillar_roots:\n',
     saltpillarrootconf += '  base:\n',
     saltpillarrootconf += '    - {0}\n\n'.format(saltpillarroot),
 
-    #Backup the minionconf file
+    # Backup the minionconf file
     shutil.copyfile(minionconf, '{0}.bak'.format(minionconf))
 
-    #Read the minionconf file into a list
+    # Read the minionconf file into a list
     with open(minionconf, 'r') as f:
         minionconflines = f.readlines()
 
-    #Find the file_roots section in the minion conf file
+    # Find the file_roots section in the minion conf file
     filerootsbegin = '^#file_roots:|^file_roots:'
     filerootsend = '#$|^$'
     beginindex = None
@@ -404,11 +410,11 @@ def main(saltinstallmethod='git',
             endindex = n
         n += 1
 
-    #Update the file_roots section with the new configuration
+    # Update the file_roots section with the new configuration
     minionconflines = minionconflines[0:beginindex] + \
-                      saltfilerootconf + minionconflines[endindex + 1:]
+        saltfilerootconf + minionconflines[endindex + 1:]
 
-    #Find the pillar_roots section in the minion conf file
+    # Find the pillar_roots section in the minion conf file
     pillarrootsbegin = '^#pillar_roots:|^pillar_roots:'
     pillarrootsend = '^#$|^$'
     beginindex = None
@@ -421,11 +427,11 @@ def main(saltinstallmethod='git',
             endindex = n
         n += 1
 
-    #Update the pillar_roots section with the new configuration
+    # Update the pillar_roots section with the new configuration
     minionconflines = minionconflines[0:beginindex] + \
-                      saltpillarrootconf + minionconflines[endindex + 1:]
+        saltpillarrootconf + minionconflines[endindex + 1:]
 
-    #Write the new configuration to minionconf
+    # Write the new configuration to minionconf
     try:
         with open(minionconf, 'w') as f:
             f.writelines(minionconflines)
@@ -436,31 +442,31 @@ def main(saltinstallmethod='git',
         print('Saved the new minion configuration successfully.')
 
     # Write custom grains
-    if entenv == True:
+    if entenv is True:
         # TODO: Get environment from EC2 metadata or tags
         entenv = entenv
     print('Setting grain `systemprep`...')
-    grain = { "enterprise_environment": entenv }
+    grain = {"enterprise_environment": '{0}'.format(entenv)}
     systemprepgrainresult = os.system(
-        '{0} --local grains.setval systemprep \'{1}\''
+        '{0} --local grains.setval systemprep "{1}"'
         .format(saltcall, grain))
     if oupath or admingroups or adminusers:
         print('Setting grain `join-domain`...')
         grain = {}
         if oupath:
-            grain['oupath'] = oupath
+            grain['oupath'] = '{0}'.format(oupath)
         if admingroups:
             grain['admin_groups'] = admingroups
         if adminusers:
             grain['admin_users'] = adminusers
         joindomaingrainresult = os.system(
-            '{0} --local grains.setval "join-domain" \'{1}\''
+            '{0} --local grains.setval "join-domain" "{1}"'
             .format(saltcall, grain))
     if computername:
         print('Setting grain `name-computer`...')
-        grain = { 'computername': computername }
+        grain = {'computername': '{0}'.format(computername)}
         namecomputergrainresult = os.system(
-            '{0} --local grains.setval "name-computer" \'{1}\''
+            '{0} --local grains.setval "name-computer" "{1}"'
             .format(saltcall, grain))
 
     # Sync custom modules
@@ -478,13 +484,15 @@ def main(saltinstallmethod='git',
             print('Detected the States parameter is set to `highstate`. '
                   'Applying the salt `"highstate`" to the system.')
             result = os.system('{0} --local state.highstate {1}'
-                        .format(saltcall, saltcall_arguments))
+                               .format(saltcall, saltcall_arguments))
         else:
             print('Detected the States parameter is set to: {0}. '
                   'Applying the user-defined list of states to the system.'
                   .format(saltstates))
-            result = os.system('{0} --local state.sls {1} {2}'
-                        .format(saltcall, saltstates, saltcall_arguments))
+            result = os.system(
+                '{0} --local state.sls {1} {2}'
+                .format(saltcall, saltstates, saltcall_arguments)
+            )
 
         print('Return code of salt-call: {0}'.format(result))
 
@@ -499,7 +507,7 @@ def main(saltinstallmethod='git',
             raise SystemError(error_message)
         if (not re.search('result: false', salt_results)) and \
            (re.search('result: true', salt_results)):
-            #At least one state succeeded, and no states failed, so log success
+            # At least one state succeeded, and no states failed, log success
             print('Salt states applied successfully! Details are in the log, '
                   '{0}'.format(salt_results_logfile))
         else:
@@ -509,7 +517,7 @@ def main(saltinstallmethod='git',
                             .format(salt_results_logfile)
             raise SystemError(error_message)
 
-    #Remove working files
+    # Remove working files
     cleanup(workingdir)
 
     print(str(scriptname) + ' complete!')
@@ -519,14 +527,14 @@ def main(saltinstallmethod='git',
 if __name__ == "__main__":
     # convert command line parameters of the form `param=value` to a dict
     kwargs = dict(x.split('=', 1) for x in sys.argv[1:])
-    #Convert parameter keys to lowercase, parameter values are unmodified
+    # Convert parameter keys to lowercase, parameter values are unmodified
     kwargs = dict((k.lower(), v) for k, v in kwargs.items())
 
-    #Need to convert comma-delimited strings strings to lists,
-    #where the strings may have parentheses or brackets
-    #First, remove any parentheses or brackets
-    #Then, split the string on the comma to convert to a list,
-    #and remove empty strings with filter
+    # Need to convert comma-delimited strings strings to lists,
+    # where the strings may have parentheses or brackets
+    # First, remove any parentheses or brackets
+    # Then, split the string on the comma to convert to a list,
+    # and remove empty strings with filter
     if 'formulastoinclude' in kwargs:
         kwargs['formulastoinclude'] = kwargs['formulastoinclude'].translate(None, '()[]')
         kwargs['formulastoinclude'] = filter(None, kwargs['formulastoinclude'].split(','))
