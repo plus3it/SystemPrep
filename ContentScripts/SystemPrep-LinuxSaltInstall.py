@@ -436,31 +436,31 @@ def main(saltinstallmethod='git',
         print('Saved the new minion configuration successfully.')
 
     # Write custom grains
-    if entenv == True:
+    if entenv is True:
         # TODO: Get environment from EC2 metadata or tags
         entenv = entenv
     print('Setting grain `systemprep`...')
-    grain = { "enterprise_environment": entenv }
+    grain = {"enterprise_environment": '{0}'.format(entenv)}
     systemprepgrainresult = os.system(
-        '{0} --local grains.setval systemprep \'{1}\''
+        '{0} --local grains.setval systemprep "{1}"'
         .format(saltcall, grain))
     if oupath or admingroups or adminusers:
         print('Setting grain `join-domain`...')
         grain = {}
         if oupath:
-            grain['oupath'] = oupath
+            grain['oupath'] = '{0}'.format(oupath)
         if admingroups:
             grain['admin_groups'] = admingroups
         if adminusers:
             grain['admin_users'] = adminusers
         joindomaingrainresult = os.system(
-            '{0} --local grains.setval "join-domain" \'{1}\''
+            '{0} --local grains.setval "join-domain" "{1}"'
             .format(saltcall, grain))
     if computername:
         print('Setting grain `name-computer`...')
-        grain = { 'computername': computername }
+        grain = {'computername': '{0}'.format(computername)}
         namecomputergrainresult = os.system(
-            '{0} --local grains.setval "name-computer" \'{1}\''
+            '{0} --local grains.setval "name-computer" "{1}"'
             .format(saltcall, grain))
 
     # Sync custom modules
