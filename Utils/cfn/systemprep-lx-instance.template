@@ -43,6 +43,51 @@
             "Default" : "",
             "AllowedPattern" : "^$|^http://.*$|^https://.*$"
         },
+        "AppVolumeDevice" :
+        {
+            "Description" : "Device to mount an extra EBS volume. Leave blank to launch without an extra application volume",
+            "Type" : "String",
+            "Default" : "",
+            "AllowedValues" :
+            [
+                "",
+                "/dev/sdf",
+                "/dev/sdg",
+                "/dev/sdh",
+                "/dev/sdi",
+                "/dev/sdj"
+            ]
+        },
+        "AppVolumeMountPath" :
+        {
+            "Description" : "Filesystem path to mount the extra app volume. Ignored if \"AppVolumeDevice\" is blank",
+            "Type" : "String",
+            "Default" : "/opt/data",
+            "AllowedPattern" : "/.*"
+        },
+        "AppVolumeType" :
+        {
+            "Description" : "Type of EBS volume to create. Ignored if \"AppVolumeDevice\" is blank",
+            "Type" : "String",
+            "Default" : "gp2",
+            "AllowedValues" :
+            [
+                "gp2",
+                "io1",
+                "sc1",
+                "st1",
+                "standard"
+            ]
+        },
+        "AppVolumeSize" :
+        {
+            "Description" : "Size in GB of the EBS volume to create. Ignored if \"AppVolumeDevice\" is blank",
+            "Type" : "Number",
+            "Default" : "1",
+            "MinValue": "1",
+            "MaxValue": "16384",
+            "ConstraintDescription" : "Must be between 1GB and 16384GB."
+        },
         "KeyPairName" :
         {
             "Description" : "Public/private key pairs allow you to securely connect to your instance after it launches",
@@ -152,6 +197,10 @@
         "ExecuteAppScript" :
         {
             "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "AppScriptUrl" }, "" ] } ]
+        },
+        "CreateAppVolume" :
+        {
+            "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "AppVolumeDevice" }, "" ] } ]
         },
         "UseOuPath" :
         {
@@ -465,6 +514,22 @@
                             "VolumeType" : "gp2",
                             "DeleteOnTermination" : "true"
                         }
+                    },
+                    {
+                        "Fn::If" :
+                        [
+                            "CreateAppVolume",
+                            {
+                                "DeviceName" : { "Ref" : "AppVolumeDevice" },
+                                "Ebs" :
+                                {
+                                    "VolumeSize" : { "Ref" : "AppVolumeSize" },
+                                    "VolumeType" : { "Ref" : "AppVolumeType" },
+                                    "DeleteOnTermination" : "true"
+                                }
+                            },
+                            { "Ref" : "AWS::NoValue" }
+                        ]
                     }
                 ],
                 "KeyName" :
@@ -492,6 +557,46 @@
                 {
                     "Fn::Base64" :
                     { "Fn::Join" : [ "", [
+                        "Content-Type: multipart/mixed; boundary=\"===============3585321300151562773==\"\n",
+                        "MIME-Version: 1.0\n",
+                        "\n",
+
+                        "--===============3585321300151562773==\n",
+                        "Content-Type: text/cloud-config; charset=\"us-ascii\"\n",
+                        "MIME-Version: 1.0\n",
+                        "Content-Transfer-Encoding: 7bit\n",
+                        "Content-Disposition: attachment; filename=\"cloud.cfg\"\n",
+                        "\n",
+
+                        "#cloud-config\n",
+                        {
+                            "Fn::If" :
+                            [
+                                "CreateAppVolume",
+                                { "Fn::Join" : [ "", [
+                                    "bootcmd:\n",
+                                    "- cloud-init-per instance mkfs-appvolume mkfs -t ext4 ",
+                                    { "Ref" : "AppVolumeDevice" },
+                                    "\n",
+                                    "mounts:\n",
+                                    "- [ ",
+                                    { "Ref" : "AppVolumeDevice" }, ", ",
+                                    { "Ref" : "AppVolumeMountPath" },
+                                    " ]\n"
+                                ]]},
+                                { "Ref" : "AWS::NoValue" }
+                            ]
+                        },
+
+                        "\n",
+
+                        "--===============3585321300151562773==\n",
+                        "Content-Type: text/x-shellscript; charset=\"us-ascii\"\n",
+                        "MIME-Version: 1.0\n",
+                        "Content-Transfer-Encoding: 7bit\n",
+                        "Content-Disposition: attachment; filename=\"script.sh\"\n",
+                        "\n",
+
                         "#!/bin/bash -xe\n\n",
 
                         "# Get pip\n",
@@ -549,7 +654,8 @@
                         "  --resource SystemPrepInstance",
                         "  --region ", { "Ref" : "AWS::Region"}, ";",
                         " exit 1",
-                        " )\n\n"
+                        " )\n\n",
+                        "--===============3585321300151562773==--"
                     ] ] }
                 }
             }
