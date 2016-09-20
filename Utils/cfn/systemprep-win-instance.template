@@ -32,6 +32,44 @@
             "Default" : "",
             "AllowedPattern" : "^$|^http://.*$|^https://.*$"
         },
+        "AppVolumeDevice" :
+        {
+            "Description" : "Device to mount an extra EBS volume. Leave blank to launch without an extra application volume",
+            "Type" : "String",
+            "Default" : "",
+            "AllowedValues" :
+            [
+                "",
+                "xvdf",
+                "xvde",
+                "xvdg",
+                "xvdh",
+                "xvdi"
+            ]
+        },
+        "AppVolumeType" :
+        {
+            "Description" : "Type of EBS volume to create. Ignored if \"AppVolumeDevice\" is blank",
+            "Type" : "String",
+            "Default" : "gp2",
+            "AllowedValues" :
+            [
+                "gp2",
+                "io1",
+                "sc1",
+                "st1",
+                "standard"
+            ]
+        },
+        "AppVolumeSize" :
+        {
+            "Description" : "Size in GB of the EBS volume to create. Ignored if \"AppVolumeDevice\" is blank",
+            "Type" : "Number",
+            "Default" : "1",
+            "MinValue": "1",
+            "MaxValue": "16384",
+            "ConstraintDescription" : "Must be between 1GB and 16384GB."
+        },
         "KeyPairName" :
         {
             "Description" : "Public/private key pairs allow you to securely connect to your instance after it launches",
@@ -131,6 +169,10 @@
         {
             "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "AppScriptUrl" }, "" ] } ]
         },
+        "CreateAppVolume" :
+        {
+            "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "AppVolumeDevice" }, "" ] } ]
+        },
         "UseOuPath" :
         {
             "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "SystemPrepOuPath" }, "" ] } ]
@@ -203,6 +245,18 @@
                         "AppScriptUrl",
                         "AppScriptParams",
                         "AppScriptShell"
+                    ]
+                },
+                {
+                    "Label" :
+                    {
+                        "default" : "EC2 Application EBS Volume"
+                    },
+                    "Parameters" :
+                    [
+                        "AppVolumeDevice",
+                        "AppVolumeSize",
+                        "AppVolumeType"
                     ]
                 },
                 {
@@ -507,6 +561,22 @@
                             "VolumeType" : "gp2",
                             "DeleteOnTermination" : "true"
                         }
+                    },
+                    {
+                        "Fn::If" :
+                        [
+                            "CreateAppVolume",
+                            {
+                                "DeviceName" : { "Ref" : "AppVolumeDevice" },
+                                "Ebs" :
+                                {
+                                    "VolumeSize" : { "Ref" : "AppVolumeSize" },
+                                    "VolumeType" : { "Ref" : "AppVolumeType" },
+                                    "DeleteOnTermination" : "true"
+                                }
+                            },
+                            { "Ref" : "AWS::NoValue" }
+                        ]
                     }
                 ],
                 "KeyName" :
