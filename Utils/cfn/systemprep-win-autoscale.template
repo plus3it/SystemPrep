@@ -76,13 +76,13 @@
                 "true"
             ]
         },
-        "MinSize" :
+        "MinCapacity" :
         {
             "Description" : "Minimum number of instances in the Autoscaling Group",
             "Type" : "Number",
             "Default" : "1"
         },
-        "MaxSize" :
+        "MaxCapacity" :
         {
             "Description" : "Maximum number of instances in the Autoscaling Group",
             "Type" : "Number",
@@ -187,6 +187,100 @@
             }
         }
     },
+    "Metadata" :
+    {
+        "AWS::CloudFormation::Interface" :
+        {
+            "ParameterGroups" :
+            [
+                {
+                    "Label" :
+                    {
+                      "default" : "EC2 Instance Configuration"
+                    },
+                    "Parameters" :
+                    [
+                        "AmiId",
+                        "AmiDistro",
+                        "InstanceType",
+                        "KeyPairName",
+                        "NoPublicIp",
+                        "NoReboot",
+                        "NoUpdates",
+                        "SecurityGroupIds"
+                    ]
+                },
+                {
+                    "Label" :
+                    {
+                      "default" : "EC2 SystemPrep Configuration"
+                    },
+                    "Parameters" :
+                    [
+                        "SystemPrepBootstrapUrl",
+                        "SystemPrepEnvironment",
+                        "SystemPrepOuPath"
+                    ]
+                },
+                {
+                    "Label" :
+                    {
+                        "default" : "EC2 Application Configuration"
+                    },
+                    "Parameters" :
+                    [
+                        "AppScriptUrl",
+                        "AppScriptParams",
+                        "AppScriptShell"
+                    ]
+                },
+                {
+                    "Label" :
+                    {
+                        "default" : "AutoScale Configuration"
+                    },
+                    "Parameters" :
+                    [
+                        "DesiredCapacity",
+                        "MinCapacity",
+                        "MaxCapacity"
+                    ]
+                },
+                {
+                    "Label" :
+                    {
+                        "default" : "Network Configuration"
+                    },
+                    "Parameters" :
+                    [
+                        "SubnetIds"
+                    ]
+                },
+                {
+                    "Label" :
+                    {
+                        "default" : "CloudFormation Stack Update Configuration"
+                    },
+                    "Parameters" :
+                    [
+                        "ToggleCfnInitUpdate",
+                        "ToggleNewInstances"
+                    ]
+                }
+            ],
+            "ParameterLabels" :
+            {
+                "ToggleCfnInitUpdate" :
+                {
+                    "default" : "Force Cfn Init Update"
+                },
+                "ToggleNewInstances" :
+                {
+                    "default" : "Force New Instances"
+                }
+            }
+        }
+    },
     "Resources" :
     {
         "SystemPrepAutoScalingGroup" :
@@ -212,8 +306,8 @@
             {
                 "VPCZoneIdentifier" : { "Ref" : "SubnetIds" },
                 "LaunchConfigurationName" : { "Ref" : "SystemPrepLaunchConfig" },
-                "MinSize" : { "Ref" : "MinSize" },
-                "MaxSize" : { "Ref" : "MaxSize" },
+                "MinSize" : { "Ref" : "MinCapacity" },
+                "MaxSize" : { "Ref" : "MaxCapacity" },
                 "DesiredCapacity" : { "Ref" : "DesiredCapacity" },
                 "Tags" :
                 [

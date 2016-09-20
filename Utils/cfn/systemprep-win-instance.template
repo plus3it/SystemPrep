@@ -158,6 +158,83 @@
             }
         }
     },
+    "Metadata" :
+    {
+        "AWS::CloudFormation::Interface" :
+        {
+            "ParameterGroups" :
+            [
+                {
+                    "Label" :
+                    {
+                      "default" : "EC2 Instance Configuration"
+                    },
+                    "Parameters" :
+                    [
+                        "AmiId",
+                        "AmiDistro",
+                        "InstanceType",
+                        "KeyPairName",
+                        "NoPublicIp",
+                        "NoReboot",
+                        "NoUpdates",
+                        "SecurityGroupIds"
+                    ]
+                },
+                {
+                    "Label" :
+                    {
+                      "default" : "EC2 SystemPrep Configuration"
+                    },
+                    "Parameters" :
+                    [
+                        "SystemPrepBootstrapUrl",
+                        "SystemPrepEnvironment",
+                        "SystemPrepOuPath"
+                    ]
+                },
+                {
+                    "Label" :
+                    {
+                        "default" : "EC2 Application Configuration"
+                    },
+                    "Parameters" :
+                    [
+                        "AppScriptUrl",
+                        "AppScriptParams",
+                        "AppScriptShell"
+                    ]
+                },
+                {
+                    "Label" :
+                    {
+                        "default" : "Network Configuration"
+                    },
+                    "Parameters" :
+                    [
+                        "SubnetId"
+                    ]
+                },
+                {
+                    "Label" :
+                    {
+                        "default" : "CloudFormation Stack Update Configuration"
+                    },
+                    "Parameters" :
+                    [
+                        "ToggleCfnInitUpdate"
+                    ]
+                }
+            ],
+            "ParameterLabels" :
+            {
+                "ToggleCfnInitUpdate" :
+                {
+                    "default" : "Force Cfn Init Update"
+                }
+            }
+        }
+    },
     "Resources" :
     {
         "SystemPrepInstance" :
