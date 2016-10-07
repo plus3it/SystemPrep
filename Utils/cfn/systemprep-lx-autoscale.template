@@ -210,6 +210,20 @@
             "Type" : "String",
             "Default" : ""
         },
+        "CfnGetPipUrl" :
+        {
+            "Description" : "URL to get-pip.py",
+            "Type" : "String",
+            "Default" : "https://bootstrap.pypa.io/get-pip.py",
+            "AllowedPattern" : "^http://.*\\.py$|^https://.*\\.py$"
+        },
+        "CfnBootstrapUtilsUrl" :
+        {
+            "Description" : "URL to aws-cfn-bootstrap-latest.tar.gz",
+            "Type" : "String",
+            "Default" : "https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz",
+            "AllowedPattern" : "^http://.*\\tar\\.gz$|^https://.*\\.tar\\.gz$"
+        },
         "ToggleCfnInitUpdate" :
         {
             "Description" : "A/B toggle that forces a change to instance metadata, triggering the cfn-init update sequence",
@@ -364,10 +378,12 @@
                 {
                     "Label" :
                     {
-                        "default" : "CloudFormation Stack Update Configuration"
+                        "default" : "CloudFormation Configuration"
                     },
                     "Parameters" :
                     [
+                        "CfnGetPipUrl",
+                        "CfnBootstrapUtilsUrl",
                         "ToggleCfnInitUpdate",
                         "ToggleNewInstances"
                     ]
@@ -847,7 +863,7 @@
 
                         "# Get pip\n",
                         "curl --silent --show-error --retry 5 -L ",
-                        "https://bootstrap.pypa.io/get-pip.py",
+                        { "Ref" : "CfnGetPipUrl" },
                         " | python", "\n\n",
 
                         "# Add pip to path\n",
@@ -862,7 +878,9 @@
                         "pip install pyopenssl ndg-httpsclient pyasn1\n\n",
 
                         "# Get cfn utils\n",
-                        "pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n\n",
+                        "pip install ",
+                        { "Ref" : "CfnBootstrapUtilsUrl" },
+                        "\n\n",
 
                         "# Remove gcc now that it is no longer needed\n",
                         "yum -y remove gcc --setopt=clean_requirements_on_remove=1\n\n",
