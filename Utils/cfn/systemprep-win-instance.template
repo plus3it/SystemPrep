@@ -92,6 +92,12 @@
                 "m4.xlarge"
             ]
         },
+        "InstanceRole" :
+        {
+            "Description" : "IAM instance role to apply to the instance(s)",
+            "Type" : "String",
+            "Default" : ""
+        },
         "NoPublicIp" :
         {
             "Description" : "Controls whether to assign the instance a public IP. Recommended to leave at \"true\" _unless_ launching in a public subnet",
@@ -191,6 +197,10 @@
         {
             "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "NoReboot" }, "true" ] } ]
         },
+        "AssignInstanceRole" :
+        {
+            "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "InstanceRole" }, "" ] } ]
+        },
         "AssignPublicIp" :
         {
             "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "NoPublicIp" }, "true" ] } ]
@@ -226,6 +236,7 @@
                         "AmiId",
                         "AmiDistro",
                         "InstanceType",
+                        "InstanceRole",
                         "KeyPairName",
                         "NoPublicIp",
                         "NoReboot",
@@ -375,6 +386,18 @@
                                     "[main]\n",
                                     "stack=", { "Ref" : "AWS::StackId" }, "\n",
                                     "region=", { "Ref" : "AWS::Region" }, "\n",
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "AssignInstanceRole",
+                                            { "Fn::Join" : [ "", [
+                                                "role=",
+                                                { "Ref" : "InstanceRole" },
+                                                "\n"
+                                            ] ] },
+                                            ""
+                                        ]
+                                    },
                                     "interval=1", "\n",
                                     "verbose=true", "\n"
                                 ]]}
@@ -389,6 +412,17 @@
                                     "action=cfn-init.exe -v -c update",
                                     " --stack ", { "Ref" : "AWS::StackName" },
                                     " --resource SystemPrepInstance",
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "AssignInstanceRole",
+                                            { "Fn::Join" : [ "", [
+                                                " --role ",
+                                                { "Ref" : "InstanceRole" }
+                                            ] ] },
+                                            ""
+                                        ]
+                                    },
                                     " --region ", { "Ref" : "AWS::Region" }, "\n"
                                 ]]}
                             },
@@ -564,6 +598,17 @@
                                     "cfn-signal.exe -e 0",
                                     " --stack ", { "Ref" : "AWS::StackName" },
                                     " --resource SystemPrepInstance",
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "AssignInstanceRole",
+                                            { "Fn::Join" : [ "", [
+                                                " --role ",
+                                                { "Ref" : "InstanceRole" }
+                                            ] ] },
+                                            ""
+                                        ]
+                                    },
                                     " --region ", { "Ref" : "AWS::Region"}, "\n"
                                 ]]},
                                 "ignoreErrors" : "true",
@@ -577,6 +622,15 @@
             {
                 "ImageId" : { "Ref" : "AmiId" },
                 "InstanceType" : { "Ref" : "InstanceType" },
+                "IamInstanceProfile" :
+                {
+                    "Fn::If" :
+                    [
+                        "AssignInstanceRole",
+                        { "Ref" : "InstanceRole" },
+                        { "Ref" : "AWS::NoValue" }
+                    ]
+                },
                 "Tags" :
                 [
                     {
@@ -644,6 +698,16 @@
                         "cfn-init.exe -v -c launch",
                         " --stack ", { "Ref" : "AWS::StackName" },
                         " --resource SystemPrepInstance ",
+                        {
+                            "Fn::If" :
+                            [
+                                "AssignInstanceRole",
+                                { "Fn::Join" : [ "", [
+                                    " --role ", { "Ref" : "InstanceRole" }
+                                ] ] },
+                                ""
+                            ]
+                        },
                         " --region ", { "Ref" : "AWS::Region" }, "\n",
 
                         "if %ERRORLEVEL% equ 0 goto success\n\n",
@@ -652,6 +716,16 @@
                         "cfn-signal.exe -e 1",
                         " --stack ", { "Ref" : "AWS::StackName" },
                         " --resource SystemPrepInstance ",
+                        {
+                            "Fn::If" :
+                            [
+                                "AssignInstanceRole",
+                                { "Fn::Join" : [ "", [
+                                    " --role ", { "Ref" : "InstanceRole"}
+                                ] ] },
+                                ""
+                            ]
+                        },
                         " --region ", { "Ref" : "AWS::Region" }, "\n",
                         "echo \"ERROR: cfn-init failed! Aborting!\"", "\n",
                         "exit /b 1\n\n",

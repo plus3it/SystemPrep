@@ -110,6 +110,12 @@
                 "m4.xlarge"
             ]
         },
+        "InstanceRole" :
+        {
+            "Description" : "IAM instance role to apply to the instance(s)",
+            "Type" : "String",
+            "Default" : ""
+        },
         "MinCapacity" :
         {
             "Description" : "Minimum number of instances in the Autoscaling Group",
@@ -253,6 +259,10 @@
         {
             "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "NoReboot" }, "true" ] } ]
         },
+        "AssignInstanceRole" :
+        {
+            "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "InstanceRole" }, "" ] } ]
+        },
         "AssignPublicIp" :
         {
             "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "NoPublicIp" }, "true" ] } ]
@@ -283,6 +293,7 @@
                         "AmiId",
                         "AmiDistro",
                         "InstanceType",
+                        "InstanceRole",
                         "KeyPairName",
                         "NoPublicIp",
                         "NoReboot",
@@ -489,6 +500,18 @@
                                     "[main]\n",
                                     "stack=", { "Ref" : "AWS::StackId" }, "\n",
                                     "region=", { "Ref" : "AWS::Region" }, "\n",
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "AssignInstanceRole",
+                                            { "Fn::Join" : [ "", [
+                                                "role=",
+                                                { "Ref" : "InstanceRole" },
+                                                "\n"
+                                            ] ] },
+                                            ""
+                                        ]
+                                    },
                                     "interval=1", "\n",
                                     "verbose=true", "\n"
                                 ]]},
@@ -506,6 +529,17 @@
                                     "action=/opt/aws/bin/cfn-init -v -c update",
                                     " --stack ", { "Ref" : "AWS::StackName" },
                                     " --resource SystemPrepLaunchConfig",
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "AssignInstanceRole",
+                                            { "Fn::Join" : [ "", [
+                                                " --role ",
+                                                { "Ref" : "InstanceRole" }
+                                            ] ] },
+                                            ""
+                                        ]
+                                    },
                                     " --region ", { "Ref" : "AWS::Region" }, "\n",
                                     "runas=root\n"
                                 ]]},
@@ -665,6 +699,17 @@
                                     "/opt/aws/bin/cfn-signal -e 0",
                                     " --stack ", { "Ref" : "AWS::StackName" },
                                     " --resource SystemPrepAutoScalingGroup",
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "AssignInstanceRole",
+                                            { "Fn::Join" : [ "", [
+                                                " --role ",
+                                                { "Ref" : "InstanceRole" }
+                                            ] ] },
+                                            ""
+                                        ]
+                                    },
                                     " --region ", { "Ref" : "AWS::Region"}, "\n"
                                 ]]},
                                 "ignoreErrors" : "true"
@@ -687,6 +732,15 @@
             {
                 "ImageId" : { "Ref" : "AmiId" },
                 "InstanceType" : { "Ref" : "InstanceType" },
+                "IamInstanceProfile" :
+                {
+                    "Fn::If" :
+                    [
+                        "AssignInstanceRole",
+                        { "Ref" : "InstanceRole" },
+                        { "Ref" : "AWS::NoValue" }
+                    ]
+                },
                 "AssociatePublicIpAddress" :
                 {
                     "Fn::If" :
@@ -839,11 +893,31 @@
                         "/opt/aws/bin/cfn-init -v -c launch",
                         " --stack ", { "Ref" : "AWS::StackName" },
                         " --resource SystemPrepLaunchConfig",
+                        {
+                            "Fn::If" :
+                            [
+                                "AssignInstanceRole",
+                                { "Fn::Join" : [ "", [
+                                    " --role ", { "Ref" : "InstanceRole" }
+                                ] ] },
+                                ""
+                            ]
+                        },
                         " --region ", { "Ref" : "AWS::Region" }, " ||",
                         " ( echo 'ERROR: cfn-init failed! Aborting!';",
                         " /opt/aws/bin/cfn-signal -e 1",
                         "  --stack ", { "Ref" : "AWS::StackName" },
                         "  --resource SystemPrepAutoScalingGroup",
+                        {
+                            "Fn::If" :
+                            [
+                                "AssignInstanceRole",
+                                { "Fn::Join" : [ "", [
+                                    " --role ", { "Ref" : "InstanceRole" }
+                                ] ] },
+                                ""
+                            ]
+                        },
                         "  --region ", { "Ref" : "AWS::Region"}, ";",
                         " exit 1",
                         " )\n\n",
