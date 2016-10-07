@@ -192,6 +192,13 @@
             "Type" : "String",
             "Default" : ""
         },
+        "CfnEndpointUrl" :
+        {
+            "Description" : "URL to the CloudFormation Endpoint. e.g. https://cloudformation.us-east-1.amazonaws.com",
+            "Type" : "String",
+            "Default" : "",
+            "AllowedPattern" : "^$|^http://.*$|^https://.*$"
+        },
         "CfnGetPipUrl" :
         {
             "Description" : "URL to get-pip.py",
@@ -235,6 +242,10 @@
         "UseAdminGroups" :
         {
             "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "SystemPrepAdminGroups" }, "" ] } ]
+        },
+        "UseCfnUrl" :
+        {
+            "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "CfnEndpointUrl" }, "" ] } ]
         },
         "InstallUpdates" :
         {
@@ -341,6 +352,7 @@
                     },
                     "Parameters" :
                     [
+                        "CfnEndpointUrl",
                         "CfnGetPipUrl",
                         "CfnBootstrapUtilsUrl",
                         "ToggleCfnInitUpdate"
@@ -451,6 +463,18 @@
                                             ""
                                         ]
                                     },
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "UseCfnUrl",
+                                            { "Fn::Join" : [ "", [
+                                                "url=",
+                                                { "Ref" : "CfnEndpointUrl" },
+                                                "\n"
+                                            ] ] },
+                                            ""
+                                        ]
+                                    },
                                     "interval=1", "\n",
                                     "verbose=true", "\n"
                                 ]]},
@@ -475,6 +499,17 @@
                                             { "Fn::Join" : [ "", [
                                                 " --role ",
                                                 { "Ref" : "InstanceRole" }
+                                            ] ] },
+                                            ""
+                                        ]
+                                    },
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "UseCfnUrl",
+                                            { "Fn::Join" : [ "", [
+                                                " --url ",
+                                                { "Ref" : "CfnEndpointUrl" }
                                             ] ] },
                                             ""
                                         ]
@@ -645,6 +680,17 @@
                                             { "Fn::Join" : [ "", [
                                                 " --role ",
                                                 { "Ref" : "InstanceRole" }
+                                            ] ] },
+                                            ""
+                                        ]
+                                    },
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "UseCfnUrl",
+                                            { "Fn::Join" : [ "", [
+                                                " --url ",
+                                                { "Ref" : "CfnEndpointUrl" }
                                             ] ] },
                                             ""
                                         ]
@@ -854,6 +900,16 @@
                                 ""
                             ]
                         },
+                        {
+                            "Fn::If" :
+                            [
+                                "UseCfnUrl",
+                                { "Fn::Join" : [ "", [
+                                    " --url ", { "Ref" : "CfnEndpointUrl" }
+                                ] ] },
+                                ""
+                            ]
+                        },
                         " --region ", { "Ref" : "AWS::Region" }, " ||",
                         " ( echo 'ERROR: cfn-init failed! Aborting!';",
                         " /opt/aws/bin/cfn-signal -e 1",
@@ -865,6 +921,16 @@
                                 "AssignInstanceRole",
                                 { "Fn::Join" : [ "", [
                                     " --role ", { "Ref" : "InstanceRole" }
+                                ] ] },
+                                ""
+                            ]
+                        },
+                        {
+                            "Fn::If" :
+                            [
+                                "UseCfnUrl",
+                                { "Fn::Join" : [ "", [
+                                    " --url ", { "Ref" : "CfnEndpointUrl" }
                                 ] ] },
                                 ""
                             ]

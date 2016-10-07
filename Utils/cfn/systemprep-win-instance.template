@@ -163,6 +163,13 @@
             "Type" : "String",
             "Default" : ""
         },
+        "CfnEndpointUrl" :
+        {
+            "Description" : "URL to the CloudFormation Endpoint. e.g. https://cloudformation.us-east-1.amazonaws.com",
+            "Type" : "String",
+            "Default" : "",
+            "AllowedPattern" : "^$|^http://.*$|^https://.*$"
+        },
         "ToggleCfnInitUpdate" :
         {
             "Description" : "A/B toggle that forces a change to instance metadata, triggering the cfn-init update sequence",
@@ -192,6 +199,10 @@
         "UseAdminGroups" :
         {
             "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "SystemPrepAdminGroups" }, "" ] } ]
+        },
+        "UseCfnUrl" :
+        {
+            "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "CfnEndpointUrl" }, "" ] } ]
         },
         "Reboot" :
         {
@@ -294,10 +305,11 @@
                 {
                     "Label" :
                     {
-                        "default" : "CloudFormation Stack Update Configuration"
+                        "default" : "CloudFormation Configuration"
                     },
                     "Parameters" :
                     [
+                        "CfnEndpointUrl",
                         "ToggleCfnInitUpdate"
                     ]
                 }
@@ -398,6 +410,18 @@
                                             ""
                                         ]
                                     },
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "UseCfnUrl",
+                                            { "Fn::Join" : [ "", [
+                                                "url=",
+                                                { "Ref" : "CfnEndpointUrl" },
+                                                "\n"
+                                            ] ] },
+                                            ""
+                                        ]
+                                    },
                                     "interval=1", "\n",
                                     "verbose=true", "\n"
                                 ]]}
@@ -419,6 +443,17 @@
                                             { "Fn::Join" : [ "", [
                                                 " --role ",
                                                 { "Ref" : "InstanceRole" }
+                                            ] ] },
+                                            ""
+                                        ]
+                                    },
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "UseCfnUrl",
+                                            { "Fn::Join" : [ "", [
+                                                " --url ",
+                                                { "Ref" : "CfnEndpointUrl" }
                                             ] ] },
                                             ""
                                         ]
@@ -609,6 +644,17 @@
                                             ""
                                         ]
                                     },
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "UseCfnUrl",
+                                            { "Fn::Join" : [ "", [
+                                                " --url ",
+                                                { "Ref" : "CfnEndpointUrl" }
+                                            ] ] },
+                                            ""
+                                        ]
+                                    },
                                     " --region ", { "Ref" : "AWS::Region"}, "\n"
                                 ]]},
                                 "ignoreErrors" : "true",
@@ -708,6 +754,16 @@
                                 ""
                             ]
                         },
+                        {
+                            "Fn::If" :
+                            [
+                                "UseCfnUrl",
+                                { "Fn::Join" : [ "", [
+                                    " --url ", { "Ref" : "CfnEndpointUrl" }
+                                ] ] },
+                                ""
+                            ]
+                        },
                         " --region ", { "Ref" : "AWS::Region" }, "\n",
 
                         "if %ERRORLEVEL% equ 0 goto success\n\n",
@@ -722,6 +778,16 @@
                                 "AssignInstanceRole",
                                 { "Fn::Join" : [ "", [
                                     " --role ", { "Ref" : "InstanceRole"}
+                                ] ] },
+                                ""
+                            ]
+                        },
+                        {
+                            "Fn::If" :
+                            [
+                                "UseCfnUrl",
+                                { "Fn::Join" : [ "", [
+                                    " --url ", { "Ref" : "CfnEndpointUrl" }
                                 ] ] },
                                 ""
                             ]
