@@ -840,6 +840,10 @@
 
                         "#!/bin/bash -xe\n\n",
 
+                        "# Export cert bundle ENVs\n",
+                        "export AWS_CA_BUNDLE=/etc/pki/tls/certs/ca-bundle.crt\n",
+                        "export REQUESTS_CA_BUNDLE=/etc/pki/tls/certs/ca-bundle.crt\n\n",
+
                         "# Get pip\n",
                         "curl --silent --show-error --retry 5 -L ",
                         { "Ref" : "CfnGetPipUrl" },
