@@ -180,6 +180,12 @@
             "Default" : "",
             "AllowedPattern" : "^$|^(OU=.+,)+(DC=.+)+$"
         },
+        "SystemPrepAdminGroups" :
+        {
+            "Description" : "Colon-separated list of domain groups that should have admin permissions on the EC2 instance",
+            "Type" : "String",
+            "Default" : ""
+        },
         "ToggleCfnInitUpdate" :
         {
             "Description" : "A/B toggle that forces a change to instance metadata, triggering the cfn-init update sequence",
@@ -205,6 +211,10 @@
         "UseOuPath" :
         {
             "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "SystemPrepOuPath" }, "" ] } ]
+        },
+        "UseAdminGroups" :
+        {
+            "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "SystemPrepAdminGroups" }, "" ] } ]
         },
         "InstallUpdates" :
         {
@@ -260,7 +270,8 @@
                     [
                         "SystemPrepBootstrapUrl",
                         "SystemPrepEnvironment",
-                        "SystemPrepOuPath"
+                        "SystemPrepOuPath",
+                        "SystemPrepAdminGroups"
                     ]
                 },
                 {
@@ -483,6 +494,18 @@
                                             ]]},
                                             ""
                                         ]
+                                    },
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "UseAdminGroups",
+                                            { "Fn::Join" : [ "", [
+                                                " --admingroups \"",
+                                                { "Ref" : "SystemPrepAdminGroups" },
+                                                "\""
+                                            ]]},
+                                            ""
+                                        ]
                                     }
                                 ]]}
                             }
@@ -508,6 +531,18 @@
                                             { "Fn::Join" : [ "", [
                                                 " --oupath \"",
                                                 { "Ref" : "SystemPrepOuPath" },
+                                                "\""
+                                            ]]},
+                                            ""
+                                        ]
+                                    },
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "UseAdminGroups",
+                                            { "Fn::Join" : [ "", [
+                                                " --admingroups \"",
+                                                { "Ref" : "SystemPrepAdminGroups" },
                                                 "\""
                                             ]]},
                                             ""
