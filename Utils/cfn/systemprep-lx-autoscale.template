@@ -110,6 +110,12 @@
                 "m4.xlarge"
             ]
         },
+        "InstanceRole" :
+        {
+            "Description" : "IAM instance role to apply to the instance(s)",
+            "Type" : "String",
+            "Default" : ""
+        },
         "MinCapacity" :
         {
             "Description" : "Minimum number of instances in the Autoscaling Group",
@@ -198,6 +204,33 @@
             "Default" : "",
             "AllowedPattern" : "^$|^(OU=.+,)+(DC=.+)+$"
         },
+        "SystemPrepAdminGroups" :
+        {
+            "Description" : "Colon-separated list of domain groups that should have admin permissions on the EC2 instance",
+            "Type" : "String",
+            "Default" : ""
+        },
+        "CfnEndpointUrl" :
+        {
+            "Description" : "URL to the CloudFormation Endpoint. e.g. https://cloudformation.us-east-1.amazonaws.com",
+            "Type" : "String",
+            "Default" : "",
+            "AllowedPattern" : "^$|^http://.*$|^https://.*$"
+        },
+        "CfnGetPipUrl" :
+        {
+            "Description" : "URL to get-pip.py",
+            "Type" : "String",
+            "Default" : "https://bootstrap.pypa.io/get-pip.py",
+            "AllowedPattern" : "^http://.*\\.py$|^https://.*\\.py$"
+        },
+        "CfnBootstrapUtilsUrl" :
+        {
+            "Description" : "URL to aws-cfn-bootstrap-latest.tar.gz",
+            "Type" : "String",
+            "Default" : "https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz",
+            "AllowedPattern" : "^http://.*\\tar\\.gz$|^https://.*\\.tar\\.gz$"
+        },
         "ToggleCfnInitUpdate" :
         {
             "Description" : "A/B toggle that forces a change to instance metadata, triggering the cfn-init update sequence",
@@ -235,6 +268,14 @@
         {
             "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "SystemPrepOuPath" }, "" ] } ]
         },
+        "UseAdminGroups" :
+        {
+            "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "SystemPrepAdminGroups" }, "" ] } ]
+        },
+        "UseCfnUrl" :
+        {
+            "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "CfnEndpointUrl" }, "" ] } ]
+        },
         "InstallUpdates" :
         {
             "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "NoUpdates" }, "true" ] } ]
@@ -242,6 +283,10 @@
         "Reboot" :
         {
             "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "NoReboot" }, "true" ] } ]
+        },
+        "AssignInstanceRole" :
+        {
+            "Fn::Not" : [ { "Fn::Equals" : [ { "Ref" : "InstanceRole" }, "" ] } ]
         },
         "AssignPublicIp" :
         {
@@ -273,6 +318,7 @@
                         "AmiId",
                         "AmiDistro",
                         "InstanceType",
+                        "InstanceRole",
                         "KeyPairName",
                         "NoPublicIp",
                         "NoReboot",
@@ -289,7 +335,8 @@
                     [
                         "SystemPrepBootstrapUrl",
                         "SystemPrepEnvironment",
-                        "SystemPrepOuPath"
+                        "SystemPrepOuPath",
+                        "SystemPrepAdminGroups"
                     ]
                 },
                 {
@@ -342,10 +389,13 @@
                 {
                     "Label" :
                     {
-                        "default" : "CloudFormation Stack Update Configuration"
+                        "default" : "CloudFormation Configuration"
                     },
                     "Parameters" :
                     [
+                        "CfnEndpointUrl",
+                        "CfnGetPipUrl",
+                        "CfnBootstrapUtilsUrl",
                         "ToggleCfnInitUpdate",
                         "ToggleNewInstances"
                     ]
@@ -478,6 +528,30 @@
                                     "[main]\n",
                                     "stack=", { "Ref" : "AWS::StackId" }, "\n",
                                     "region=", { "Ref" : "AWS::Region" }, "\n",
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "AssignInstanceRole",
+                                            { "Fn::Join" : [ "", [
+                                                "role=",
+                                                { "Ref" : "InstanceRole" },
+                                                "\n"
+                                            ] ] },
+                                            ""
+                                        ]
+                                    },
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "UseCfnUrl",
+                                            { "Fn::Join" : [ "", [
+                                                "url=",
+                                                { "Ref" : "CfnEndpointUrl" },
+                                                "\n"
+                                            ] ] },
+                                            ""
+                                        ]
+                                    },
                                     "interval=1", "\n",
                                     "verbose=true", "\n"
                                 ]]},
@@ -495,6 +569,28 @@
                                     "action=/opt/aws/bin/cfn-init -v -c update",
                                     " --stack ", { "Ref" : "AWS::StackName" },
                                     " --resource SystemPrepLaunchConfig",
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "AssignInstanceRole",
+                                            { "Fn::Join" : [ "", [
+                                                " --role ",
+                                                { "Ref" : "InstanceRole" }
+                                            ] ] },
+                                            ""
+                                        ]
+                                    },
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "UseCfnUrl",
+                                            { "Fn::Join" : [ "", [
+                                                " --url ",
+                                                { "Ref" : "CfnEndpointUrl" }
+                                            ] ] },
+                                            ""
+                                        ]
+                                    },
                                     " --region ", { "Ref" : "AWS::Region" }, "\n",
                                     "runas=root\n"
                                 ]]},
@@ -560,6 +656,18 @@
                                             ]]},
                                             ""
                                         ]
+                                    },
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "UseAdminGroups",
+                                            { "Fn::Join" : [ "", [
+                                                " --admingroups \"",
+                                                { "Ref" : "SystemPrepAdminGroups" },
+                                                "\""
+                                            ]]},
+                                            ""
+                                        ]
                                     }
                                 ]]}
                             }
@@ -585,6 +693,18 @@
                                             { "Fn::Join" : [ "", [
                                                 " --oupath \"",
                                                 { "Ref" : "SystemPrepOuPath" },
+                                                "\""
+                                            ]]},
+                                            ""
+                                        ]
+                                    },
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "UseAdminGroups",
+                                            { "Fn::Join" : [ "", [
+                                                " --admingroups \"",
+                                                { "Ref" : "SystemPrepAdminGroups" },
                                                 "\""
                                             ]]},
                                             ""
@@ -630,6 +750,28 @@
                                     "/opt/aws/bin/cfn-signal -e 0",
                                     " --stack ", { "Ref" : "AWS::StackName" },
                                     " --resource SystemPrepAutoScalingGroup",
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "AssignInstanceRole",
+                                            { "Fn::Join" : [ "", [
+                                                " --role ",
+                                                { "Ref" : "InstanceRole" }
+                                            ] ] },
+                                            ""
+                                        ]
+                                    },
+                                    {
+                                        "Fn::If" :
+                                        [
+                                            "UseCfnUrl",
+                                            { "Fn::Join" : [ "", [
+                                                " --url ",
+                                                { "Ref" : "CfnEndpointUrl" }
+                                            ] ] },
+                                            ""
+                                        ]
+                                    },
                                     " --region ", { "Ref" : "AWS::Region"}, "\n"
                                 ]]},
                                 "ignoreErrors" : "true"
@@ -652,6 +794,15 @@
             {
                 "ImageId" : { "Ref" : "AmiId" },
                 "InstanceType" : { "Ref" : "InstanceType" },
+                "IamInstanceProfile" :
+                {
+                    "Fn::If" :
+                    [
+                        "AssignInstanceRole",
+                        { "Ref" : "InstanceRole" },
+                        { "Ref" : "AWS::NoValue" }
+                    ]
+                },
                 "AssociatePublicIpAddress" :
                 {
                     "Fn::If" :
@@ -756,9 +907,13 @@
                         { "Ref" : "ToggleNewInstances" },
                         "\n\n",
 
+                        "# Export cert bundle ENVs\n",
+                        "export AWS_CA_BUNDLE=/etc/pki/tls/certs/ca-bundle.crt\n",
+                        "export REQUESTS_CA_BUNDLE=/etc/pki/tls/certs/ca-bundle.crt\n\n",
+
                         "# Get pip\n",
                         "curl --silent --show-error --retry 5 -L ",
-                        "https://bootstrap.pypa.io/get-pip.py",
+                        { "Ref" : "CfnGetPipUrl" },
                         " | python", "\n\n",
 
                         "# Add pip to path\n",
@@ -773,7 +928,9 @@
                         "pip install pyopenssl ndg-httpsclient pyasn1\n\n",
 
                         "# Get cfn utils\n",
-                        "pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n\n",
+                        "pip install ",
+                        { "Ref" : "CfnBootstrapUtilsUrl" },
+                        "\n\n",
 
                         "# Remove gcc now that it is no longer needed\n",
                         "yum -y remove gcc --setopt=clean_requirements_on_remove=1\n\n",
@@ -804,11 +961,51 @@
                         "/opt/aws/bin/cfn-init -v -c launch",
                         " --stack ", { "Ref" : "AWS::StackName" },
                         " --resource SystemPrepLaunchConfig",
+                        {
+                            "Fn::If" :
+                            [
+                                "AssignInstanceRole",
+                                { "Fn::Join" : [ "", [
+                                    " --role ", { "Ref" : "InstanceRole" }
+                                ] ] },
+                                ""
+                            ]
+                        },
+                        {
+                            "Fn::If" :
+                            [
+                                "UseCfnUrl",
+                                { "Fn::Join" : [ "", [
+                                    " --url ", { "Ref" : "CfnEndpointUrl" }
+                                ] ] },
+                                ""
+                            ]
+                        },
                         " --region ", { "Ref" : "AWS::Region" }, " ||",
                         " ( echo 'ERROR: cfn-init failed! Aborting!';",
                         " /opt/aws/bin/cfn-signal -e 1",
                         "  --stack ", { "Ref" : "AWS::StackName" },
                         "  --resource SystemPrepAutoScalingGroup",
+                        {
+                            "Fn::If" :
+                            [
+                                "AssignInstanceRole",
+                                { "Fn::Join" : [ "", [
+                                    " --role ", { "Ref" : "InstanceRole" }
+                                ] ] },
+                                ""
+                            ]
+                        },
+                        {
+                            "Fn::If" :
+                            [
+                                "UseCfnUrl",
+                                { "Fn::Join" : [ "", [
+                                    " --url ", { "Ref" : "CfnEndpointUrl" }
+                                ] ] },
+                                ""
+                            ]
+                        },
                         "  --region ", { "Ref" : "AWS::Region"}, ";",
                         " exit 1",
                         " )\n\n",
