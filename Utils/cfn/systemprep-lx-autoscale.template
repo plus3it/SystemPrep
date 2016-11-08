@@ -925,7 +925,7 @@
 
                         "# Fix python urllib3 warnings\n",
                         "yum -y install gcc python-devel libffi-devel openssl-devel\n",
-                        "pip install pyopenssl ndg-httpsclient pyasn1\n\n",
+                        "pip install --upgrade pyopenssl ndg-httpsclient pyasn1\n\n",
 
                         "# Get cfn utils\n",
                         "pip install ",
