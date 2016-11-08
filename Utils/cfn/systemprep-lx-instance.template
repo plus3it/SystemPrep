@@ -51,11 +51,11 @@
             "AllowedValues" :
             [
                 "",
-                "/dev/sdf",
-                "/dev/sdg",
-                "/dev/sdh",
-                "/dev/sdi",
-                "/dev/sdj"
+                "/dev/xvdf",
+                "/dev/xvdg",
+                "/dev/xvdh",
+                "/dev/xvdi",
+                "/dev/xvdj"
             ]
         },
         "AppVolumeMountPath" :
