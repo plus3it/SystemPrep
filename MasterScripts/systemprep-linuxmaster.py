@@ -16,7 +16,7 @@ Merge two dictionaries. If there is a key collision, `b` overrides `a`.
     :param b: Dictionary of override settings
     :rtype : dict
     """
-    
+
     try:
         a.update(b)
     except Exception as exc:
@@ -27,7 +27,7 @@ Merge two dictionaries. If there is a key collision, `b` overrides `a`.
                           '{1}\n\n'
                           'Exception: {2}'
                           .format(a, b, exc))
-    
+
     return a
 
 
@@ -50,18 +50,6 @@ Use `merge_dicts({yourdict}, scriptparams)` to merge command line parameters wit
                 'Parameters': merge_dicts({
                     'yumrepomap': [
                         {
-                            'url': 'https://s3.amazonaws.com/systemprep-repo/linux/yum.repos/systemprep-repo-amzn.repo',
-                            'dist': 'amazon',
-                        },
-                        {
-                            'url': 'https://s3.amazonaws.com/systemprep-repo/linux/yum.repos/systemprep-repo-centos.repo',
-                            'dist': 'centos',
-                        },
-                        {
-                            'url': 'https://s3.amazonaws.com/systemprep-repo/linux/yum.repos/systemprep-repo-rhel.repo',
-                            'dist': 'redhat',
-                        },
-                        {
                             'url': 'https://s3.amazonaws.com/systemprep-repo/linux/yum.repos/systemprep-repo-salt-el6.repo',
                             'dist': 'all',
                             'epel_version': '6',
@@ -74,7 +62,7 @@ Use `merge_dicts({yourdict}, scriptparams)` to merge command line parameters wit
                     ],
                 }, scriptparams)
             },
-            { 
+            {
                 'ScriptSource': "https://systemprep.s3.amazonaws.com/ContentScripts/SystemPrep-LinuxSaltInstall.py",
                 'Parameters': merge_dicts({
                     'saltinstallmethod': 'yum',
@@ -121,7 +109,7 @@ Use `merge_dicts({yourdict}, scriptparams)` to merge command line parameters wit
     else:
         #TODO: Update `except` logic
         raise SystemError('System, {0}, is not recognized?'.format(system))
-    
+
     return scriptstoexecute
 
 
@@ -151,7 +139,7 @@ Returns a dictionary of OS platform-specific parameters.
     :param system: str, the system type as returned by `platform.system`
     :rtype : dict
     """
-    
+
     a = {}
     workingdirprefix = 'systemprep-'
     if 'Linux' in system:
