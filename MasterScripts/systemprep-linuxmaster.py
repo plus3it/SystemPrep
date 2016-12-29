@@ -50,13 +50,28 @@ Use `merge_dicts({yourdict}, scriptparams)` to merge command line parameters wit
                 'Parameters': merge_dicts({
                     'yumrepomap': [
                         {
-                            'url': 'https://s3.amazonaws.com/systemprep-repo/linux/yum.repos/systemprep-repo-salt-el6.repo',
-                            'dist': 'all',
+                            'url': 'https://s3.amazonaws.com/systemprep-repo/linux/saltstack/salt/yum.repos/salt-reposync-amzn.repo',
+                            'dist': 'amazon',
                             'epel_version': '6',
                         },
                         {
-                            'url': 'https://s3.amazonaws.com/systemprep-repo/linux/yum.repos/systemprep-repo-salt-el7.repo',
-                            'dist': 'all',
+                            'url': 'https://s3.amazonaws.com/systemprep-repo/linux/saltstack/salt/yum.repos/salt-reposync-el6.repo',
+                            'dist': 'redhat',
+                            'epel_version': '6',
+                        },
+                        {
+                            'url': 'https://s3.amazonaws.com/systemprep-repo/linux/saltstack/salt/yum.repos/salt-reposync-el6.repo',
+                            'dist': 'centos',
+                            'epel_version': '6',
+                        },
+                        {
+                            'url': 'https://s3.amazonaws.com/systemprep-repo/linux/saltstack/salt/yum.repos/salt-reposync-el7.repo',
+                            'dist': 'redhat',
+                            'epel_version': '7',
+                        },
+                        {
+                            'url': 'https://s3.amazonaws.com/systemprep-repo/linux/saltstack/salt/yum.repos/salt-reposync-el7.repo',
+                            'dist': 'centos',
                             'epel_version': '7',
                         },
                     ],
