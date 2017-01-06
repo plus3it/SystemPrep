@@ -13,7 +13,7 @@ Param(
     ,
     $EntEnv = $false
     ,
-    $OuPath = $false
+    $OuPath = ''
     ,
     $ComputerName = $false
     ,
@@ -42,7 +42,7 @@ $ErrorActionPreference = "Stop"
 $SystemPrepParams = @{
     AshRole = "${AshRole}"
     EntEnv = ${EntEnv}
-    OuPath = ${OuPath}
+    OuPath = "$(${OuPath} -join ',')"
     ComputerName = ${ComputerName}
     AdminGroups = ${AdminGroups}
     AdminUsers = ${AdminUsers}
