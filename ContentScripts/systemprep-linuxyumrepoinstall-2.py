@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import json
 import re
 import shutil
 import sys
@@ -123,20 +124,22 @@ def main(yumrepomap=None,
     print('{0} complete!'.format(scriptname))
     print('-' * 80)
 
- def _convert_string_to_list_of_dicts(fixme):
-     # First, remove any parentheses or brackets
-     fixed = fixme.translate(None, '()[]')
-     # Then, split the string to form groups around {}
-     fixed = re.split('({.*?})', fixed)
-     # Now remove empty/bad strings
-     fixed = [v for v in filter(None, fixed) if not v == ', ']
-     # Remove braces and split on commas. it's now a list of lists
-     fixed = [v.translate(None, '{}').split(',') for v in fixed]
-     # Convert to a list of dicts
-     fixed = [dict(x.split(':', 1) for x in y) for y in fixed]
-     # Finally, strip whitespace around the keys and values
-     fixed = [dict((k.strip(), v.strip()) for k, v in x.items()) for x in fixed]
-     return fixed
+
+# def _convert_string_to_list_of_dicts(fixme):
+#     # First, remove any parentheses or brackets
+#     fixed = fixme.translate(None, '()[]')
+#     # Then, split the string to form groups around {}
+#     fixed = re.split('({.*?})', fixed)
+#     # Now remove empty/bad strings
+#     fixed = [v for v in filter(None, fixed) if not v == ', ']
+#     # Remove braces and split on commas. it's now a list of lists
+#     fixed = [v.translate(None, '{}').split(',') for v in fixed]
+#     # Convert to a list of dicts
+#     fixed = [dict(x.split(':', 1) for x in y) for y in fixed]
+#     # Finally, strip whitespace around the keys and values
+#     fixed = [dict((k.strip(), v.strip()) for k, v in x.items()) for x in fixed]
+#     return fixed
+
 
 if __name__ == "__main__":
     # Convert command line parameters of the form `param=value` to a dict
@@ -145,6 +148,5 @@ if __name__ == "__main__":
     kwargs = dict((k.lower(), v) for k, v in kwargs.items())
 
     # Need to convert a formatted string to a list of dicts,
-    kwargs['yumrepomap'] = _convert_string_to_list_of_dicts(  
-                                kwargs.get('yumrepomap', ''))
+    kwargs['yumrepomap'] = json.loads(kwargs.get('yumrepomap', ''))
     main(**kwargs)
